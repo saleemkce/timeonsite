@@ -1,0 +1,40 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Gallery</title>
+<script>
+function clickCounter() {
+    // if(typeof(Storage) !== "undefined") {
+    //     if (sessionStorage.clickcount) {
+    //         sessionStorage.clickcount = Number(sessionStorage.clickcount)+1;
+    //     } else {
+    //         sessionStorage.clickcount = 1;
+    //     }
+    //     document.getElementById("result").innerHTML = "You have clicked the button " + sessionStorage.clickcount + " time(s) in this session.";
+    // } else {
+    //     document.getElementById("result").innerHTML = "Sorry, your browser does not support web storage...";
+    // }
+}
+</script>
+</head>
+
+<body>
+<br/>
+<a href='index.html'>Home</a>
+<a href='gallery.html'>Gallery</a>
+<br/>
+<p><button onclick="clickCounter()" type="button">Click me!</button></p>
+<div id="result"></div>
+<p>Click the button to see the counter increase.</p>
+<p>Close the browser tab (or window), and try again, and the counter is reset.</p>
+<script src="js/TimeOnSiteTracker.js"></script>
+
+
+</body>
+
+</html>
+
+

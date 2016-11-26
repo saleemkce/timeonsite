@@ -1,0 +1,90 @@
+New tab session monitoring: on
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+TOS data won't be available because neither callback nor local stroage option given!
+Location: file:///C:/tests/test/test.html
+activity started at : Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+activity started at : Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+"2016-11-26T14:05:27.388Z"
+totalSpent : 0 in array: 0.001
+activity ends at Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+Please start activity before finishing it!
+activity started at : Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+"2016-11-26T14:05:27.391Z"
+totalSpent : 0 in array: 0.001
+activity ends at Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 0
+activity started at : Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+"2016-11-26T14:05:27.393Z"
+totalSpent : 0 in array: 0.001
+activity ends at Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+{"TOSId":498726282498,"TOSSessionKey":"14801691273713708254","URL":"file:///C:/tests/test/test.html","title":"TimeOnSiteTracker Tests","activityStart":"2016-11-26T14:05:27.393Z","activityEnd":"2016-11-26T14:05:27.395Z","activityDuration":0,"activityDurationTrackedBy":"second","trackingType":"activity","realTimeTracking":true}
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 0
+TOS data won't be available because neither callback nor local stroage option given!
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 0
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 1
+TOS data won't be available because neither callback nor local stroage option given!
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 2
+TOS data won't be available because neither callback nor local stroage option given!
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 3
+TOS data won't be available because neither callback nor local stroage option given!
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 3
+TOS data won't be available because neither callback nor local stroage option given!
+Time at page entry: Sat Nov 26 2016 19:35:27 GMT+0530 (India Standard Time)
+so far : 3
+TOS data won't be available because neither callback nor local stroage option given!
+Test: keys...
+["TOS_11_26_2016"]
+[]
+Todays date key found!
+<testsuite name="Mocha Tests" tests="29" failures="1" errors="1" skipped="0" timestamp="Sat, 26 Nov 2016 14:05:27 GMT" time="0.031">
+<testcase classname="TimeOnSiteTracker Tests" name="Check if TOS is loaded" time="0.002"/>
+<testcase classname="TimeOnSiteTracker Tests" name="Check if TOS methods are present" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="Check if getTimeOnPage function has all required params" time="0.004"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if arrayAggregate method works" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if getTimeDiff method works" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if createTOSId method works" time="0.001"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if getTOSSessionKey method works and session key be of type string" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if createTOSSessionKey method works and session key is new" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if checkBlacklistUrl method works: URL blacklisted" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if checkBlacklistUrl method works: URL not blacklisted" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if getPageData method works" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if mergeCustomData method works" time="0.001"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if setCustomData method works" time="0"/>
+<testcase classname="TimeOnSiteTracker Tests" name="check if unsetCustomData method works" time="0"/>
+<testcase classname="Activity tracking Tests" name="check if resetActivity method works" time="0.001"/>
+<testcase classname="Activity tracking Tests" name="check if startActivity method works" time="0"/>
+<testcase classname="Activity tracking Tests" name="check if startActivity works with data" time="0.001"/>
+<testcase classname="Activity tracking Tests" name="check if endActivity method works" time="0.001"/>
+<testcase classname="Activity tracking Tests" name="check if endActivity method works with data" time="0.002"/>
+<testcase classname="Activity tracking Tests" name="check if endActivity method works with data with callback" time="0.003"><failure>NETWORK_ERR: XMLHttpRequest Exception 101
+send@[native code]
+callback@file:///C:/tests/test/test.js:362:33
+processActivityData@file:///C:/tests/public/js/TimeOnSiteTracker.js:374:22
+endActivity@file:///C:/tests/public/js/TimeOnSiteTracker.js:360:37
+file:///C:/tests/test/test.js:375:24
+callFn@file:///C:/tests/node_modules/mocha/mocha.js:4447:25
+run@file:///C:/tests/node_modules/mocha/mocha.js:4439:13
+runTest@file:///C:/tests/node_modules/mocha/mocha.js:4936:13
+file:///C:/tests/node_modules/mocha/mocha.js:5042:19
+next@file:///C:/tests/node_modules/mocha/mocha.js:4853:16
+file:///C:/tests/node_modules/mocha/mocha.js:4863:11
+next@file:///C:/tests/node_modules/mocha/mocha.js:4787:16
+file:///C:/tests/node_modules/mocha/mocha.js:4831:9
+timeslice@file:///C:/tests/node_modules/mocha/mocha.js:82:27</failure></testcase>
+<testcase classname="TimeOnSiteTracker with configuration Tests" name="Initialize TimeOnSiteTracker without configuration" time="0.001"/>
+<testcase classname="TimeOnSiteTracker with configuration Tests" name="Initialize TimeOnSiteTracker with callback param" time="0.001"/>
+<testcase classname="TimeOnSiteTracker with configuration Tests" name="Initialize TimeOnSiteTracker with trackBy param" time="0.001"/>
+<testcase classname="TimeOnSiteTracker with configuration Tests" name="Initialize TimeOnSiteTracker with blacklistUrl param with current URL" time="0.002"/>
+<testcase classname="TimeOnSiteTracker with configuration Tests" name="Initialize TimeOnSiteTracker with trackHashBasedRouting param" time="0.001"/>
+<testcase classname="TimeOnSiteTracker with localstorage" name="Check if localstorage saveToLocalStorage method works" time="0"/>
+<testcase classname="TimeOnSiteTracker with localstorage" name="Check if localstorage getDateKeys method works" time="0.001"/>
+<testcase classname="TimeOnSiteTracker with localstorage" name="Check if localstorage removeDateKey method works" time="0"/>
+<testcase classname="TimeOnSiteTracker with localstorage" name="Check if localstorage processDataInLocalStorage method works" time="0"/>
+</testsuite>

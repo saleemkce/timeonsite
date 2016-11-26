@@ -1,0 +1,82 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Contact</title>
+<script>
+// function clickCounter() {
+//     if(typeof(Storage) !== "undefined") {
+//         if (sessionStorage.clickcount) {
+//             sessionStorage.clickcount = Number(sessionStorage.clickcount)+1;
+//         } else {
+//             sessionStorage.clickcount = 1;
+//         }
+//         document.getElementById("result").innerHTML = "You have clicked the button " + sessionStorage.clickcount + " time(s) in this session.";
+//     } else {
+//         document.getElementById("result").innerHTML = "Sorry, your browser does not support web storage...";
+//     }
+// }
+
+
+
+
+// transfers sessionStorage from one tab to another
+// sessionStorage.setItem('a', 'data');
+
+// var sessionStorage_transfer = function(event) {alert('inside...');
+//   if(!event) { event = window.event; } // ie suq
+//   if(!event.newValue) return;          // do nothing if no value to work with
+//   if (event.key == 'getSessionStorage') {
+//     // another tab asked for the sessionStorage -> send it
+//     localStorage.setItem('sessionStorage', JSON.stringify(sessionStorage));
+//     // the other tab should now have it, so we're done with it.
+//     localStorage.removeItem('sessionStorage'); // <- could do short timeout as well.
+//   } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
+//     // another tab sent data <- get it
+//     var data = JSON.parse(event.newValue);
+//     for (var key in data) {
+//       sessionStorage.setItem(key, data[key]);
+//     }
+//   }
+// };
+
+// // listen for changes to localStorage
+// if(window.addEventListener) {
+//     //window.attachEvent("storage", sessionStorage_transfer, false);
+//   window.addEventListener("storage", sessionStorage_transfer, false);
+// } else {
+//   //window.attachEvent("onstorage", sessionStorage_transfer);
+//   window.addEventListener("onstorage", sessionStorage_transfer);
+// };
+
+
+// // Ask other tabs for session storage (this is ONLY to trigger event)
+// if (!sessionStorage.length) {alert('gets here...');
+//   localStorage.setItem('getSessionStorage', 'foobar');
+//   localStorage.removeItem('getSessionStorage', 'foobar');
+// };
+
+
+</script>
+</head>
+
+<body>
+<br/>
+<a href='gallery.html'>gallery</a>
+<a href='about.html'>about</a>
+<a href='contact.html'>contact</a>
+<br/>
+<p><button onclick="clickCounter()" type="button">Click me!</button></p>
+<div id="result"></div>
+<p>Click the button to see the counter increase.</p>
+<p>Close the browser tab (or window), and try again, and the counter is reset.</p>
+<script src="js/TimeOnSiteTracker.js"></script>
+
+
+</body>
+
+</html>
+
+

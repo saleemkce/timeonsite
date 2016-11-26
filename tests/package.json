@@ -1,0 +1,14 @@
+{
+  "name": "MochaTest",
+  "version": "0.0.1",
+  "dependencies": {
+    "body-parser": "^1.13.2",
+    "express": "^4.14.0",
+    
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "grunt": "^1.0.1",
+    "grunt-mocha-phantomjs": "^4.0.0"
+  }
+}

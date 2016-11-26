@@ -1,0 +1,64 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Title of the document</title>
+</head>
+
+<body>
+Content of the document......
+<br/>
+<a target ='_blank' href='http://www.example.com'>EXAMPLE</a>
+<br/>
+<a href='http://www.example.com'>Now</a>
+
+<a href='index.html#abcIndio'>anchor tag with # change</a>
+
+<script>
+// var http = new XMLHttpRequest();
+// var url = "http://localhost:4500/data/tos";
+// var params = "lorem=ipsum&name=binny";
+// http.open("POST", url, true);
+
+// //Send the proper header information along with the request
+// http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+// http.onreadystatechange = function() {//Call a function when the state changes.
+//     if(http.readyState == 4 && http.status == 200) {
+//         console.log(http.responseText);
+//     }
+// }
+// http.send(params);
+
+
+
+var arr = [{"TOSId":2222385744945,"TOSSessionKey":"14796343087657643448","URL":"file:///C:/Users/skhan/Desktop/tests/time.html","title":"Title of the document","entryTime":"2016-11-20T14:03:36.333Z","currentTime":"2016-11-20T14:03:46.561Z","timeOnPage":10,"timeOnPageTrackedBy":"second","timeOnSite":14187,"exitTime":"2016-11-20T14:03:46.561Z"},
+{"TOSId":3332385744945,"TOSSessionKey":"14796343087657643448","URL":"file:///C:/Users/skhan/Desktop/tests/time.html","title":"Title of the document","entryTime":"2016-11-20T14:03:36.333Z","currentTime":"2016-11-20T14:03:46.561Z","timeOnPage":10,"timeOnPageTrackedBy":"second","timeOnSite":14187,"exitTime":"2016-11-20T14:03:46.561Z"},
+{"TOSId":4442385744945,"TOSSessionKey":"14796343087657643448","URL":"file:///C:/Users/skhan/Desktop/tests/time.html","title":"Title of the document","entryTime":"2016-11-20T14:03:36.333Z","currentTime":"2016-11-20T14:03:46.561Z","timeOnPage":10,"timeOnPageTrackedBy":"second","timeOnSite":14187,"exitTime":"2016-11-20T14:03:46.561Z"},
+{"TOSId":5552385744945,"TOSSessionKey":"14796343087657643448","URL":"file:///C:/Users/skhan/Desktop/tests/time.html","title":"Title of the document","entryTime":"2016-11-20T14:03:36.333Z","currentTime":"2016-11-20T14:03:46.561Z","timeOnPage":10,"timeOnPageTrackedBy":"second","timeOnSite":14187,"exitTime":"2016-11-20T14:03:46.561Z"}];
+
+var str = [];
+for(var i = 1; i < 10; i++) {
+	str[i] = 'TOS_' + 3 + '_' + i + '_' + (new Date()).getFullYear();
+}
+
+var whole = [];
+
+for(var i = 1; i < 10; i++) {
+	localStorage.setItem(str[i], JSON.stringify(arr));
+	whole.push("TOS_3_"+i+"_2016")
+}
+var d = new Date();
+var today = "TOS_"+ (d.getMonth() + 1) +'_'+d.getDate()+'_'+d.getFullYear();
+localStorage.setItem(today, JSON.stringify(arr));
+whole.push(today);
+
+localStorage.setItem('TimeOnSiteDateKeys', JSON.stringify(whole));
+
+</script>
+
+</body>
+
+</html>
