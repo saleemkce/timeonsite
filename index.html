@@ -23,7 +23,15 @@
 
         <p class="view"><a href="https://github.com/saleemkce/timeonsite">View the Project on GitHub <small>saleemkce/timeonsite</small></a></p>
 
-        <p><a href="#">v1.0.0</a></p>
+        <p><a href="v1/index.html">v1.0.0</a></p>
+
+        <ul>
+          <li><a href="#what-is-timeOnSite-tracker">What is TOS?</a></li>
+          <li><a href="#getting-started">Getting Started</a></li>
+          <li><a href="#getting-current-TOS-data">Getting current TOS</a></li>
+
+          <!-- <li><a href="https://github.com/saleemkce/timeonsite">View On <strong>GitHub</strong></a></li> -->
+        </ul>
 
         <ul>
           <li><a href="https://github.com/saleemkce/timeonsite/zipball/master">Download <strong>ZIP File</strong></a></li>
@@ -37,16 +45,16 @@
 
 <p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p> -->
 
-<h3>What is TimeOnSite(TOS) Tracker?</h3>
+<h3 id="what-is-timeOnSite-tracker">What is TimeOnSite(TOS) Tracker?</h3>
 <p>
   TimeOnSite(TOS) tracker is a Javascript snippet that when included in a website will track how much time user spent in the site. The goal of the project is to find time spent by user in individual pages and session as a whole.
 </p>
 
-<h3>Getting Started!</h3>
+<h3 id="getting-started">Getting Started!</h3>
 <p>Include the <strong>TimeOnSiteTracker.min.js</strong> in your site, like</p>
 <pre class="prettyprint lang-js">
 &lt;head&gt; 
-    &lt;script src=&quot;TimeOnSiteTracker.js&quot;&gt;&lt;/script&gt; 
+    &lt;script src=&quot;TimeOnSiteTracker.min.js&quot;&gt;&lt;/script&gt; 
 &lt;/head&gt;
 </pre>
 
@@ -66,25 +74,100 @@ var Tos = new TimeOnSiteTracker(config);
 
 <p>Just stay in the page for a few seconds. Then, close the browser tab. If you could see a window popping up and look in the address bar of popped window. If you could see query string containing TOS data, hooray! your TOS tracking is successful, I mean, the TimeOnSiteTracker is correctly integrated in your site!</p>
 
-<h3>Getting Current TOS data</h3>
-<p>You could call Tos anytime in the page by simple accessing <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> API</p>
+<a href="#getting-current-TOS-data"><h3 id="getting-current-TOS-data">Getting Current TOS data</h3></a>
+<p>You could call Tos anytime in the page by simple accessing <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> API in console.</p>
 <pre class="prettyprint lang-js">
 // It's assumed you correctly initialzed Tos in the page as, var Tos = new TimeOnSite();
 Tos.getTimeOnPage();
     //Response ->
     {
-        TOSId:512005429078,
-        URL:"http://tos-localdata.chennai/home.php",
-        currentTime:"2016-11-15T05:23:48.534Z",
-        entryTime:"2016-11-15T05:23:28.734Z",
-        timeOnPage:20,
-        timeOnPageTrackedBy:"second",
-        title:"Title of the document"
+        TOSId: 1129620185532,
+        TOSSessionKey: "14802525481391382263",
+        URL: "http://tos-localdata.chennai/home.php",
+        currentTime: "2016-11-27T13:17:31.242Z",
+        entryTime: "2016-11-27T13:15:48.136Z",
+        timeOnPage: 103,
+        timeOnPageByDuration: "0d 00h 01m 43s",
+        timeOnPageTrackedBy: "second",
+        timeOnSite: 0,
+        timeOnSiteByDuration: "0d 00h 00m 00s",
+        title: "Test application - TimeOnSiteTracker",
+        trackingType: "tos"
     }
 </pre>
-<br/>
 
-<h3>TOS configuration option</h3>
+<p>
+    <table id="TOSTable">
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>TOSId</td>
+            <td>Integer</td>
+            <td>unique TOS id that is created when Tos.getTimeOnPage() is called</td>
+        </tr>
+        <tr>
+            <td>TOSSessionKey</td>
+            <td>String</td>
+            <td>It tracks particular user session. If user clicks 5 different pages in the same site, then all TOSSessionKey will refer to same session</td>
+        </tr>
+        <tr>
+            <td>title</td>
+            <td>String</td>
+            <td>Title of the web page</td>
+        </tr>
+        <tr>
+            <td>URL</td>
+            <td>String</td>
+            <td>Page URL</td>
+        </tr>
+        <tr>
+            <td>currentTime</td>
+            <td>String</td>
+            <td>It refers to time when Tos.getTimeOnPage() is called</td>
+        </tr>
+        <tr>
+            <td>entryTime</td>
+            <td>String</td>
+            <td>The time when user enters the site and TOS Tracker is initialized</td>
+        </tr>
+        <tr>
+            <td>timeOnPage</td>
+            <td>Integer</td>
+            <td>Time spent by user in current page</td>
+        </tr>
+        <tr>
+            <td>timeOnPageByDuration</td>
+            <td>String</td>
+            <td>Time duration in more readable format</td>
+        </tr>
+        <tr>
+            <td>timeOnPageTrackedBy</td>
+            <td>String</td>
+            <td>It denotes whether page is being tracked by "second" or "millisecond"</td>
+        </tr>
+        <tr>
+            <td>timeOnSite</td>
+            <td>Integer</td>
+            <td>Time spent by user in the session(sum of TimeOnPage(TOP))</td>
+        </tr>
+        <tr>
+            <td>timeOnSiteByDuration</td>
+            <td>String</td>
+            <td>Time duration in more readable format (sum of TimeOnPage(TOP))</td>
+        </tr>
+       
+        <tr>
+            <td>trackingType</td>
+            <td>String</td>
+            <td>It can be "tos" or "activity" which refers to either time on site tracking or activity tracking</td>
+        </tr>
+    </table>
+</p>
+
+<h3 id="TOS-configuration-option">TOS configuration option</h3>
 <p>When initializing TimeOnSiteTracker.js in your site, the first parameter requires a
 "config" parameter which is optional and which controls the way TOS data is tracked.
 For example, look at the following option.
@@ -114,7 +197,7 @@ var Tos = new TimeOnSiteTracker(config);
 </p>
 
 
-<h3>Seconds option</h3>
+<h3 id="seconds-option">Seconds option</h3>
 <p>To caputre all TOS data in seconds format instead of milliseconds, give the "trackBy" option as given below:</p>
 <pre class="prettyprint lang-js">
 // use call back data "time on site" data
@@ -128,7 +211,7 @@ var Tos = new TimeOnSiteTracker(config);
 </pre>
 
 
-<h3>Blacklisting URL from getting tracked</h3>
+<h3 id=">blacklisting-URL-from-getting-tracked">Blacklisting URL from getting tracked</h3>
 <p>You may want to block specifc page from getting tracked. For this,
 you need to give "blacklistUrl" parameter,<br/>
 <pre class="prettyprint lang-js">
@@ -145,7 +228,7 @@ var Tos = new TimeOnSiteTracker(config);
 </pre>
 </p>
 
-<h3>Setting custom data</h3>
+<h3 id="setting-custom-data">Setting custom data</h3>
 <p>
     When implementing TOS in your website or appliation, you may want to track additional details along with TOS data. For example, you see "timeOnPage", "URL", "title" etc. in the object returned by TOS on page close. What if you want to set userId, userName, userType or userActivity? This is where <code><span class="apiHighlight">Tos.setCustomData()</span></code> API comes into action. It helps you track additional data in your webpage. Look at the example given below,
 
@@ -159,7 +242,7 @@ var custom = {
 Tos.setCustomData(custom); //before the page is closed, this data is appended to TOS result.
 </pre>
 
-<h3>Unsetting custom data</h3>
+<h3 id="unsetting-custom-data">Unsetting custom data</h3>
 <p>To remove the custom data already set, simply call <code><span class="apiHighlight">Tos.unsetCustomData()</span></code> API and you are done. It will only remove any custom data set by you.</p>
 
 Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code>, you could see this custom data along with usual TOS data
@@ -167,13 +250,18 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
 <pre class="prettyprint lang-js">
 //Response ->
 {
-    TOSId:512005429078,
-    URL:"http://tos-localdata.chennai/home.php",
-    currentTime:"2016-11-15T05:23:48.534Z",
-    entryTime:"2016-11-15T05:23:28.734Z",
-    timeOnPage:20,
-    timeOnPageTrackedBy:"second",
-    title:"Title of the document",
+    TOSId: 1129620185532,
+    TOSSessionKey: "14802525481391382263",
+    URL: "http://tos-localdata.chennai/home.php",
+    currentTime: "2016-11-27T13:17:31.242Z",
+    entryTime: "2016-11-27T13:15:48.136Z",
+    timeOnPage: 103,
+    timeOnPageByDuration: "0d 00h 01m 43s",
+    timeOnPageTrackedBy: "second",
+    timeOnSite: 0,
+    timeOnSiteByDuration: "0d 00h 00m 00s",
+    title: "Test application - TimeOnSiteTracker",
+    trackingType: "tos"
 
     //custom data added to TOS response. It would be saved to DB on page close. Wow!
     userId: u23842238924,
@@ -186,7 +274,7 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
 
 
 
-<h3>Saving data to local storage for performance</h3>
+<h3 id="saving-data-to-local-storage-for-performance">Saving data to local storage for performance</h3>
 <p>When you give callback, TimeOnSiteTracker tries to send data immediately on page/tab close.  Since it makes a HTTP request at this point and it is synchronous, it slows down the tab close action otherwise the navigation would be a bit slower. But, this is real-time tracking.  On the other hand, if you give local storage option, data is saved to local storage and processed later. This won't be real-time but it doesn't affect user's site navigation.</p>
 
 <pre class="prettyprint lang-js">
@@ -206,7 +294,7 @@ var Tos = new TimeOnSiteTracker(config);
 
 
 <h2>Additional Features of TimeOnSiteTracker</h2>
-<h3>Activity Tracking</h3>
+<h3 id="activity-tracking">Activity Tracking</h3>
 <p>
 TimeOnSiteTracker also helps you track a particular interaction or activity in the site. The goal of this feature is to capture time taken by the user to complete the activity. You have to manually trigger <code><span class="apiHighlight">Tos.startActivity()</span></code> 
 and 
@@ -231,13 +319,16 @@ Tos.endActivity();
 
 Gives response as,
 {
-    TOSId: 2096882018, 
-    URL: "http://tos-localdata.chennai/home.php", 
-    title: "Title of the document", 
-    activityStart: "2016-11-10T10:05:56.893Z", 
-    activityEnd: "2016-11-10T10:06:02.856Z",
-    activityDuration: 6,
-    activityDurationTrackedBy: "second",
+    TOSId: 585872449448
+    TOSSessionKey: "14802525481391382263"
+    URL: "http://tos-localdata.chennai/home.php"
+    activityDuration:4
+    activityDurationTrackedBy: "second"
+    activityEnd: "2016-11-27T13:20:50.213Z"
+    activityStart: "2016-11-27T13:20:46.707Z"
+    realTimeTracking: true
+    title: "Test application - TimeOnSiteTracker"
+    trackingType: "activity"
 }
 </pre>
 
@@ -258,7 +349,67 @@ var activityData = Tos.endActivity();
 </pre>
 </p>
 
-<h3>Real-time Tracking Example</h3>
+<p>
+    <table id="TOSTable">
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>TOSId</td>
+            <td>Integer</td>
+            <td>unique TOS id that is created when Tos.getTimeOnPage() is called</td>
+        </tr>
+        <tr>
+            <td>TOSSessionKey</td>
+            <td>String</td>
+            <td>It tracks particular user session. If user clicks 5 different pages in the same site, then all TOSSessionKey will refer to same session</td>
+        </tr>
+        <tr>
+            <td>title</td>
+            <td>String</td>
+            <td>Title of the web page</td>
+        </tr>
+        <tr>
+            <td>URL</td>
+            <td>String</td>
+            <td>Page URL</td>
+        </tr>
+        <tr>
+            <td>activityDuration</td>
+            <td>Integer</td>
+            <td>The time duration it takes for user to complete the activity/interaction</td>
+        </tr>
+        <tr>
+            <td>activityDurationTrackedBy</td>
+            <td>String</td>
+            <td>sec or milli</td>
+        </tr>
+        <tr>
+            <td>activityStart</td>
+            <td>String</td>
+            <td>The time when user starts the activity</td>
+        </tr>
+        <tr>
+            <td>activityEnd</td>
+            <td>String</td>
+            <td>The time when user finishes the activity</td>
+        </tr>
+        <!-- <tr>
+            <td>realTimeTracking</td>
+            <td>Boolean</td>
+            <td>It denotes that TimeOnSiteTracker has utilized real-time and not local storage option</td>
+        </tr> -->
+        <tr>
+            <td>trackingType</td>
+            <td>String</td>
+            <td>It can be "tos" or "activity" which refers to either time on site tracking or activity tracking</td>
+        </tr>
+    </table>
+</p>
+
+<h3 id="real-time-tracking-example">Real-time Tracking Example</h3>
 <pre class="prettyprint lang-js">
 // save with XMLHttpRequest or sendBeacon
 var config = {
@@ -317,7 +468,7 @@ var Tos = new TimeOnSiteTracker(config);
 </pre>
 
 <p>
-    <h3>Code explained:</h3>
+    <h3 id="code-explained">Code explained:</h3>
     Since this is real-time tracking, we don't specify local storage option. We denote this  as real-time by giving "callback" option. Since code is simple and self-explanatory, we only explain the high-level details here.
 
     <pre class="prettyprint lang-js">
@@ -336,7 +487,7 @@ var Tos = new TimeOnSiteTracker(config);
     In sendBeacon's else loop, you could see this. If sendBeacon() API is not supported by browser, we use normal XMLHTTPRequest to send data
     syncronously to server. Note the 3rd parameter "false" which is responsible for sending data to server before page gets closed.
 
-    <h3>TOS real-time - Key considerations</h3>
+    <h3 id="TOS-real-time-key-considerations">TOS real-time - Key considerations</h3>
     <p>
         <ul>
             <li>Your endpoint URL API shouldn't have any downntime unless you really know 
