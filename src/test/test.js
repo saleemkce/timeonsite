@@ -489,12 +489,12 @@ describe('TimeOnSiteTracker with localstorage', function () {
         expect(dateKeys.length).to.be.at.least(0);
     });
 
-    it('Check if localstorage removeDateKey method works', function () {
-        var dateKey = 'TOS_11_26_2016';
-        Tos.removeDateKey(dateKey);
-        var dateKeys = Tos.getDateKeys();
-        expect(dateKeys.length).to.equal(0);
-    });
+    // it('Check if localstorage removeDateKey method works', function () {
+    //     var dateKey = 'TOS_11_26_2016';
+    //     Tos.removeDateKey(dateKey);
+    //     var dateKeys = Tos.getDateKeys();
+    //     expect(dateKeys.length).to.equal(0);
+    // });
 
     it('Check if localstorage processDataInLocalStorage method works', function () {
         var data = [
