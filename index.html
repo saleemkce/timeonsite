@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
+    <link rel="stylesheet" href="stylesheets/sunburst.css">
     <meta name="viewport" content="width=device-width">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -15,7 +16,7 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>TimeonsiteTracker</h1>
+        <h1>TimeonsiteTracker (TOS)</h1>
         <p></p>
 
         <p class="view"><a href="https://github.com/saleemkce/timeonsite">View the Project on GitHub <small>saleemkce/timeonsite</small></a></p>
@@ -33,7 +34,175 @@
 
 <p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p>
 
-<h3>
+<h3>What is TimeOnSite(TOS) Tracker?</h3>
+<p>
+  TimeOnSite(TOS) tracker is a Javascript snippet that when included in a website will track how much time user stayed in the site. The goal of the project is to find time spent by user in individual pages and session as a whole.
+</p>
+
+<h3>Getting Started!</h3>
+<p>Include the TimeOnSiteTracker.js in your site, like</p>
+<pre class="prettyprint lang-js">
+&lt;head&gt; 
+    &lt;script src=&quot;TimeOnSiteTracker.js&quot;&gt;&lt;/script&gt; 
+&lt;/head&gt;
+</pre>
+
+<p>Then, in HTML body inlcude this script as,</p>
+<pre class="prettyprint lang-js">
+var config = {
+  callback: function(data) {  // if you give callback, it becomes real-time tracking
+    window.open('http://www.example.com?'+JSON.stringify(data), 'hi', 'height=200,width=200');
+  }};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+<p>
+  <bold>Note 1:</bold>Allow pop-ups in browser settings, otherwise you won't see pop up window contianing TOS data in browser. Try open this page where you included TimeOnSiteTracker 2 or 3 times and see if it asks you to allow pop-up. In that case, just allow to see.<br/>
+<bold>Note 2</bold>: Time on page and Time on site are captured in milliseconds (Javascript's Date function) by default.
+</p>
+
+<p>Just stay in the page for a few seconds. Then, close the browser tab. If you could see a window popping up and look in the address bar of popped window. If you could see query string containing TOS data, hooray! your TOS tracking is successful, I mean, the TimeOnSiteTracker is correctly integrated in your site!</p>
+
+<h3>Getting Current TOS data</h3>
+<p>You could call Tos anytime in the page by simple accessing getTimeOnPage API</p>
+<pre class="prettyprint lang-js">
+// It's assumed you correctly initialzed Tos in the page as, var Tos = new TimeOnSite();
+Tos.getTimeOnPage();
+    //Response ->
+    {
+        TOSId:512005429078,
+        URL:"http://tos-localdata.chennai/home.php",
+        currentTime:"2016-11-15T05:23:48.534Z",
+        entryTime:"2016-11-15T05:23:28.734Z",
+        timeOnPage:20,
+        timeOnPageTrackedBy:"second",
+        title:"Title of the document"
+    }
+</pre>
+<br/>
+
+<h3>TOS configuration option</h3>
+<p>When initializing TimeOnSiteTracker.js in your site, the first parameter requires a
+"config" parameter which is optional and which controls the way TOS data is tracked.
+For example, look at the following option.
+<pre class="prettyprint lang-js">
+var config = {
+    
+    // track page by seconds. Default tracking is by milliseconds
+    trackBy: 'seconds',
+
+    // pages to blacklist; give URLs in arrary eg. ['URL1', 'URL2', 'URL3']
+    blacklistUrl: ['http://tos-localdata.chennai/blog/id/1'],
+
+    //this parameter helps track single-page apps
+    trackHashBasedRouting: true, 
+
+    //save to local storage. If you give callback along with this option, callback will take precedence
+    storeInLocalStorage: true,
+
+    // if you give callback, it becomes real-time tracking because data is sent to server immediately on page close
+    callback: function(data) {
+        window.open('http://www.example.com', 'hi', 'height=200,width=200');
+}};
+
+// this is just for illustration, give only the options that you need.
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+</p>
+
+
+<h3>Seconds option</h3>
+<p>To caputre all TOS data in seconds format instead of milliseconds, give the "trackBy" option as given below:</p>
+<pre class="prettyprint lang-js">
+// use call back data "time on site" data
+var config = {
+    trackBy: 'seconds', 
+    callback: function(data) {  // if you give callback, it becomes real-time tracking
+    console.log(data);
+    // give your end-point URL to save data to DB
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+
+<h3>Blacklisting URL from getting tracked</h3>
+<p>You may want to block specifc page from getting tracked. For this,
+you need to give "blacklistUrl" parameter,<br/>
+<pre class="prettyprint lang-js">
+var config = {
+    trackBy: 'seconds',
+    blacklistUrl: ['http://tos-localdata.chennai/home.php'], // pages to blacklist; give 
+    //URLs in arrary eg. ['URL1', 'URL2', 'URL3']
+
+    callback: function(data) { // if you give callback, it becomes real-time tracking
+        console.log(data);
+
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+</p>
+
+<h3>Setting custom data</h3>
+<p>
+    When implementing TOS in your website or appliation, you may want to track additional details along with TOS data. For example, you see "timeOnPage", "URL", "title" etc. in the object returned by TOS on page close. What if you want to set userId, userName, userType or userActivity? This is where Tos.setCustomData() API comes into action. It helps you track additional data in your webpage. Look at the example given below,
+
+<pre class="prettyprint lang-js">
+//Setting custom data for TOS tracking
+var custom = {
+    userId: u23842238924,
+    userName: Khan, 
+    actions: ['view', 'audio-start', 'read']
+};
+Tos.setCustomData(custom); //before the page is closed, this data is appended to TOS result.
+</pre>
+
+<h3>Unsetting custom data</h3>
+<p>To remove the custom data already set, simply call Tos.unsetCustomData() API and you are done. It will only remove any custom data set by you.</p>
+
+Now if you call Tos.getTimeOnPage(), you could see this custom data along with usual TOS data
+
+<pre class="prettyprint lang-js">
+//Response ->
+{
+    TOSId:512005429078,
+    URL:"http://tos-localdata.chennai/home.php",
+    currentTime:"2016-11-15T05:23:48.534Z",
+    entryTime:"2016-11-15T05:23:28.734Z",
+    timeOnPage:20,
+    timeOnPageTrackedBy:"second",
+    title:"Title of the document",
+
+    //custom data added to TOS response. It would be saved to DB on page close. Wow!
+    userId: u23842238924,
+    userName: Khan, 
+    actions: ['view', 'audio-start', 'read']
+}
+</pre>
+</p>
+
+
+
+
+<h3>Saving data to local storage for performance</h3>
+<p>When you give callback, TimeOnSiteTracker tries to send data immediately on page/tab close.  Since it makes a HTTP request at this point and it is synchronous, it slows down the tab close action otherwise the navigation would be a bit slower. But, this is real-time tracking.  On the other hand, if you give local storage option, data is saved to local storage and processed later. This won't be real-time but it doesn't affect user's site navigation.</p>
+
+<pre class="prettyprint lang-js">
+// save to local storage; don't give callback when saving to local storage
+var config = {
+    trackBy: 'seconds',
+    storeInLocalStorage: true,
+    request: {
+        url: 'http://localhost:4500/data/tos', //your endpoint URL to which data would be sent via POST method in API call
+        headers: [
+            {'App-userID': 234982348923}, //optional headers if any like authentication, token etc.
+            {'App-session': 'x2872034ULT'} //optional headers if any
+        ]   
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+
+<!-- <h3>
 <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Designer Templates</h3>
 
 <p>We’ve crafted some handsome templates for you to use. Go ahead and click 'Continue to layouts' to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved.</p>
@@ -51,7 +220,7 @@
 <h3>
 <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
 
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
+<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p> -->
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/saleemkce">saleemkce</a></p>
@@ -59,6 +228,11 @@
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
+    <script src="javascripts/run_prettify.js"></script>
     
   </body>
 </html>
+<!-- 
+html code conversion @
+http://www.web2generators.com/html-based-tools/online-html-entities-encoder-and-decoder 
+-->
