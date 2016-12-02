@@ -359,8 +359,9 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         page = this.getPageData();
         page.activityStart = (this.activity.varyingStartTime).toISOString();
         page.activityEnd = (new Date()).toISOString();
-        page.activityDuration = Math.round(activityDuration);
-        page.activityDurationTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
+        page.timeTaken = Math.round(activityDuration);
+        page.timeTakenTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
+        page.timeTakenByDuration = ((this.returnInSeconds === true) ? this.secondToDuration(page.timeTaken) : this.secondToDuration(this.millisecondToSecond(page.timeTaken)));
 
         // set (start) activity details in response if given during activity initialization
         for(var key in this.startActivityDetails) {

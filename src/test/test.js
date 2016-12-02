@@ -3,17 +3,10 @@
 var Tos = new TimeOnSiteTracker();
 
 describe('TimeOnSiteTracker Tests', function () {
-    // var el = document.createElement('div');
-    // el.id = 'myDiv';
-    // el.innerHTML = 'Hi there!';
-    // el.style.background = '#ccc';
-    // document.body.appendChild(el);
- 
-    // var myEl = document.getElementById('myDiv');
+    
     it('Check if TOS is loaded', function () {
-        console.log('Location: ' + window.location);
+        //console.log('Location: ' + window.location);
         expect(Tos).to.be.an.instanceof(TimeOnSiteTracker);
-        //console.log(Tos.getTimeOnPage());
         
     });
  
@@ -32,7 +25,7 @@ describe('TimeOnSiteTracker Tests', function () {
             'startActivity','endActivity','processActivityData','saveToLocalStorage',
             'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
             'cancelXMLHTTPRequest','bindWindowFocus','bindURLChange','bindWindowUnload',
-            'processTOSData', 'millisecondToSecond', 'secondToDuration'
+            'processTOSData', 'millisecondToSecond', 'secondToDuration', 'executeURLChangeCustoms'
         ];
 
         var TOSMethodsArr = [];
@@ -268,8 +261,9 @@ describe('Activity tracking Tests', function () {
         expect(activity).to.have.property('title');
         expect(activity).to.have.property('activityStart');
         expect(activity).to.have.property('activityEnd');
-        expect(activity).to.have.property('activityDuration');
-        expect(activity).to.have.property('activityDurationTrackedBy');
+        expect(activity).to.have.property('timeTaken');
+        expect(activity).to.have.property('timeTakenTrackedBy');
+        expect(activity).to.have.property('timeTakenByDuration');
         expect(activity).to.have.property('trackingType');
 
         // custom start activity details
@@ -299,8 +293,9 @@ describe('Activity tracking Tests', function () {
         expect(activity).to.have.property('title');
         expect(activity).to.have.property('activityStart');
         expect(activity).to.have.property('activityEnd');
-        expect(activity).to.have.property('activityDuration');
-        expect(activity).to.have.property('activityDurationTrackedBy');
+        expect(activity).to.have.property('timeTaken');
+        expect(activity).to.have.property('timeTakenByDuration');
+        expect(activity).to.have.property('timeTakenTrackedBy');
         expect(activity).to.have.property('trackingType');
 
         // custom end activity details
