@@ -60,8 +60,7 @@ var TimeOnSiteTracker = function(config) {
     this.TOSSessionKey = null;
     this.customData = null;
 
-    //this.request.url = null;
-    //this.apiURL = 'http://localhost:4500/data/tos';
+    //local storage config
     this.request = {
         url: 'http://localhost:4500/data/tos',
         headers: []
@@ -120,7 +119,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         }
     }
     
-    if(config && config.storeInLocalStorage && (config.storeInLocalStorage === true) && (this.callback === null)) {
+    if((config && config.request && config.request.url) && (this.callback === null)) {
         this.storeInLocalStorage = true;
     }
 
@@ -128,7 +127,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         console.warn('TOS data won\'t be available because neither callback nor local stroage option given!');
     }
 
-    if(config && config.storeInLocalStorage && (config.storeInLocalStorage === true) && this.callback) {
+    if((config && config.request && config.request.url) && this.callback) {
         console.warn('Both callback and local storage options given. Give either one!');
     }
 };
@@ -379,7 +378,7 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         this.resetActivity();
         console.log('activity ends at ' + new Date());
         
-        if(manualProcess && manualProcess === true) {
+        if(manualProcess) {
             // do nothing
         } else {
             this.processActivityData(page);
