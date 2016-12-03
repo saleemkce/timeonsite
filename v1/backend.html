@@ -39,7 +39,9 @@
 
                 <h3 id="examples">Saving TOS to database - Examples</h3>
 
-                <h3>Node.js Server-side data handling</h3>
+                <h3>Server-side data handling</h3>
+
+                <h3>Node.js example</h3>
 <pre class="prettyprint lang-js">
 //file 1: tos.model.js
 var controller = require('tos.controller.js')
@@ -99,6 +101,78 @@ module.exports.SaveTos = function(req, res, next) {
     
 };
 </pre>
+<p>
+The example uses node's express framework to handle server-side data. We have three files here for saving data with node.js. A route file, a model file and a controller file.<br/><br/>
+* In route file, we create a route called "/tos" which is of POST method to accept data from incoming requests.
+<br/><br/>
+* In model file, we create new shema named "tos" which will save our TOS data. Since mongoDB is schema-free, we can save any number of fields in its collection. This is preferrable for collecting large number of custom data in TOS over RDBMS like MSSQL, MySql or Oracle.
+<br/><br/>
+* In controller file, we just check if there is data in "SaveTos" method. Then we load schema file and save our TOS data. By now, you might check your mongoDB collection to see if there is any data saved successfully.
+</p>
+
+
+<h3>PHP example</h3>
+<pre class="prettyprint lang-sql">
+<xmp>
+// Create database named "test". Then, create table in any RDBMS (this example was checked in mysql DB)
+
+CREATE TABLE tos(id INT AUTO_INCREMENT,
+    tos_id INT,
+    tos_session_key VARCHAR(50),
+    url VARCHAR(10000),
+    title VARCHAR(5000),
+    entry_time datetime,
+    exit_time datetime,
+    timeonpage INT,
+    timeonpage_tracked_by VARCHAR(15),
+    timeonsite INT,
+    trackingtype VARCHAR(15),
+    realtime_tracking BOOLEAN NOT NULL DEFAULT 0,
+    transferred_with VARCHAR(15) NULL,
+    PRIMARY KEY ( id )) CHARACTER SET utf8 COLLATE utf8_general_ci
+
+
+//In PHP, file: tos.php
+<?php
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $data = json_decode(file_get_contents("php://input"));
+    //print_r($data);
+
+    // Mysql DB credentials
+    $host = "localhost";
+    $user = "root";
+    $password = "";
+    $database = "test";
+
+    $con = mysqli_connect($host, $user, $password, $database);
+    // Check connection
+    if (mysqli_connect_errno())
+    {
+        echo "Failed to connect to MySQL: " . mysqli_connect_error();
+    }
+
+    // Perform queries
+    $qry = "INSERT INTO tos (tos_id, tos_session_key, url, title, entry_time, exit_time, timeonpage, timeonpage_tracked_by, timeonsite, trackingtype, realtime_tracking, transferred_with) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->URL."', '".$data->title."', '".$data->entryTime."', '".$data->exitTime."', ".$data->timeOnPage.", '".$data->timeOnPageTrackedBy."', ".$data->timeOnSite.", '".$data->trackingType."', ".$data->realTimeTracking.", '".$data->trasferredWith."')";
+    //echo $qry;
+    $res = mysqli_query($con, $qry);
+
+    mysqli_close($con);
+    if($res) {
+        echo 'success';
+    } else {
+        echo json_encode($res);
+    }
+} else {
+    echo 'No data received!';
+}
+</xmp>
+</pre>
+
+<p>
+* We form the required SQL query for saving our data in MySql or any other RDBMS of your preference. Create a database named "test". Then execute the given query to create new table called "tos".<br/><br/>
+* Create a new file named "tos.php" which checks if there is any incoming request with POST data. In case of valid data, it saves the data to "tos" table in database we just created. Don't forget to restart your server (Apache, nginx etc.) that runs PHP.
+</p>
 
             </section>
             <footer>
