@@ -22,3 +22,7 @@ table#TOSTable th {
     background-color: #013c84;
     color: white;
 }
+
+body {
+    color: #585757 !important;
+}
