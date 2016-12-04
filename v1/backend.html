@@ -36,7 +36,8 @@
 
                 <p>
                     <a href="#NodeJs">NodeJs</a><br/>
-                    <a href="#PHP">PHP</a>
+                    <a href="#PHP">PHP</a><br/>
+                    <a href ="#testing-with-postman">HTTP Request with Postman client</a>
                 </p>
 
 
@@ -52,8 +53,10 @@
 
                 <p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p> -->
 
-                <h3 id="examples">Saving TOS to database - Examples || Server-side data handling</h3>
 
+
+                <h3 id="examples">Saving TOS to database - Examples || Server-side data handling</h3>
+                <h3 id="time-on-site-tracking">Time On Site Tracking</h3>
                 <h3 id="NodeJs">Node.js example</h3>
 <pre class="prettyprint lang-js">
 //file 1: tos.route.js
@@ -138,14 +141,14 @@ CREATE TABLE tos(id INT AUTO_INCREMENT,
     timeonpage INT,
     timeonpage_tracked_by VARCHAR(15),
     timeonsite INT,
-    trackingtype VARCHAR(15),
+    tracking_type VARCHAR(15),
     realtime_tracking BOOLEAN NOT NULL DEFAULT 0,
     transferred_with VARCHAR(15) NULL,
     PRIMARY KEY ( id )) CHARACTER SET utf8 COLLATE utf8_general_ci
 </pre><br/>
 <pre class="prettyprint lang-php">
 <xmp>
-//In PHP, file: tos.php
+//In PHP, create file: tos.php
 <?php
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -166,7 +169,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Perform queries
-    $qry = "INSERT INTO tos (tos_id, tos_session_key, url, title, entry_time, exit_time, timeonpage, timeonpage_tracked_by, timeonsite, trackingtype, realtime_tracking, transferred_with) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->URL."', '".$data->title."', '".$data->entryTime."', '".$data->exitTime."', ".$data->timeOnPage.", '".$data->timeOnPageTrackedBy."', ".$data->timeOnSite.", '".$data->trackingType."', ".$data->realTimeTracking.", '".$data->trasferredWith."')";
+    $qry = "INSERT INTO tos (tos_id, tos_session_key, url, title, entry_time, exit_time, timeonpage, timeonpage_tracked_by, timeonsite, tracking_type, realtime_tracking, transferred_with) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->URL."', '".$data->title."', '".$data->entryTime."', '".$data->exitTime."', ".$data->timeOnPage.", '".$data->timeOnPageTrackedBy."', ".$data->timeOnSite.", '".$data->trackingType."', ".$data->realTimeTracking.", '".$data->trasferredWith."')";
     //echo $qry;
     $res = mysqli_query($con, $qry);
 
@@ -184,8 +187,155 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <p>
                 * We form the required SQL query for saving our data in MySql or any other RDBMS of your preference. Create a database named "test". Then execute the given query to create new table named "tos".<br/><br/>
-                * Create a new file named "tos.php" which checks if there is any incoming request with POST data. In case of valid data, it saves the data to "tos" table in database we just created. Don't forget to restart your server (Apache, nginx etc.) that runs PHP.
+                * Create a new file named "tos.php" which checks if there is any incoming request with POST data. In case of valid data, it saves the data to "tos" table in database we just created. Do not forget to start your server (Apache, nginx etc.) that runs PHP while working out this example. Since saving data in RDBMS is shema-based and type checking is strict, you need to be careful in defining the fields while creating the table given above. In case of adding custom data or additional data in future, you need to modify schema and verify thoroughly to avoid query failure or data loss.
                 </p>
+
+
+
+
+                <h3 id="activity-tracking-NodeJs">Activity Tracking - NodeJs</h3>
+<pre class="prettyprint lang-js">
+//file 1: activity.route.js
+var controller = require('activity.controller.js')
+
+module.exports = function(app) {
+
+    app.route('/activity')
+        .post(controller.SaveActivity);
+};
+
+
+
+//file 2: activity.model.js
+var mongoose = require('mongoose'),
+Schema = new mongoose.Schema({
+}, {
+    versionKey: false,
+    strict: false
+});
+
+var ActivitySchema = mongoose.model('activity', Schema);
+module.exports = ActivitySchema;
+
+
+
+//file 3: activity.controller.js
+var ActivitySchema = require('activity.model.js');
+var c = 0;
+module.exports.SaveActivity = function(req, res, next) {
+    var data = req.body;
+    console.log(data);
+
+    if(data && data.trackingType && data.trackingType == 'activity') {
+        var Activity = new ActivitySchema(data);
+        // Data saved to mongoDB's tos collection
+        Activity.save(data, function(err){
+            console.log(err);
+        });
+
+        console.log('TOS type : ' + data.trackingType);
+        console.log('Record No : ' + ++c);
+    } else {
+        console.log('TOS activity data not received. Please check your endpoint URL and POST data from client-side!');
+    }
+
+    res.send('success');
+    
+};
+</pre>
+                <p>
+                    This code is self-explanatory. Create route, model and controller files for tracking activity. In controller, check if received data is of type "activity" if(data.trackingType == 'activity').  Save it to activities collection. You are done!
+                </p>
+
+
+<h3 id="activity-tracking-PHP">Activity Tracking - PHP</h3>
+<pre class="prettyprint lang-sql">
+// Create database named "test". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
+
+CREATE TABLE activity(id INT AUTO_INCREMENT,
+    tos_id INT,
+    tos_session_key VARCHAR(50),
+    url VARCHAR(10000),
+    title VARCHAR(5000),
+    activity_duration INT,
+    activity_duration_tracked_by VARCHAR(15),
+    activity_start DATETIME,
+    activity_end DATETIME,
+    tracking_type VARCHAR(15),
+    realtime_tracking BOOLEAN NOT NULL DEFAULT 0,
+    transferred_with VARCHAR(15) NULL,
+    PRIMARY KEY ( id )) CHARACTER SET utf8 COLLATE utf8_general_ci
+</pre><br/>
+
+<pre class="prettyprint lang-php">
+<xmp>
+//In PHP, create file: activity.php
+<?php
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $data = json_decode(file_get_contents("php://input"));
+    //print_r($data);
+
+    // Mysql DB credentials
+    $host = "localhost";
+    $user = "root";
+    $password = "";
+    $database = "test";
+
+    $con = mysqli_connect($host, $user, $password, $database);
+    // Check connection
+    if (mysqli_connect_errno())
+    {
+        echo "Failed to connect to MySQL: " . mysqli_connect_error();
+    }
+
+    // Perform queries
+    $qry = "INSERT INTO activity (tos_id, tos_session_key, url, title, activity_duration, activity_duration_tracked_by, activity_start, activity_end, tracking_type, realtime_tracking, transferred_with) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->URL."', '".$data->title."', ".$data->activityDuration.", '".$data->activityDurationTrackedBy."', '".$data->activityStart."', '".$data->activityEnd."', '".$data->trackingType."', ".$data->realTimeTracking.", '".$data->trasferredWith."')";
+    //echo $qry;
+    $res = mysqli_query($con, $qry);
+
+    mysqli_close($con);
+    if($res) {
+        echo 'success';
+    } else {
+        echo json_encode($res);
+    }
+} else {
+    echo 'No data received!';
+}
+</xmp>
+</pre>
+
+
+                <h3 id="testing-with-postman">Test with Postman</h3>
+<pre class="prettyprint">
+URL: http://localhost/project-z/examples/tos.php
+
+Method: POST
+
+Type: application/json
+
+// In request body,
+Body:
+{
+    "TOSId" : 32305137576,
+    "TOSSessionKey" : "14807574018248237618",
+    "URL" : "http://tos-localdata.chennai/home",
+    "title" : "Home page - testing TOS!",
+    "entryTime" : "2016-11-23T16:42:22.766Z",
+    "currentTime" : "2016-11-23T16:42:44.189Z",
+    "timeOnPage" : 21,
+    "timeOnPageTrackedBy" : "second",
+    "timeOnSite" : 1359,
+    "trackingType" : "tos",
+    "exitTime" : "2016-11-23T16:42:44.189Z",
+    "realTimeTracking" : true,
+    "trasferredWith" : "sendBecon"
+}
+</pre>
+                <p>In HTTP client like Postman, you could test if your route works before applying the code in your application.</p>
+
+
 
             </section>
             <footer>
