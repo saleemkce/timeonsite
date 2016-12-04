@@ -1,13 +1,37 @@
 /**
- * TimeOnSiteTracker.js
+ * @preserve
+ * The MIT License (MIT)
  *
+ * TimeOnSiteTracker.js - Measure your user's Time on site accurately.
+ * 
+ * Copyright (C) 2016  Saleem Khan
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+ * software and associated documentation files (the "Software"), to deal in the Software 
+ * without restriction, including without limitation the rights to use, copy, modify, 
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
+ * to permit persons to whom the Software is furnished to do so, subject to the following 
+ * conditions:
+
+ * The above copyright notice and this permission notice shall be included in all copies 
+ * or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/**
  * Time on Site Tracker (TOS)
  * This file tracks time spent on page by user session.
  * It exposes getTimeOnPage() API which gives back time spent so far on page. Call any time to get current page's TOS
  * Provides suppport for blacklisting URL from tracking TOS
  * Measure your user's interaction with site directly and accurately.
- * 
  */
+
 
 var TimeOnSiteTracker = function(config) {
     
@@ -36,8 +60,7 @@ var TimeOnSiteTracker = function(config) {
     this.TOSSessionKey = null;
     this.customData = null;
 
-    //this.request.url = null;
-    //this.apiURL = 'http://localhost:4500/data/tos';
+    //local storage config
     this.request = {
         url: 'http://localhost:4500/data/tos',
         headers: []
@@ -96,7 +119,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         }
     }
     
-    if(config && config.storeInLocalStorage && (config.storeInLocalStorage === true) && (this.callback === null)) {
+    if((config && config.request && config.request.url) && (this.callback === null)) {
         this.storeInLocalStorage = true;
     }
 
@@ -104,7 +127,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         console.warn('TOS data won\'t be available because neither callback nor local stroage option given!');
     }
 
-    if(config && config.storeInLocalStorage && (config.storeInLocalStorage === true) && this.callback) {
+    if((config && config.request && config.request.url) && this.callback) {
         console.warn('Both callback and local storage options given. Give either one!');
     }
 };
@@ -335,8 +358,9 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         page = this.getPageData();
         page.activityStart = (this.activity.varyingStartTime).toISOString();
         page.activityEnd = (new Date()).toISOString();
-        page.activityDuration = Math.round(activityDuration);
-        page.activityDurationTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
+        page.timeTaken = Math.round(activityDuration);
+        page.timeTakenTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
+        page.timeTakenByDuration = ((this.returnInSeconds === true) ? this.secondToDuration(page.timeTaken) : this.secondToDuration(this.millisecondToSecond(page.timeTaken)));
 
         // set (start) activity details in response if given during activity initialization
         for(var key in this.startActivityDetails) {
@@ -354,7 +378,7 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         this.resetActivity();
         console.log('activity ends at ' + new Date());
         
-        if(manualProcess && manualProcess === true) {
+        if(manualProcess) {
             // do nothing
         } else {
             this.processActivityData(page);
@@ -675,18 +699,43 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 // };
 
 
-
-
-
 TimeOnSiteTracker.prototype.bindURLChange = function() {
     var self = this;
-    window.onhashchange = function() {
-        alert('URL changes!!!');
-        self.monitorSession();
-        self.processTOSData();
-        self.initBlacklistUrlConfig(self.config);
+
+    if ('onhashchange' in window) {
+       window.onhashchange = function() {
+            alert('URL changes  via onhashchange!!!');
+            self.executeURLChangeCustoms();
+        }
+
+    } else {
+        var hashHandlerOldBrowsers = function() {
+            this.oldHash = window.location.hash;
+
+            var hashHandler = this;
+            var detectChange = function() {
+                if(hashHandler.oldHash != window.location.hash){
+                    hashHandler.oldHash = window.location.hash;
+                        alert('URL changes  via HANDLER!!!');
+                        self.executeURLChangeCustoms();
+                    }
+            };
+
+            setInterval(function() {
+                detectChange(); 
+            }, 100);
+        }
+        var hashDetection = new hashHandlerOldBrowsers();
+
     }
 };
+
+TimeOnSiteTracker.prototype.executeURLChangeCustoms = function() {
+    this.monitorSession();
+    this.processTOSData();
+    this.initBlacklistUrlConfig(this.config);
+};
+
 
 /**
  * [bindWindowUnload]
