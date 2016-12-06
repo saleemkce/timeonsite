@@ -458,10 +458,10 @@ TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
 
     if((dateKeys instanceof Array) && dateKeys.length) {
         var dateObj = (new Date()),
-            currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
+            //currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
             dateKey = dateKeys[0];
 
-        if(currentDayKey != dateKey) {
+        //if(currentDayKey != dateKey) {
             console.log('this day key : ' + dateKey)
 
             var item = localStorage.getItem(dateKey);
@@ -474,9 +474,9 @@ TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
                     this.sendData(dateKey, itemData);
                 }   
             }
-        } else {
-            console.warn('Todays date key found!');
-        }
+        // } else {
+        //     console.warn('Todays date key found!');
+        // }
         
     }
 };
@@ -780,17 +780,15 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     /**
      * execute callback if given in config
      */
-    if(typeof this.callback === 'function') {
-        if(this.isTimeOnSiteAllowed) {
+    if(this.isTimeOnSiteAllowed) {
+        if(typeof this.callback === 'function') {
             data.realTimeTracking = true;
             this.callback(data);
-        } else {
-            data = {};
-            this.callback(data);
+            
+        } else if(this.storeInLocalStorage) {
+            this.saveToLocalStorage(data);
+            
         }
-        
-    } else if(this.isTimeOnSiteAllowed && this.storeInLocalStorage) {
-        this.saveToLocalStorage(data);
     }
 
     // Initialize variables on URL change.

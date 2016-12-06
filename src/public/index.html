@@ -19,6 +19,21 @@ TimeOnSiteTracker loaded!
 <!-- <script src="js/TimeOnSiteTracker.js"></script> -->
 <script src="js/TimeOnSiteTracker.js"></script>
 
+<script type="text/javascript">
+var config = {
+	trackBy: 'seconds',
+	//blacklistUrl: ['http://localhost:3000/static/index.html'],
+    request: { // presence of request object denotes that data is to be saved in local storage
+    	url: 'http://localhost:4500/data/tos',
+    	headers: [
+    		{'App-userID': 234982348923},
+    		{'App-session': 'x2872034ULT'}
+    	]
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+</script>
+
 </body>
 
 </html>
