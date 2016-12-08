@@ -25,7 +25,8 @@ describe('TimeOnSiteTracker Tests', function () {
             'startActivity','endActivity','processActivityData','saveToLocalStorage',
             'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
             'cancelXMLHTTPRequest','bindWindowFocus','bindURLChange','bindWindowUnload',
-            'processTOSData', 'millisecondToSecond', 'secondToDuration', 'executeURLChangeCustoms'
+            'processTOSData', 'millisecondToSecond', 'secondToDuration', 
+            'executeURLChangeCustoms', 'bindWindowHistory'
         ];
 
         var TOSMethodsArr = [];

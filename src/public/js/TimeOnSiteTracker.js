@@ -81,6 +81,9 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     // bind to focus/blur window state
     this.bindWindowFocus();
 
+    //bind to window history states
+    this.bindWindowHistory();
+
     // check Storage supported by browser
     if (typeof(Storage) !== 'undefined') {
         this.storageSupported = true;
@@ -730,12 +733,41 @@ TimeOnSiteTracker.prototype.bindURLChange = function() {
     }
 };
 
+TimeOnSiteTracker.prototype.bindWindowHistory = function() {
+    var self = this;
+    
+    if (window.history && window.history.pushState) {
+        (function(history){
+            var pushState = history.pushState;
+            history.pushState = function(state) {
+                if (typeof history.onpushstate === 'function') {
+                    history.onpushstate({state: state});
+                }
+                return pushState.apply(history, arguments);
+            }
+        })(window.history);
+
+
+        window.onpopstate = history.onpushstate = function(e) {
+            //console.log('now ' + window.location.href);
+            setTimeout(function(){
+                /**
+                 * when URL changes with push/pop states, it captures old title. 
+                 * Fix this URL-title mismatch by delaying by 100 milliseconds.
+                 */
+                alert('URL changes via window history object!!!');
+                self.executeURLChangeCustoms();
+            }, 100);
+            
+        };
+    }
+};
+
 TimeOnSiteTracker.prototype.executeURLChangeCustoms = function() {
     this.monitorSession();
     this.processTOSData();
     this.initBlacklistUrlConfig(this.config);
 };
-
 
 /**
  * [bindWindowUnload]
