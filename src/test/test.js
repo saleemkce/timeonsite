@@ -15,7 +15,7 @@ describe('TimeOnSiteTracker Tests', function () {
         // Add all new methods added to TOS construtor
         var methodsArr = [
             'varyingStartTime','pageEntryTime','totalTimeSpent','returnInSeconds',
-            'isTimeOnSiteAllowed','callback','timeSpentArr','trackHashBasedRouting',
+            'isTimeOnSiteAllowed','callback','timeSpentArr',
             'storeInLocalStorage','storageSupported','TOSDateKeysHolder','TOSDayKeyPrefix',
             'activity','config','xhr','timeOnSite','TOSSessionKey','customData','request',
             'isRequestHeadersAvailable','initialize','getTimeDiff','arrayAggregate',
@@ -24,9 +24,10 @@ describe('TimeOnSiteTracker Tests', function () {
             'getTimeOnPage','mergeCustomData','setCustomData','unsetCustomData','resetActivity',
             'startActivity','endActivity','processActivityData','saveToLocalStorage',
             'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
-            'cancelXMLHTTPRequest','bindWindowFocus','bindURLChange','bindWindowUnload',
+            'cancelXMLHTTPRequest','bindWindowFocus','bindWindowUnload',
             'processTOSData', 'millisecondToSecond', 'secondToDuration', 
-            'executeURLChangeCustoms', 'bindWindowHistory'
+            'executeURLChangeCustoms', 'bindWindowHistory',
+            // 'trackHashBasedRouting', 'bindURLChange',
         ];
 
         var TOSMethodsArr = [];
@@ -448,19 +449,19 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
     });
 
 
-    it('Initialize TimeOnSiteTracker with trackHashBasedRouting param', function () {
-         var config = {
-            trackHashBasedRouting: true
-        };
+    // it('Initialize TimeOnSiteTracker with trackHashBasedRouting param', function () {
+    //      var config = {
+    //         trackHashBasedRouting: true
+    //     };
 
-        // hash-based Url routing is false by default
-        var Tos = new TimeOnSiteTracker();
-        expect(Tos.trackHashBasedRouting).to.equal(false);
+    //     // hash-based Url routing is false by default
+    //     var Tos = new TimeOnSiteTracker();
+    //     expect(Tos.trackHashBasedRouting).to.equal(false);
 
-        var Tos = new TimeOnSiteTracker(config);
-        expect(Tos.trackHashBasedRouting).to.equal(true);
+    //     var Tos = new TimeOnSiteTracker(config);
+    //     expect(Tos.trackHashBasedRouting).to.equal(true);
 
-    });
+    // });
 });
 
 describe('TimeOnSiteTracker with localstorage', function () {

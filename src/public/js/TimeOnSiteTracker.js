@@ -43,7 +43,7 @@ var TimeOnSiteTracker = function(config) {
     this.isTimeOnSiteAllowed = true;
     this.callback = null;
     this.timeSpentArr = [];
-    this.trackHashBasedRouting = false;
+    //this.trackHashBasedRouting = false;
 
     this.storeInLocalStorage = false;
     this.storageSupported = false;
@@ -104,12 +104,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     this.initBlacklistUrlConfig(config);
 
-    if(config && config.trackHashBasedRouting && (config.trackHashBasedRouting === true)) {
-        this.trackHashBasedRouting = true;
+    // if(config && config.trackHashBasedRouting && (config.trackHashBasedRouting === true)) {
+    //     this.trackHashBasedRouting = true;
 
-        // bind to URL change event (without page refresh)
-        this.bindURLChange();
-    }
+    //     // bind to URL change event (without page refresh)
+    //     this.bindURLChange();
+    // }
 
     if(config && config.request && config.request.url) {
         this.request.url = config.request.url;
@@ -702,36 +702,36 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 // };
 
 
-TimeOnSiteTracker.prototype.bindURLChange = function() {
-    var self = this;
+// TimeOnSiteTracker.prototype.bindURLChange = function() {
+//     var self = this;
 
-    if ('onhashchange' in window) {
-       window.onhashchange = function() {
-            alert('URL changes  via onhashchange!!!');
-            self.executeURLChangeCustoms();
-        }
+//     if ('onhashchange' in window) {
+//        window.onhashchange = function() {
+//             alert('URL changes  via onhashchange!!!');
+//             self.executeURLChangeCustoms();
+//         }
 
-    } else {
-        var hashHandlerOldBrowsers = function() {
-            this.oldHash = window.location.hash;
+//     } else {
+//         var hashHandlerOldBrowsers = function() {
+//             this.oldHash = window.location.hash;
 
-            var hashHandler = this;
-            var detectChange = function() {
-                if(hashHandler.oldHash != window.location.hash){
-                    hashHandler.oldHash = window.location.hash;
-                        alert('URL changes  via HANDLER!!!');
-                        self.executeURLChangeCustoms();
-                    }
-            };
+//             var hashHandler = this;
+//             var detectChange = function() {
+//                 if(hashHandler.oldHash != window.location.hash){
+//                     hashHandler.oldHash = window.location.hash;
+//                         alert('URL changes  via HANDLER!!!');
+//                         self.executeURLChangeCustoms();
+//                     }
+//             };
 
-            setInterval(function() {
-                detectChange(); 
-            }, 100);
-        }
-        var hashDetection = new hashHandlerOldBrowsers();
+//             setInterval(function() {
+//                 detectChange(); 
+//             }, 100);
+//         }
+//         var hashDetection = new hashHandlerOldBrowsers();
 
-    }
-};
+//     }
+// };
 
 TimeOnSiteTracker.prototype.bindWindowHistory = function() {
     var self = this;
