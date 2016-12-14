@@ -26,7 +26,7 @@ describe('TimeOnSiteTracker Tests', function () {
             'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
             'cancelXMLHTTPRequest','bindWindowFocus','bindWindowUnload',
             'processTOSData', 'millisecondToSecond', 'secondToDuration', 
-            'executeURLChangeCustoms', 'bindWindowHistory',
+            'executeURLChangeCustoms', 'bindWindowHistory', 'regenerateTOSSession'
             // 'trackHashBasedRouting', 'bindURLChange',
         ];
 
@@ -310,7 +310,7 @@ describe('Activity tracking Tests', function () {
         expect(activity.f).to.have.lengthOf(2);
     });
     
-    it('check if endActivity method works with data with callback', function () {
+    it('check if endActivity method works with data with callback', function (done) {
         var config = {
             trackBy: 'seconds',
             callback: function(data) {
@@ -328,6 +328,7 @@ describe('Activity tracking Tests', function () {
                         data.trasferredWith = 'sendBeacon';
                         var blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
                         navigator.sendBeacon(endPointUrl, blob);
+                        done();
                     } else {
 
                         // XMLHttpRequest begins..
@@ -351,6 +352,7 @@ describe('Activity tracking Tests', function () {
                             if(xhr.readyState == 4 && xhr.status == 200) {
                                 if(xhr.responseText == 'success') {
                                     console.log('Data saved successfully!');
+                                    done();
                                     //Warning: But you should not do more operations here since it will block
                                     //user from closing the application or slow down site navigation
                                 } 

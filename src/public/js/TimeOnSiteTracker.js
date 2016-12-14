@@ -59,6 +59,7 @@ var TimeOnSiteTracker = function(config) {
     this.timeOnSite = 0;
     this.TOSSessionKey = null;
     this.customData = null;
+    this.TOSUserId = 'anonymous';
 
     //local storage config
     this.request = {
@@ -74,7 +75,6 @@ var TimeOnSiteTracker = function(config) {
 };
 
 TimeOnSiteTracker.prototype.initialize = function(config) {
-
     // bind to window close event
     this.bindWindowUnload();
 
@@ -133,6 +133,11 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     if((config && config.request && config.request.url) && this.callback) {
         console.warn('Both callback and local storage options given. Give either one!');
     }
+
+    // var self = this;
+    // setInterval(function(){
+    //     self.showProgress();
+    // }, 1000);
 };
 
 TimeOnSiteTracker.prototype.getTimeDiff = function(startTime, endTime) {
@@ -200,6 +205,24 @@ TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
     return uniqId;
 };
 
+TimeOnSiteTracker.prototype.regenerateTOSSession = function() {
+    //process data accumulated so far before generating new session
+    this.monitorSession();
+    this.processTOSData();
+
+    //create new TOS session
+    sessionStorage.setItem('TOSsessionDuration', 0);
+    this.TOSSessionKey = this.createTOSSessionKey();
+    sessionStorage.setItem('TOSsessionKey', this.TOSSessionKey);
+    this.timeOnSite = 0;
+
+};
+
+// TimeOnSiteTracker.prototype.showProgress = function() {
+//     var d = this.getTimeOnPage();
+//     console.log('' + d.timeOnPage + ' ' + d.timeOnPageTrackedBy);
+// };
+
 TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
     if(config && config.blacklistUrl) {
 
@@ -259,6 +282,7 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     var page = {};
     page.TOSId = this.createTOSId();
     page.TOSSessionKey = this.TOSSessionKey;
+    page.TosUserId = this.TOSUserId;
     page.URL = document.URL;
     page.title = document.title;
     return page;
@@ -308,6 +332,12 @@ TimeOnSiteTracker.prototype.mergeCustomData = function(data) {
     }
     return data;
 };
+
+TimeOnSiteTracker.prototype.setUserId = function(userId) {
+    if(userId && userId.length) {
+        this.TOSUserId = userId;
+    }
+}
 
 TimeOnSiteTracker.prototype.setCustomData = function(data) {
     if(data && Object.keys(data).length) {
