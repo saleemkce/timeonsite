@@ -91,8 +91,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         console.info('Session/Local storage not supported by this browser.');
     }
 
-    // create and monitor TOS session
-    this.monitorSession();
+    // // create and monitor TOS session
+    // this.monitorSession();
 
     if(config && config.trackBy && (config.trackBy.toLowerCase() === 'seconds')) {
          this.returnInSeconds = true;
@@ -133,6 +133,9 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     if((config && config.request && config.request.url) && this.callback) {
         console.warn('Both callback and local storage options given. Give either one!');
     }
+
+    // create and monitor TOS session
+    this.monitorSession();
 
     // var self = this;
     // setInterval(function(){
@@ -205,15 +208,41 @@ TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
     return uniqId;
 };
 
-TimeOnSiteTracker.prototype.regenerateTOSSession = function() {
+TimeOnSiteTracker.prototype.startSession = function(userId) {
+    if(userId && (userId.toString()).length) {
+
+        // check storage - user session needs window Storage availability
+        if(!this.storageSupported) {
+            console.warn('TOS cound not initiate user session due to non-availability of Storage.');
+            return;
+        }
+
+        var newSessionDuration  = 0;
+        this.TOSUserId = userId;
+        this.setCookie('TOSUserId', userId, 1);
+        this.setCookie('TOSSessionKey', this.getTOSSessionKey(), 1);
+        this.setCookie('TOSSessionDuration', newSessionDuration, 1);
+    } else {
+        console.warn('Please give proper userId to start TOS session.');
+    }
+
+};
+
+TimeOnSiteTracker.prototype.endSession = function() {
     //process data accumulated so far before generating new session
     this.monitorSession();
     this.processTOSData();
 
+    // remove session data
+    this.removeCookie('TOSUserId');
+    this.removeCookie('TOSSessionKey');
+    this.removeCookie('TOSSessionDuration');
+
     //create new TOS session
-    sessionStorage.setItem('TOSsessionDuration', 0);
+    this.TOSUserId = 'anonymous';
+    sessionStorage.setItem('TOSSessionDuration', 0);
     this.TOSSessionKey = this.createTOSSessionKey();
-    sessionStorage.setItem('TOSsessionKey', this.TOSSessionKey);
+    sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
     this.timeOnSite = 0;
 
 };
@@ -241,28 +270,53 @@ TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
 TimeOnSiteTracker.prototype.monitorSession = function() {
     if (this.storageSupported) {
 
-        var sessionDuration = sessionStorage.getItem('TOSsessionDuration'),
-            sessionKey = sessionStorage.getItem('TOSsessionKey'),
+        var sessionDuration = sessionStorage.getItem('TOSSessionDuration'),
+            sessionKey = sessionStorage.getItem('TOSSessionKey'),
             pageData,
             count = 0;
 
         if(sessionDuration && sessionKey) {
             console.log('so far : ' + sessionDuration);
             pageData = this.getTimeOnPage();
-            //count = pageData.timeOnPage + Number(sessionDuration);
             sessionDuration = parseInt(sessionDuration);
+            //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessDura: ' + sessionDuration);
             count = pageData.timeOnPage + sessionDuration;
             this.TOSSessionKey = sessionKey;
-            sessionStorage.setItem('TOSsessionDuration', count);
+            sessionStorage.setItem('TOSSessionDuration', count);
             this.timeOnSite = count;
+
+            // save a copy of session duration to cookie
+            // case: user session exists and user is authenticated user
+            if(this.getCookie('TOSUserId')) {
+                this.TOSUserId = this.getCookie('TOSUserId');
+                this.setCookie('TOSSessionDuration', count, 1);
+            }
         } else {
-            //sessionStorage.TOSsessionDuration = 0;
-            sessionStorage.setItem('TOSsessionDuration', 0);
-            this.TOSSessionKey = this.createTOSSessionKey();
-            sessionStorage.setItem('TOSsessionKey', this.TOSSessionKey);
-            this.timeOnSite = 0;
+            
+            // case: local storage has already expired. However, user session exists in cookie safely
+            if(this.getCookie('TOSUserId')) {
+                // TOS user is authenticated user
+                var duration = 0;
+                this.TOSUserId = this.getCookie('TOSUserId');
+                pageData = this.getTimeOnPage();
+                console.log(pageData);
+                duration = pageData.timeOnPage + (parseInt(this.getCookie('TOSSessionDuration')));
+                //console.error('** Auth|New Tab count : ' + ' top : ' + pageData.timeOnPage + ' sessDura : ' + (parseInt(this.getCookie('TOSSessionDuration'))));
+                //alert('dura : ' + duration);
+                sessionStorage.setItem('TOSSessionDuration', duration);
+                this.TOSSessionKey = this.getCookie('TOSSessionKey');
+                sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+                this.timeOnSite = duration;
+
+            } else {
+                // case: TOS user is anonymous user
+                sessionStorage.setItem('TOSSessionDuration', 0);
+                this.TOSSessionKey = this.createTOSSessionKey();
+                sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+                this.timeOnSite = 0;
+
+            }   
         }
-        
     }
 };
 
@@ -282,7 +336,7 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     var page = {};
     page.TOSId = this.createTOSId();
     page.TOSSessionKey = this.TOSSessionKey;
-    page.TosUserId = this.TOSUserId;
+    page.TOSUserId = this.TOSUserId;
     page.URL = document.URL;
     page.title = document.title;
     return page;
@@ -332,12 +386,6 @@ TimeOnSiteTracker.prototype.mergeCustomData = function(data) {
     }
     return data;
 };
-
-TimeOnSiteTracker.prototype.setUserId = function(userId) {
-    if(userId && userId.length) {
-        this.TOSUserId = userId;
-    }
-}
 
 TimeOnSiteTracker.prototype.setCustomData = function(data) {
     if(data && Object.keys(data).length) {
@@ -697,40 +745,34 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 
 };
 
-// TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, exdays) {console.log('inside cookie');
-//     var d = new Date();
-//     d.setTime(d.getTime() + (exdays*24*60*60*1000));
-//     var expires = "expires="+d.toUTCString();
-//     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-// };
+TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    //d.setTime(d.getTime() + (10 * 1000));
+    var expires = 'expires=' + d.toUTCString();
+    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+};
 
-// TimeOnSiteTracker.prototype.getCookie = function(cname) {
-//     var name = cname + "=";
-//     var ca = document.cookie.split(';');
-//     for(var i = 0; i < ca.length; i++) {
-//         var c = ca[i];
-//         while (c.charAt(0) == ' ') {
-//             c = c.substring(1);
-//         }
-//         if (c.indexOf(name) == 0) {
-//             return c.substring(name.length, c.length);
-//         }
-//     }
-//     return "";
-// };
+TimeOnSiteTracker.prototype.getCookie = function(cname) {
+    var name = cname + '=';
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return '';
+};
 
-// TimeOnSiteTracker.prototype.checkCookie = function() {
-//     var user = getCookie("username");
-//     if (user != "") {
-//         alert("Welcome again " + user);
-//     } else {
-//         user = prompt("Please enter your name:", "");
-//         if (user != "" && user != null) {
-//             setCookie("username", user, 365);
-//         }
-//     }
-// };
-
+TimeOnSiteTracker.prototype.removeCookie = function(cname) {
+    if(this.getCookie(cname)) {
+        document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+    }
+};
 
 // TimeOnSiteTracker.prototype.bindURLChange = function() {
 //     var self = this;
@@ -880,7 +922,7 @@ var preserveNewTabSessionStorage = function() {
         } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
             // another tab sent data <- get it
             var data = JSON.parse(event.newValue);
-            var wantedSessionKeys = ['TOSsessionDuration', 'TOSsessionKey'];
+            var wantedSessionKeys = ['TOSSessionDuration', 'TOSSessionKey'];
             for (var key in data) {
                 for(var j =0; j < wantedSessionKeys.length; j++) {
                     if(wantedSessionKeys[j] == key) {

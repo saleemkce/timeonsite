@@ -163,7 +163,7 @@ describe('TimeOnSiteTracker Tests', function () {
     
     it('check if getPageData method works', function () {
         var data = Tos.getPageData(),
-            minimalLength = 4;
+            minimalLength = 5;
         
         expect(data).to.not.be.empty;
         expect(data).to.be.an('object');
@@ -174,7 +174,7 @@ describe('TimeOnSiteTracker Tests', function () {
         var dataObject = {a:234287, b:'test', c:[1,2]},
             page = Tos.getPageData(),
             originalMergedData,
-            originalSize = 7; // 4 from getPageData + 3 from dataObject
+            originalSize = 8; // 5 from getPageData + 3 from dataObject
 
             for(var k in dataObject) {
                 page[k] = dataObject[k];
@@ -189,7 +189,7 @@ describe('TimeOnSiteTracker Tests', function () {
             for(var k in emptyObject) {
                 page[k] = emptyObject[k];
             }
-            originalSize = 4; // 4 from getPageData + 0 from emptyObject
+            originalSize = 5; // 5 from getPageData + 0 from emptyObject
 
             // check with empty custom object
             newData = Tos.mergeCustomData(page);
