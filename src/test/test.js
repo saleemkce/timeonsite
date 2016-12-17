@@ -10,10 +10,10 @@ describe('TimeOnSiteTracker Tests', function () {
         
     });
  
-    it('Check if TOS methods are present', function () {
+    it('Check if TOS properties are consistent', function () {
         
         // Add all new methods added to TOS construtor
-        var methodsArr = [
+        var propertiesArr = [
             'varyingStartTime','pageEntryTime','totalTimeSpent','returnInSeconds',
             'isTimeOnSiteAllowed','callback','timeSpentArr',
             'storeInLocalStorage','storageSupported','TOSDateKeysHolder','TOSDayKeyPrefix',
@@ -26,16 +26,17 @@ describe('TimeOnSiteTracker Tests', function () {
             'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
             'cancelXMLHTTPRequest','bindWindowFocus','bindWindowUnload',
             'processTOSData', 'millisecondToSecond', 'secondToDuration', 
-            'executeURLChangeCustoms', 'bindWindowHistory', 'regenerateTOSSession'
+            'executeURLChangeCustoms', 'bindWindowHistory', 'startSession',
+            'endSession', 'setCookie', 'getCookie', 'removeCookie', 'TOSUserId' 
             // 'trackHashBasedRouting', 'bindURLChange',
         ];
 
-        var TOSMethodsArr = [];
+        var TOSPropertiesArr = [];
         for(var k in Tos){
-            TOSMethodsArr.push(k);
+            TOSPropertiesArr.push(k);
         };
 
-        expect((methodsArr.length)).to.equal((TOSMethodsArr.length));
+        expect((propertiesArr.length)).to.equal((TOSPropertiesArr.length));
         
     });
 
