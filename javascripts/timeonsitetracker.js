@@ -32,7 +32,6 @@
  * Measure your user's interaction with site directly and accurately.
  */
 
-
 var TimeOnSiteTracker = function(config) {
     
     this.varyingStartTime = new Date();
@@ -43,7 +42,7 @@ var TimeOnSiteTracker = function(config) {
     this.isTimeOnSiteAllowed = true;
     this.callback = null;
     this.timeSpentArr = [];
-    this.trackHashBasedRouting = false;
+    //this.trackHashBasedRouting = false;
 
     this.storeInLocalStorage = false;
     this.storageSupported = false;
@@ -59,6 +58,7 @@ var TimeOnSiteTracker = function(config) {
     this.timeOnSite = 0;
     this.TOSSessionKey = null;
     this.customData = null;
+    this.TOSUserId = 'anonymous';
 
     //local storage config
     this.request = {
@@ -69,27 +69,32 @@ var TimeOnSiteTracker = function(config) {
     
     console.log('Time at page entry: ' + this.varyingStartTime);
 
-    this.initialize(this.config); this.processDataInLocalStorage();
+    this.initialize(this.config);
 
 };
 
 TimeOnSiteTracker.prototype.initialize = function(config) {
-
     // bind to window close event
     this.bindWindowUnload();
 
     // bind to focus/blur window state
     this.bindWindowFocus();
 
+    //bind to window history states
+    this.bindWindowHistory();
+
     // check Storage supported by browser
     if (typeof(Storage) !== 'undefined') {
         this.storageSupported = true;
+
+        //process any saved data in local storage
+        this.processDataInLocalStorage();
     } else {
         console.info('Session/Local storage not supported by this browser.');
     }
 
-    // create and monitor TOS session
-    this.monitorSession();
+    // // create and monitor TOS session
+    // this.monitorSession();
 
     if(config && config.trackBy && (config.trackBy.toLowerCase() === 'seconds')) {
          this.returnInSeconds = true;
@@ -101,12 +106,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     this.initBlacklistUrlConfig(config);
 
-    if(config && config.trackHashBasedRouting && (config.trackHashBasedRouting === true)) {
-        this.trackHashBasedRouting = true;
+    // if(config && config.trackHashBasedRouting && (config.trackHashBasedRouting === true)) {
+    //     this.trackHashBasedRouting = true;
 
-        // bind to URL change event (without page refresh)
-        this.bindURLChange();
-    }
+    //     // bind to URL change event (without page refresh)
+    //     this.bindURLChange();
+    // }
 
     if(config && config.request && config.request.url) {
         this.request.url = config.request.url;
@@ -130,6 +135,14 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     if((config && config.request && config.request.url) && this.callback) {
         console.warn('Both callback and local storage options given. Give either one!');
     }
+
+    // create and monitor TOS session
+    this.monitorSession();
+
+    // var self = this;
+    // setInterval(function(){
+    //     self.showProgress();
+    // }, 1000);
 };
 
 TimeOnSiteTracker.prototype.getTimeDiff = function(startTime, endTime) {
@@ -197,6 +210,50 @@ TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
     return uniqId;
 };
 
+TimeOnSiteTracker.prototype.startSession = function(userId) {
+    if(userId && (userId.toString()).length) {
+
+        // check storage - user session needs window Storage availability
+        if(!this.storageSupported) {
+            console.warn('TOS cound not initiate user session due to non-availability of Storage.');
+            return;
+        }
+
+        var newSessionDuration  = 0;
+        this.TOSUserId = userId;
+        this.setCookie('TOSUserId', userId, 1);
+        this.setCookie('TOSSessionKey', this.getTOSSessionKey(), 1);
+        this.setCookie('TOSSessionDuration', newSessionDuration, 1);
+    } else {
+        console.warn('Please give proper userId to start TOS session.');
+    }
+
+};
+
+TimeOnSiteTracker.prototype.endSession = function() {
+    //process data accumulated so far before generating new session
+    this.monitorSession();
+    this.processTOSData();
+
+    // remove session data
+    this.removeCookie('TOSUserId');
+    this.removeCookie('TOSSessionKey');
+    this.removeCookie('TOSSessionDuration');
+
+    //create new TOS session
+    this.TOSUserId = 'anonymous';
+    sessionStorage.setItem('TOSSessionDuration', 0);
+    this.TOSSessionKey = this.createTOSSessionKey();
+    sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+    this.timeOnSite = 0;
+
+};
+
+// TimeOnSiteTracker.prototype.showProgress = function() {
+//     var d = this.getTimeOnPage();
+//     console.log('' + d.timeOnPage + ' ' + d.timeOnPageTrackedBy);
+// };
+
 TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
     if(config && config.blacklistUrl) {
 
@@ -215,28 +272,53 @@ TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
 TimeOnSiteTracker.prototype.monitorSession = function() {
     if (this.storageSupported) {
 
-        var sessionDuration = sessionStorage.getItem('TOSsessionDuration'),
-            sessionKey = sessionStorage.getItem('TOSsessionKey'),
+        var sessionDuration = sessionStorage.getItem('TOSSessionDuration'),
+            sessionKey = sessionStorage.getItem('TOSSessionKey'),
             pageData,
             count = 0;
 
         if(sessionDuration && sessionKey) {
             console.log('so far : ' + sessionDuration);
             pageData = this.getTimeOnPage();
-            //count = pageData.timeOnPage + Number(sessionDuration);
             sessionDuration = parseInt(sessionDuration);
+            //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessDura: ' + sessionDuration);
             count = pageData.timeOnPage + sessionDuration;
             this.TOSSessionKey = sessionKey;
-            sessionStorage.setItem('TOSsessionDuration', count);
+            sessionStorage.setItem('TOSSessionDuration', count);
             this.timeOnSite = count;
+
+            // save a copy of session duration to cookie
+            // case: user session exists and user is authenticated user
+            if(this.getCookie('TOSUserId')) {
+                this.TOSUserId = this.getCookie('TOSUserId');
+                this.setCookie('TOSSessionDuration', count, 1);
+            }
         } else {
-            //sessionStorage.TOSsessionDuration = 0;
-            sessionStorage.setItem('TOSsessionDuration', 0);
-            this.TOSSessionKey = this.createTOSSessionKey();
-            sessionStorage.setItem('TOSsessionKey', this.TOSSessionKey);
-            this.timeOnSite = 0;
+            
+            // case: local storage has already expired. However, user session exists in cookie safely
+            if(this.getCookie('TOSUserId')) {
+                // TOS user is authenticated user
+                var duration = 0;
+                this.TOSUserId = this.getCookie('TOSUserId');
+                pageData = this.getTimeOnPage();
+                console.log(pageData);
+                duration = pageData.timeOnPage + (parseInt(this.getCookie('TOSSessionDuration')));
+                //console.error('** Auth|New Tab count : ' + ' top : ' + pageData.timeOnPage + ' sessDura : ' + (parseInt(this.getCookie('TOSSessionDuration'))));
+                //alert('dura : ' + duration);
+                sessionStorage.setItem('TOSSessionDuration', duration);
+                this.TOSSessionKey = this.getCookie('TOSSessionKey');
+                sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+                this.timeOnSite = duration;
+
+            } else {
+                // case: TOS user is anonymous user
+                sessionStorage.setItem('TOSSessionDuration', 0);
+                this.TOSSessionKey = this.createTOSSessionKey();
+                sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+                this.timeOnSite = 0;
+
+            }   
         }
-        
     }
 };
 
@@ -256,6 +338,7 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     var page = {};
     page.TOSId = this.createTOSId();
     page.TOSSessionKey = this.TOSSessionKey;
+    page.TOSUserId = this.TOSUserId;
     page.URL = document.URL;
     page.title = document.title;
     return page;
@@ -458,10 +541,10 @@ TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
 
     if((dateKeys instanceof Array) && dateKeys.length) {
         var dateObj = (new Date()),
-            currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
+            //currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
             dateKey = dateKeys[0];
 
-        if(currentDayKey != dateKey) {
+        //if(currentDayKey != dateKey) {
             console.log('this day key : ' + dateKey)
 
             var item = localStorage.getItem(dateKey);
@@ -474,9 +557,9 @@ TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
                     this.sendData(dateKey, itemData);
                 }   
             }
-        } else {
-            console.warn('Todays date key found!');
-        }
+        // } else {
+        //     console.warn('Todays date key found!');
+        // }
         
     }
 };
@@ -664,69 +747,93 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 
 };
 
-// TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, exdays) {console.log('inside cookie');
-//     var d = new Date();
-//     d.setTime(d.getTime() + (exdays*24*60*60*1000));
-//     var expires = "expires="+d.toUTCString();
-//     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-// };
+TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    //d.setTime(d.getTime() + (10 * 1000));
+    var expires = 'expires=' + d.toUTCString();
+    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+};
 
-// TimeOnSiteTracker.prototype.getCookie = function(cname) {
-//     var name = cname + "=";
-//     var ca = document.cookie.split(';');
-//     for(var i = 0; i < ca.length; i++) {
-//         var c = ca[i];
-//         while (c.charAt(0) == ' ') {
-//             c = c.substring(1);
-//         }
-//         if (c.indexOf(name) == 0) {
-//             return c.substring(name.length, c.length);
-//         }
-//     }
-//     return "";
-// };
+TimeOnSiteTracker.prototype.getCookie = function(cname) {
+    var name = cname + '=';
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return '';
+};
 
-// TimeOnSiteTracker.prototype.checkCookie = function() {
-//     var user = getCookie("username");
-//     if (user != "") {
-//         alert("Welcome again " + user);
+TimeOnSiteTracker.prototype.removeCookie = function(cname) {
+    if(this.getCookie(cname)) {
+        document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+    }
+};
+
+// TimeOnSiteTracker.prototype.bindURLChange = function() {
+//     var self = this;
+
+//     if ('onhashchange' in window) {
+//        window.onhashchange = function() {
+//             alert('URL changes  via onhashchange!!!');
+//             self.executeURLChangeCustoms();
+//         }
+
 //     } else {
-//         user = prompt("Please enter your name:", "");
-//         if (user != "" && user != null) {
-//             setCookie("username", user, 365);
+//         var hashHandlerOldBrowsers = function() {
+//             this.oldHash = window.location.hash;
+
+//             var hashHandler = this;
+//             var detectChange = function() {
+//                 if(hashHandler.oldHash != window.location.hash){
+//                     hashHandler.oldHash = window.location.hash;
+//                         alert('URL changes  via HANDLER!!!');
+//                         self.executeURLChangeCustoms();
+//                     }
+//             };
+
+//             setInterval(function() {
+//                 detectChange(); 
+//             }, 100);
 //         }
+//         var hashDetection = new hashHandlerOldBrowsers();
+
 //     }
 // };
 
-
-TimeOnSiteTracker.prototype.bindURLChange = function() {
+TimeOnSiteTracker.prototype.bindWindowHistory = function() {
     var self = this;
+    
+    if (window.history && window.history.pushState) {
+        (function(history){
+            var pushState = history.pushState;
+            history.pushState = function(state) {
+                if (typeof history.onpushstate === 'function') {
+                    history.onpushstate({state: state});
+                }
+                return pushState.apply(history, arguments);
+            }
+        })(window.history);
 
-    if ('onhashchange' in window) {
-       window.onhashchange = function() {
-            alert('URL changes  via onhashchange!!!');
-            self.executeURLChangeCustoms();
-        }
 
-    } else {
-        var hashHandlerOldBrowsers = function() {
-            this.oldHash = window.location.hash;
-
-            var hashHandler = this;
-            var detectChange = function() {
-                if(hashHandler.oldHash != window.location.hash){
-                    hashHandler.oldHash = window.location.hash;
-                        alert('URL changes  via HANDLER!!!');
-                        self.executeURLChangeCustoms();
-                    }
-            };
-
-            setInterval(function() {
-                detectChange(); 
+        window.onpopstate = history.onpushstate = function(e) {
+            //console.log('now ' + window.location.href);
+            setTimeout(function(){
+                /**
+                 * when URL changes with push/pop states, it captures old title. 
+                 * Fix this URL-title mismatch by delaying by 100 milliseconds.
+                 */
+                alert('URL changes via window history object!!!');
+                self.executeURLChangeCustoms();
             }, 100);
-        }
-        var hashDetection = new hashHandlerOldBrowsers();
-
+            
+        };
     }
 };
 
@@ -735,7 +842,6 @@ TimeOnSiteTracker.prototype.executeURLChangeCustoms = function() {
     this.processTOSData();
     this.initBlacklistUrlConfig(this.config);
 };
-
 
 /**
  * [bindWindowUnload]
@@ -780,17 +886,15 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     /**
      * execute callback if given in config
      */
-    if(typeof this.callback === 'function') {
-        if(this.isTimeOnSiteAllowed) {
+    if(this.isTimeOnSiteAllowed) {
+        if(typeof this.callback === 'function') {
             data.realTimeTracking = true;
             this.callback(data);
-        } else {
-            data = {};
-            this.callback(data);
+            
+        } else if(this.storeInLocalStorage) {
+            this.saveToLocalStorage(data);
+            
         }
-        
-    } else if(this.isTimeOnSiteAllowed && this.storeInLocalStorage) {
-        this.saveToLocalStorage(data);
     }
 
     // Initialize variables on URL change.
@@ -817,10 +921,11 @@ var preserveNewTabSessionStorage = function() {
             localStorage.setItem('sessionStorage', JSON.stringify(sessionStorage));
             // the other tab should now have it, so we're done with it.
             localStorage.removeItem('sessionStorage'); // <- could do short timeout as well.
-        } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
+        // } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
+            } else if (event.key == 'sessionStorage') {
             // another tab sent data <- get it
             var data = JSON.parse(event.newValue);
-            var wantedSessionKeys = ['TOSsessionDuration', 'TOSsessionKey'];
+            var wantedSessionKeys = ['TOSSessionDuration', 'TOSSessionKey'];
             for (var key in data) {
                 for(var j =0; j < wantedSessionKeys.length; j++) {
                     if(wantedSessionKeys[j] == key) {

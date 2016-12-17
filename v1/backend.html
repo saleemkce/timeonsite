@@ -19,7 +19,6 @@
     <script src="../javascripts/tos_init.js"></script>
 
 
-
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -177,7 +176,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     if($res) {
         echo 'success';
     } else {
-        echo json_encode($res);
+        echo 'error';
     }
 } else {
     echo 'TOS data not received. Please check your endpoint URL and POST data from client-side!';
@@ -298,7 +297,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     if($res) {
         echo 'success';
     } else {
-        echo json_encode($res);
+        echo 'error';
     }
 } else {
     echo 'No data received!';

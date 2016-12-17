@@ -19,7 +19,6 @@
 
 
 
-
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -41,6 +40,7 @@
           <a href="#TOS-configuration-option">TOS configuration option</a><br/>
           <a href="#setting-custom-data">Setting custom data</a><br/>
           <a href="#unsetting-custom-data">Unsetting custom data</a><br/>
+          <a href="#user-sessions">User sessions **</a><br/>
           <a href="#saving-data-to-local-storage-for-performance">Saving data to local storage</a><br/>
           <a href="#real-time-tracking-example">Real-time <br/>&nbsp;&nbsp;Tracking Example</a><br/>
           <a href="#additional-features">Additional Features</a><br/>
@@ -92,7 +92,7 @@ var Tos = new TimeOnSiteTracker(config);
 </p>
 
 <a href="#getting-current-TOS-data"><h3 id="getting-current-TOS-data">Getting Current TOS data</h3></a>
-<p>You could call Tos anytime in the page by simple accessing <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> API in browser console provided/given that you initialzed TOS correctly.</p>
+<p>You could call Tos anytime in the page by simple accessing <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> API in browser console provided that you initialzed TOS correctly.</p>
 <pre class="prettyprint lang-js">
 // It's assumed you correctly initialzed Tos in the page as, var Tos = new TimeOnSite();
 Tos.getTimeOnPage();
@@ -296,7 +296,16 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
 </pre>
 </p>
 
+<h3 id="user-sessions">User sessions</h3>
+<p>You have learnt a lot about TimeOnSiteTracker and its configuration options. Now, it's time to set user ID to track and understand the behaviour of authenticated users in your application. For this, you may use <code><span class="apiHighlight">Tos.startSession()</span></code> API as given in example below. Moreover, this is <strong>optional</strong> setting but highly recommended in case your application makes use of authentication/login routine. If not set, all TOS tracking will be tracked as "anonymous" users in your application.</p>
+<pre class="prettyprint lang-js">
+    // when user is logged into your site, call startSession.
+    Tos.startSession('u2439ULasxv'); //"u2439ULasxv" is user id as available in your application
 
+    //when user logs out of your application, call endSession.
+    Tos.endSession(); 
+</pre>
+<p>Remember, you may call <code><span class="apiHighlight">Tos.startSession()</span></code> API only when user logs into your application and call <code><span class="apiHighlight">Tos.endSession()</span></code> only when user logs out. Calling <code><span class="apiHighlight">Tos.endSession()</span></code> too many times or unnecessarily may create inconsistent identity data in your DB. Failing to call <code><span class="apiHighlight">Tos.endSession()</span></code>, when user logs out in your application, may result in loss of that session data.</p>
 
 
 <h3 id="saving-data-to-local-storage-for-performance">Saving data to local storage for performance</h3>
@@ -394,7 +403,7 @@ var Tos = new TimeOnSiteTracker(config);
     In sendBeacon's else loop, you could see this. If sendBeacon() API is not supported by browser, we use normal XMLHTTPRequest to send data
     syncronously to server. Note the 3rd parameter "false" which is responsible for sending data to server before page gets closed.
 
-    <h3 id="TOS-real-time-key-considerations">TOS real-time - Key considerations</h3>
+    <h3 id="TOS-real-time-key-considerations">TOS real-time tracking - Key considerations</h3>
     <p>
         <ul>
             <li>
