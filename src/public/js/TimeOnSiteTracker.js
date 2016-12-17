@@ -32,7 +32,6 @@
  * Measure your user's interaction with site directly and accurately.
  */
 
-
 var TimeOnSiteTracker = function(config) {
     
     this.varyingStartTime = new Date();
@@ -70,7 +69,7 @@ var TimeOnSiteTracker = function(config) {
     
     console.log('Time at page entry: ' + this.varyingStartTime);
 
-    this.initialize(this.config); this.processDataInLocalStorage();
+    this.initialize(this.config);
 
 };
 
@@ -87,6 +86,9 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     // check Storage supported by browser
     if (typeof(Storage) !== 'undefined') {
         this.storageSupported = true;
+
+        //process any saved data in local storage
+        this.processDataInLocalStorage();
     } else {
         console.info('Session/Local storage not supported by this browser.');
     }
@@ -919,7 +921,8 @@ var preserveNewTabSessionStorage = function() {
             localStorage.setItem('sessionStorage', JSON.stringify(sessionStorage));
             // the other tab should now have it, so we're done with it.
             localStorage.removeItem('sessionStorage'); // <- could do short timeout as well.
-        } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
+        // } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
+            } else if (event.key == 'sessionStorage') {
             // another tab sent data <- get it
             var data = JSON.parse(event.newValue);
             var wantedSessionKeys = ['TOSSessionDuration', 'TOSSessionKey'];
