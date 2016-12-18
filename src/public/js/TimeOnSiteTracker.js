@@ -219,10 +219,17 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
             return;
         }
 
+        //process data accumulated so far before starting new session
+        this.monitorSession();
+        this.processTOSData();
+
+        // create new authenticated TOS session
+        this.createNewSession();
+
         var newSessionDuration  = 0;
         this.TOSUserId = userId;
         this.setCookie('TOSUserId', userId, 1);
-        this.setCookie('TOSSessionKey', this.getTOSSessionKey(), 1);
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, 1);
         this.setCookie('TOSSessionDuration', newSessionDuration, 1);
     } else {
         console.warn('Please give proper userId to start TOS session.');
@@ -231,7 +238,7 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
 };
 
 TimeOnSiteTracker.prototype.endSession = function() {
-    //process data accumulated so far before generating new session
+    //process data accumulated so far before ending session
     this.monitorSession();
     this.processTOSData();
 
@@ -242,10 +249,8 @@ TimeOnSiteTracker.prototype.endSession = function() {
 
     //create new TOS session
     this.TOSUserId = 'anonymous';
-    sessionStorage.setItem('TOSSessionDuration', 0);
-    this.TOSSessionKey = this.createTOSSessionKey();
-    sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
-    this.timeOnSite = 0;
+
+    this.createNewSession();
 
 };
 
@@ -312,14 +317,19 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 
             } else {
                 // case: TOS user is anonymous user
-                sessionStorage.setItem('TOSSessionDuration', 0);
-                this.TOSSessionKey = this.createTOSSessionKey();
-                sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
-                this.timeOnSite = 0;
+                this.createNewSession();
 
             }   
         }
     }
+};
+
+TimeOnSiteTracker.prototype.createNewSession = function() {
+    sessionStorage.setItem('TOSSessionDuration', 0);
+    this.TOSSessionKey = this.createTOSSessionKey();
+    sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+    this.timeOnSite = 0;
+
 };
 
 // URL blacklisting from tracking in "Time on site"
