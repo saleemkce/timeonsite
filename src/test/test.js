@@ -27,7 +27,8 @@ describe('TimeOnSiteTracker Tests', function () {
             'cancelXMLHTTPRequest','bindWindowFocus','bindWindowUnload',
             'processTOSData', 'millisecondToSecond', 'secondToDuration', 
             'executeURLChangeCustoms', 'bindWindowHistory', 'startSession',
-            'endSession', 'setCookie', 'getCookie', 'removeCookie', 'TOSUserId' 
+            'endSession', 'setCookie', 'getCookie', 'removeCookie', 'TOSUserId',
+            'createNewSession', 'checkDoNotTrackSetting' 
             // 'trackHashBasedRouting', 'bindURLChange',
         ];
 

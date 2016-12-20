@@ -74,6 +74,16 @@ var TimeOnSiteTracker = function(config) {
 };
 
 TimeOnSiteTracker.prototype.initialize = function(config) {
+
+    //check "do not track" request
+    if(this.checkDoNotTrackSetting()) {
+        if(config && config.ignoreDNT) {
+            // ignore DNT request and continue to track TOS
+        } else {
+            return false;
+        }
+    }
+
     // bind to window close event
     this.bindWindowUnload();
 
@@ -816,6 +826,22 @@ TimeOnSiteTracker.prototype.removeCookie = function(cname) {
 
 //     }
 // };
+
+
+TimeOnSiteTracker.prototype.checkDoNotTrackSetting = function() {
+    if(navigator && navigator.doNotTrack) {
+        return true;
+
+    } else if(navigator && navigator.msDoNotTrack) { //IE 9, 10
+        return true;
+
+    }else if(window && window.doNotTrack) { //Safari 7.1 and IE 11
+        return true;
+
+    }
+
+    return false;
+};
 
 TimeOnSiteTracker.prototype.bindWindowHistory = function() {
     var self = this;
