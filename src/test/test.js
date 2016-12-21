@@ -466,7 +466,41 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
     //     expect(Tos.trackHashBasedRouting).to.equal(true);
 
     // });
+
+
 });
+
+describe('TimeOnSiteTracker with user session', function () {
+        var config = {
+            trackBy: 'seconds',
+            callback: function(data) {
+        }};
+
+        it('userId checking in TOS session', function () {
+            var Tos = new TimeOnSiteTracker(config),
+                userId = Tos.getTimeOnPage().TOSUserId,
+                authenticatedUserId = 'saleemkce';
+
+            // userId should be 'anonymous' before starting session
+            expect(Tos.TOSUserId).to.equal('anonymous');
+            expect(userId).to.equal('anonymous');
+
+            Tos.startSession(authenticatedUserId);
+            userId = Tos.getTimeOnPage().TOSUserId;
+
+            // userId should be authenticated userId value after starting session
+            expect(Tos.TOSUserId).to.equal(authenticatedUserId);
+            expect(userId).to.equal(authenticatedUserId);
+
+            Tos.endSession();
+            userId = Tos.getTimeOnPage().TOSUserId;
+
+            // userId should be 'anonymous' after ending session
+            expect(Tos.TOSUserId).to.equal('anonymous');
+            expect(userId).to.equal('anonymous');
+        });
+});
+
 
 describe('TimeOnSiteTracker with localstorage', function () {
 
