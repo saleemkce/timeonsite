@@ -18,7 +18,6 @@
     <script src="javascripts/tos_init.js"></script>
 
 
-
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -236,7 +235,7 @@ var Tos = new TimeOnSiteTracker(config);
 </pre>
 
 
-<h3 id=">blacklisting-URL-from-getting-tracked">* Blacklisting URL from getting tracked</h3>
+<h3 id="blacklisting-URL-from-getting-tracked">* Blacklisting URL from getting tracked</h3>
 <p>You may want to block specifc page from getting tracked. For this,
 you need to give "blacklistUrl" parameter,<br/>
 <pre class="prettyprint lang-js">
@@ -245,6 +244,19 @@ var config = {
     blacklistUrl: ['http://tos-localdata.chennai/home.php'], // pages to blacklist; give 
     //URLs in arrary eg. ['URL1', 'URL2', 'URL3']
 
+    callback: function(data) { // if you give callback, it becomes real-time tracking
+        console.log(data);
+
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+</p>
+
+<h3 id="do-not-track">* Ignoring "Do not track" browser setting</h3>
+<p>By default, TimeOnSite Tracker accepts "do not track" browser setting. This means, if this setting is enabled in browser, TOS will not track any data. If you would like to ignore this browser setting and force TOS tracker to continue tracking, you need to set "ignoreDNT" config option as,<br/>
+<pre class="prettyprint lang-js">
+var config = {
+    ignoreDNT: true,
     callback: function(data) { // if you give callback, it becomes real-time tracking
         console.log(data);
 
