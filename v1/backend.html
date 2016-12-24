@@ -16,8 +16,7 @@
 
     <!-- timeonsitetracker -->
     <script src="../javascripts/timeonsitetracker.js"></script>
-    <script src="../javascripts/tos_init.js"></script>
-
+    <script src="../javascripts/tos_init.js"></script> 
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -46,6 +45,13 @@
                   <li><a href="https://github.com/saleemkce/timeonsite">View On <strong>GitHub</strong></a></li>
                 </ul>
             </header>
+
+            <section class="coverImg">
+                <div class="text">
+                    Time On Site Tracker
+                </div>
+              </section>
+
             <section>
             
                 <!-- <h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
@@ -54,7 +60,7 @@
 
 
 
-                <h3 id="examples">Saving TOS to database - Examples || Server-side data handling</h3>
+                <br/><h3 id="examples">Saving TOS to database - Examples || Server-side data handling</h3>
                 <h3 id="time-on-site-tracking">Time On Site Tracking</h3>
                 <h3 id="NodeJs">Node.js example</h3>
 <pre class="prettyprint lang-js">
@@ -207,7 +213,10 @@ module.exports = function(app) {
 
 //file 2: activity.model.js
 var mongoose = require('mongoose'),
-Schema = new mongoose.Schema({
+Schema = new mongoose.Schema({ 
+// we don't specify any fields here since mongo is schema-free. If you want to 
+// specify fields with data type, you could do that. It applies to tos.model.js 
+// file too which we created in this page.
 }, {
     versionKey: false,
     strict: false
@@ -308,7 +317,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <h3 id="testing-with-postman">Test with Postman</h3>
 <pre class="prettyprint">
-URL: http://localhost/project-z/examples/tos.php
+URL: http://localhost/project-z/examples/tos.php  //give URL where your server-side tos.php file resides/NodeJs route to handle tos data.
 
 Method: POST
 

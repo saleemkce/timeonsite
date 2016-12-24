@@ -23,6 +23,21 @@ table#TOSTable th {
     color: white;
 }
 
+.coverImg {
+    height:50px;
+    background-image: url("../images/tospattern.png");
+    background-repeat: repeat;
+    border-radius: 20px;
+}
+
+.coverImg .text{
+    color: #f9f9f9;
+    font-family: cursive;
+    font-size: 36px;
+    text-align: center;
+    padding-top: 20px;
+}
+
 body {
     color: #585757 !important;
 }
