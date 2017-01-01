@@ -1,4 +1,4 @@
-/**
+/**@preserve
  * Commercial License
  *
  * TimeOnSiteTracker.js - Measure your user's Time on site accurately.
