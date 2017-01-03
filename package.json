@@ -1,0 +1,31 @@
+{
+    "name": "timeonsite",
+    "version": "1.0.0",
+    "description": "measure your user's Time on site accurately",
+    "main": "Gruntfile.js",
+    "dependencies": {},
+    "devDependencies": {
+        "grunt": "^1.0.1",
+        "grunt-contrib-copy": "^1.0.0",
+        "grunt-contrib-uglify": "^2.0.0"
+    },
+        "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/saleemkce/timeonsite.git"
+    },
+    "keywords": [
+        "tos",
+        "top",
+        "timeonsite",
+        "timeonpage"
+    ],
+    "author": "Saleem Khan",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/saleemkce/timeonsite/issues"
+    },
+    "homepage": "https://github.com/saleemkce/timeonsite#readme"
+}

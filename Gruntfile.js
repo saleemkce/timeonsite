@@ -15,16 +15,31 @@ module.exports = function(grunt) {
 
             my_target: {
                 files: {
-                    'TimeOnSiteTracker.min.js': ['TimeOnSiteTracker.js']
+                    'src/public/js/timeonsitetracker.min.js': ['src/public/js/timeonsitetracker.js']
                 }
             }
-        }
+        },
 
+        copy: {
+            main: {
+                expand: true,
+                flatten: true,
+                src: ['src/public/js/**'],
+                dest: '',
+                filter: 'isFile'
+            }
+        }
 
     });
 
     grunt.loadNpmTasks('grunt-contrib-uglify');
+
+    grunt.loadNpmTasks('grunt-contrib-copy');
     
     grunt.registerTask('minify', ['uglify']);
+
+    grunt.registerTask('copoy', ['copy']);
+
+    grunt.registerTask('build', ['minify', 'copoy']);
     
 };
