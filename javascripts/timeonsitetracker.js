@@ -1,27 +1,18 @@
-/**
- * @preserve
- * The MIT License (MIT)
+/**@preserve
+ * Commercial License
  *
  * TimeOnSiteTracker.js - Measure your user's Time on site accurately.
  * 
  * Copyright (C) 2016  Saleem Khan
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this 
- * software and associated documentation files (the "Software"), to deal in the Software 
- * without restriction, including without limitation the rights to use, copy, modify, 
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
- * to permit persons to whom the Software is furnished to do so, subject to the following 
- * conditions:
-
- * The above copyright notice and this permission notice shall be included in all copies 
- * or substantial portions of the Software.
-
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * License key: {your-license-key-here}
+ *
+ * This is copyrighted software and requires you buy commericial license
+ * before using it. Replace {your-license-key-here} with the licence key 
+ * that you buy before starting to use this software. 
+ * 
+ * visit https://github.com/saleemkce/timeonsite/master/LICENSE.md to learn more about 
+ * license terms. 
  */
 
 /**
@@ -42,7 +33,6 @@ var TimeOnSiteTracker = function(config) {
     this.isTimeOnSiteAllowed = true;
     this.callback = null;
     this.timeSpentArr = [];
-    //this.trackHashBasedRouting = false;
 
     this.storeInLocalStorage = false;
     this.storageSupported = false;
@@ -74,14 +64,21 @@ var TimeOnSiteTracker = function(config) {
 };
 
 TimeOnSiteTracker.prototype.initialize = function(config) {
+
+    //check "do not track" request
+    if(this.checkDoNotTrackSetting()) {
+        if(config && config.ignoreDNT) {
+            // ignore DNT request and continue to track TOS
+        } else {
+            return false;
+        }
+    }
+
     // bind to window close event
     this.bindWindowUnload();
 
     // bind to focus/blur window state
     this.bindWindowFocus();
-
-    //bind to window history states
-    this.bindWindowHistory();
 
     // check Storage supported by browser
     if (typeof(Storage) !== 'undefined') {
@@ -106,12 +103,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     this.initBlacklistUrlConfig(config);
 
-    // if(config && config.trackHashBasedRouting && (config.trackHashBasedRouting === true)) {
-    //     this.trackHashBasedRouting = true;
+    if(config && config.trackHistoryChange && (config.trackHistoryChange === true)) {
 
-    //     // bind to URL change event (without page refresh)
-    //     this.bindURLChange();
-    // }
+        // bind to URL change event (without page refresh)
+        //this.bindURLChange();
+        this.bindWindowHistory();
+    }
 
     if(config && config.request && config.request.url) {
         this.request.url = config.request.url;
@@ -219,10 +216,17 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
             return;
         }
 
+        //process data accumulated so far before starting new session
+        this.monitorSession();
+        this.processTOSData();
+
+        // create new authenticated TOS session
+        this.createNewSession();
+
         var newSessionDuration  = 0;
         this.TOSUserId = userId;
         this.setCookie('TOSUserId', userId, 1);
-        this.setCookie('TOSSessionKey', this.getTOSSessionKey(), 1);
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, 1);
         this.setCookie('TOSSessionDuration', newSessionDuration, 1);
     } else {
         console.warn('Please give proper userId to start TOS session.');
@@ -231,7 +235,7 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
 };
 
 TimeOnSiteTracker.prototype.endSession = function() {
-    //process data accumulated so far before generating new session
+    //process data accumulated so far before ending session
     this.monitorSession();
     this.processTOSData();
 
@@ -242,10 +246,8 @@ TimeOnSiteTracker.prototype.endSession = function() {
 
     //create new TOS session
     this.TOSUserId = 'anonymous';
-    sessionStorage.setItem('TOSSessionDuration', 0);
-    this.TOSSessionKey = this.createTOSSessionKey();
-    sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
-    this.timeOnSite = 0;
+
+    this.createNewSession();
 
 };
 
@@ -312,14 +314,19 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 
             } else {
                 // case: TOS user is anonymous user
-                sessionStorage.setItem('TOSSessionDuration', 0);
-                this.TOSSessionKey = this.createTOSSessionKey();
-                sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
-                this.timeOnSite = 0;
+                this.createNewSession();
 
             }   
         }
     }
+};
+
+TimeOnSiteTracker.prototype.createNewSession = function() {
+    sessionStorage.setItem('TOSSessionDuration', 0);
+    this.TOSSessionKey = this.createTOSSessionKey();
+    sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+    this.timeOnSite = 0;
+
 };
 
 // URL blacklisting from tracking in "Time on site"
@@ -807,6 +814,22 @@ TimeOnSiteTracker.prototype.removeCookie = function(cname) {
 //     }
 // };
 
+
+TimeOnSiteTracker.prototype.checkDoNotTrackSetting = function() {
+    if(navigator && navigator.doNotTrack) {
+        return true;
+
+    } else if(navigator && navigator.msDoNotTrack) { //IE 9, 10
+        return true;
+
+    }else if(window && window.doNotTrack) { //Safari 7.1 and IE 11
+        return true;
+
+    }
+
+    return false;
+};
+
 TimeOnSiteTracker.prototype.bindWindowHistory = function() {
     var self = this;
     
@@ -834,6 +857,26 @@ TimeOnSiteTracker.prototype.bindWindowHistory = function() {
             }, 100);
             
         };
+    } else {
+        // check if URL change occurs for browsers that don't support window.history
+        var hashHandlerOldBrowsers = function() {
+            this.oldHash = window.location.hash;
+
+            var hashHandler = this;
+            var detectChange = function() {
+                if(hashHandler.oldHash != window.location.hash){
+                    hashHandler.oldHash = window.location.hash;
+                        alert('URL changes  via HANDLER!!!');
+                        self.executeURLChangeCustoms();
+                    }
+            };
+
+            setInterval(function() {
+                detectChange(); 
+            }, 100);
+        }
+        var hashDetection = new hashHandlerOldBrowsers();
+
     }
 };
 

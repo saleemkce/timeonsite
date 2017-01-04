@@ -208,8 +208,8 @@ var config = {
     // pages to blacklist; give URLs in arrary eg. ['URL1', 'URL2', 'URL3']
     blacklistUrl: ['http://tos-localdata.chennai/blog/id/1'],
 
-    //this parameter helps track single-page apps
-    trackHashBasedRouting: true, 
+    //this parameter helps track pageviews for single-page apps that use hash-based URL routing
+    trackHistoryChange: true, 
 
     //save to local storage. If you give callback along with this option, callback will take precedence
     request: {
@@ -605,5 +605,5 @@ var activityData = Tos.endActivity({}, manualProcess);
 html code conversion @
 http://www.web2generators.com/html-based-tools/online-html-entities-encoder-and-decoder 
 
-bundle exec jekyll serve
+bundle exec jekyll serve --port=80
 -->
