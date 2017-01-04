@@ -29,7 +29,7 @@ describe('TimeOnSiteTracker Tests', function () {
             'executeURLChangeCustoms', 'bindWindowHistory', 'startSession',
             'endSession', 'setCookie', 'getCookie', 'removeCookie', 'TOSUserId',
             'createNewSession', 'checkDoNotTrackSetting' 
-            // 'trackHashBasedRouting', 'bindURLChange',
+            //'bindURLChange',
         ];
 
         var TOSPropertiesArr = [];
@@ -451,21 +451,6 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
         //expect(Tos.isTimeOnSiteAllowed).to.equal(false);
 
     });
-
-
-    // it('Initialize TimeOnSiteTracker with trackHashBasedRouting param', function () {
-    //      var config = {
-    //         trackHashBasedRouting: true
-    //     };
-
-    //     // hash-based Url routing is false by default
-    //     var Tos = new TimeOnSiteTracker();
-    //     expect(Tos.trackHashBasedRouting).to.equal(false);
-
-    //     var Tos = new TimeOnSiteTracker(config);
-    //     expect(Tos.trackHashBasedRouting).to.equal(true);
-
-    // });
 
 
 });

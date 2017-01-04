@@ -33,7 +33,6 @@ var TimeOnSiteTracker = function(config) {
     this.isTimeOnSiteAllowed = true;
     this.callback = null;
     this.timeSpentArr = [];
-    //this.trackHashBasedRouting = false;
 
     this.storeInLocalStorage = false;
     this.storageSupported = false;
@@ -81,9 +80,6 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     // bind to focus/blur window state
     this.bindWindowFocus();
 
-    //bind to window history states
-    this.bindWindowHistory();
-
     // check Storage supported by browser
     if (typeof(Storage) !== 'undefined') {
         this.storageSupported = true;
@@ -107,12 +103,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     this.initBlacklistUrlConfig(config);
 
-    // if(config && config.trackHashBasedRouting && (config.trackHashBasedRouting === true)) {
-    //     this.trackHashBasedRouting = true;
+    if(config && config.trackHistoryChange && (config.trackHistoryChange === true)) {
 
-    //     // bind to URL change event (without page refresh)
-    //     this.bindURLChange();
-    // }
+        // bind to URL change event (without page refresh)
+        //this.bindURLChange();
+        this.bindWindowHistory();
+    }
 
     if(config && config.request && config.request.url) {
         this.request.url = config.request.url;
@@ -861,6 +857,26 @@ TimeOnSiteTracker.prototype.bindWindowHistory = function() {
             }, 100);
             
         };
+    } else {
+        // check if URL change occurs for browsers that don't support window.history
+        var hashHandlerOldBrowsers = function() {
+            this.oldHash = window.location.hash;
+
+            var hashHandler = this;
+            var detectChange = function() {
+                if(hashHandler.oldHash != window.location.hash){
+                    hashHandler.oldHash = window.location.hash;
+                        alert('URL changes  via HANDLER!!!');
+                        self.executeURLChangeCustoms();
+                    }
+            };
+
+            setInterval(function() {
+                detectChange(); 
+            }, 100);
+        }
+        var hashDetection = new hashHandlerOldBrowsers();
+
     }
 };
 
