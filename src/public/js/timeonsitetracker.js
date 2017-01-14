@@ -274,8 +274,10 @@ TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
 TimeOnSiteTracker.prototype.monitorSession = function() {
     if (this.storageSupported) {
 
-        var sessionDuration = sessionStorage.getItem('TOSSessionDuration'),
-            sessionKey = sessionStorage.getItem('TOSSessionKey'),
+        //var sessionDuration = sessionStorage.getItem('TOSSessionDuration'),
+        var sessionDuration = this.getCookie('TOSSessionDuration'),
+            //sessionKey = sessionStorage.getItem('TOSSessionKey'),
+            sessionKey = this.getCookie('TOSSessionKey'),
             pageData,
             count = 0;
 
@@ -286,7 +288,9 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
             //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessDura: ' + sessionDuration);
             count = pageData.timeOnPage + sessionDuration;
             this.TOSSessionKey = sessionKey;
-            sessionStorage.setItem('TOSSessionDuration', count);
+            //sessionStorage.setItem('TOSSessionDuration', count);
+            this.setCookie('TOSSessionDuration', count, 1); //added
+
             this.timeOnSite = count;
 
             // save a copy of session duration to cookie
@@ -307,9 +311,11 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
                 duration = pageData.timeOnPage + (parseInt(this.getCookie('TOSSessionDuration')));
                 //console.error('** Auth|New Tab count : ' + ' top : ' + pageData.timeOnPage + ' sessDura : ' + (parseInt(this.getCookie('TOSSessionDuration'))));
                 //alert('dura : ' + duration);
-                sessionStorage.setItem('TOSSessionDuration', duration);
+                //sessionStorage.setItem('TOSSessionDuration', duration);
+                this.setCookie('TOSSessionDuration', duration, 1);
                 this.TOSSessionKey = this.getCookie('TOSSessionKey');
-                sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+                //sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+                this.setCookie('TOSSessionKey', this.TOSSessionKey, 1);
                 this.timeOnSite = duration;
 
             } else {
@@ -322,9 +328,13 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 };
 
 TimeOnSiteTracker.prototype.createNewSession = function() {
-    sessionStorage.setItem('TOSSessionDuration', 0);
+    //sessionStorage.setItem('TOSSessionDuration', 0);
+
+    this.setCookie('TOSSessionDuration', 0, 1); //added
+
     this.TOSSessionKey = this.createTOSSessionKey();
-    sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+    //sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
+    this.setCookie('TOSSessionKey', this.TOSSessionKey, 1);
     this.timeOnSite = 0;
 
 };
@@ -953,44 +963,38 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     }
 };
 
-// transfers sessionStorage from one tab to another
-var preserveNewTabSessionStorage = function() {
-    console.log('New tab session monitoring: on');
-    var sessionStorage_transfer = function(event) {
-        if(!event) { event = window.event; } // ie suq
-        if(!event.newValue) return;          // do nothing if no value to work with
-        if (event.key == 'getSessionStorage') {
-            // another tab asked for the sessionStorage -> send it
-            localStorage.setItem('sessionStorage', JSON.stringify(sessionStorage));
-            // the other tab should now have it, so we're done with it.
-            localStorage.removeItem('sessionStorage'); // <- could do short timeout as well.
-        // } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
-            } else if (event.key == 'sessionStorage') {
-            // another tab sent data <- get it
-            var data = JSON.parse(event.newValue);
-            var wantedSessionKeys = ['TOSSessionDuration', 'TOSSessionKey'];
-            for (var key in data) {
-                for(var j =0; j < wantedSessionKeys.length; j++) {
-                    if(wantedSessionKeys[j] == key) {
-                        sessionStorage.setItem(key, data[key]);
-                        continue;
-                    }
-                }
-            }
-        }
-    };
+// // transfers sessionStorage from one tab to another
+// var preserveNewTabSessionStorage = function() {
+//     console.log('New tab session monitoring: on');
+//     // transfers sessionStorage from one tab to another
+//     var sessionStorage_transfer = function(event) {
+//       if(!event) { event = window.event; } // ie suq
+//       if(!event.newValue) return;          // do nothing if no value to work with
+//       if (event.key == 'getSessionStorage') {
+//         // another tab asked for the sessionStorage -> send it
+//         localStorage.setItem('sessionStorage', JSON.stringify(sessionStorage));
+//         // the other tab should now have it, so we're done with it.
+//         localStorage.removeItem('sessionStorage'); // <- could do short timeout as well.
+//       } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
+//         // another tab sent data <- get it
+//         var data = JSON.parse(event.newValue);
+//         for (var key in data) {
+//           sessionStorage.setItem(key, data[key]);
+//         }
+//       }
+//     };
 
-    // listen for changes to localStorage
-    if(window.addEventListener) {
-        window.addEventListener("storage", sessionStorage_transfer, false);
-    } else {
-        window.attachEvent("onstorage", sessionStorage_transfer);
-    };
+//     // listen for changes to localStorage
+//     if(window.addEventListener) {
+//       window.addEventListener("storage", sessionStorage_transfer, false);
+//     } else {
+//       window.attachEvent("onstorage", sessionStorage_transfer);
+//     };
 
 
-    // Ask other tabs for session storage (this is ONLY to trigger event)
-    if (!sessionStorage.length) {
-        localStorage.setItem('getSessionStorage', 'testData');
-        localStorage.removeItem('getSessionStorage', 'testData');
-    };
-}();
+//     // Ask other tabs for session storage (this is ONLY to trigger event)
+//     if (!sessionStorage.length) {
+//       localStorage.setItem('getSessionStorage', 'foobar');
+//       localStorage.removeItem('getSessionStorage', 'foobar');
+//     };
+// }();
