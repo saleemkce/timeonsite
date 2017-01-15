@@ -49,10 +49,11 @@ var TimeOnSiteTracker = function(config) {
     this.TOSSessionKey = null;
     this.customData = null;
     this.TOSUserId = 'anonymous';
+    this.anonymousTimerId = null;
 
     //local storage config
     this.request = {
-        url: 'http://localhost:4500/data/tos',
+        url: '',
         headers: []
     };
     this.isRequestHeadersAvailable = false;
@@ -64,16 +65,6 @@ var TimeOnSiteTracker = function(config) {
 };
 
 TimeOnSiteTracker.prototype.initialize = function(config) {
-
-    //check "do not track" request
-    if(this.checkDoNotTrackSetting()) {
-        if(config && config.ignoreDNT) {
-            // ignore DNT request and continue to track TOS
-        } else {
-            return false;
-        }
-    }
-
     // bind to window close event
     this.bindWindowUnload();
 
@@ -89,9 +80,6 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     } else {
         console.info('Session/Local storage not supported by this browser.');
     }
-
-    // // create and monitor TOS session
-    // this.monitorSession();
 
     if(config && config.trackBy && (config.trackBy.toLowerCase() === 'seconds')) {
          this.returnInSeconds = true;
@@ -134,6 +122,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     }
 
     // create and monitor TOS session
+    this.monitorUser();
+
     this.monitorSession();
 
     // var self = this;
@@ -225,9 +215,9 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
 
         var newSessionDuration  = 0;
         this.TOSUserId = userId;
-        this.setCookie('TOSUserId', userId, 1);
-        this.setCookie('TOSSessionKey', this.TOSSessionKey, 1);
-        this.setCookie('TOSSessionDuration', newSessionDuration, 1);
+        this.setCookie('TOSUserId', userId, 86400);
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, 86400);
+        this.setCookie('TOSSessionDuration', newSessionDuration, 86400);
     } else {
         console.warn('Please give proper userId to start TOS session.');
     }
@@ -247,7 +237,7 @@ TimeOnSiteTracker.prototype.endSession = function() {
     //create new TOS session
     this.TOSUserId = 'anonymous';
 
-    this.createNewSession();
+    this.createNewSession('anonymous');
 
 };
 
@@ -271,72 +261,78 @@ TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
     }
 };
 
-TimeOnSiteTracker.prototype.monitorSession = function() {
-    if (this.storageSupported) {
+TimeOnSiteTracker.prototype.monitorUser = function() {
+    var authenticatedUser = this.getCookie('TOSUserId'),
+        sessionKey = this.getCookie('TOSSessionKey');
 
-        //var sessionDuration = sessionStorage.getItem('TOSSessionDuration'),
-        var sessionDuration = this.getCookie('TOSSessionDuration'),
-            //sessionKey = sessionStorage.getItem('TOSSessionKey'),
-            sessionKey = this.getCookie('TOSSessionKey'),
-            pageData,
-            count = 0;
-
-        if(sessionDuration && sessionKey) {
-            console.log('so far : ' + sessionDuration);
-            pageData = this.getTimeOnPage();
-            sessionDuration = parseInt(sessionDuration);
-            //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessDura: ' + sessionDuration);
-            count = pageData.timeOnPage + sessionDuration;
-            this.TOSSessionKey = sessionKey;
-            //sessionStorage.setItem('TOSSessionDuration', count);
-            this.setCookie('TOSSessionDuration', count, 1); //added
-
-            this.timeOnSite = count;
-
-            // save a copy of session duration to cookie
-            // case: user session exists and user is authenticated user
-            if(this.getCookie('TOSUserId')) {
-                this.TOSUserId = this.getCookie('TOSUserId');
-                this.setCookie('TOSSessionDuration', count, 1);
-            }
-        } else {
-            
-            // case: local storage has already expired. However, user session exists in cookie safely
-            if(this.getCookie('TOSUserId')) {
-                // TOS user is authenticated user
-                var duration = 0;
-                this.TOSUserId = this.getCookie('TOSUserId');
-                pageData = this.getTimeOnPage();
-                console.log(pageData);
-                duration = pageData.timeOnPage + (parseInt(this.getCookie('TOSSessionDuration')));
-                //console.error('** Auth|New Tab count : ' + ' top : ' + pageData.timeOnPage + ' sessDura : ' + (parseInt(this.getCookie('TOSSessionDuration'))));
-                //alert('dura : ' + duration);
-                //sessionStorage.setItem('TOSSessionDuration', duration);
-                this.setCookie('TOSSessionDuration', duration, 1);
-                this.TOSSessionKey = this.getCookie('TOSSessionKey');
-                //sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
-                this.setCookie('TOSSessionKey', this.TOSSessionKey, 1);
-                this.timeOnSite = duration;
-
-            } else {
-                // case: TOS user is anonymous user
-                this.createNewSession();
-
-            }   
-        }
+    if(authenticatedUser && authenticatedUser.length) {
+        console.info('Authenticated user!!!');
+        this.TOSUserId = authenticatedUser;
+    } else if(sessionKey && (!authenticatedUser)) {
+        console.info('Anonymous user!!!');
+        this.renewSession();
+    } else {
+        this.createNewSession('anonymous');
     }
+
 };
 
-TimeOnSiteTracker.prototype.createNewSession = function() {
-    //sessionStorage.setItem('TOSSessionDuration', 0);
+TimeOnSiteTracker.prototype.monitorSession = function() {
+    var sessionDuration = this.getCookie('TOSSessionDuration'),
+        sessionKey = this.getCookie('TOSSessionKey'),
+        pageData,
+        count = 0;
 
-    this.setCookie('TOSSessionDuration', 0, 1); //added
+    console.log('AT monitorSession, key : '+sessionKey);
+    if(!sessionKey) {
+        alert('caution, sessionKey empty at : '+new Date());
+    }
 
+    pageData = this.getTimeOnPage();
+    sessionDuration = parseInt(sessionDuration);
+    //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessDura: ' + sessionDuration);
+    count = pageData.timeOnPage + sessionDuration;
+    this.TOSSessionKey = sessionKey;
+    this.setCookie('TOSSessionDuration', count, 86400);
+
+    this.timeOnSite = count;
+
+};
+
+TimeOnSiteTracker.prototype.createNewSession = function(userType) {
+    this.setCookie('TOSSessionDuration', 0, 86400);
     this.TOSSessionKey = this.createTOSSessionKey();
-    //sessionStorage.setItem('TOSSessionKey', this.TOSSessionKey);
-    this.setCookie('TOSSessionKey', this.TOSSessionKey, 1);
+    //alert('new cookie created!!!');
+
+    /**
+     * anonymous users have a short session of 15 seconds 
+     * but gets extended every second to next 15 seconds till the 
+     * browser tab is open. If the browser is closed, the anonymous 
+     * user session expired in next 15 seconds.
+     */
+    if(userType === 'anonymous') {
+        //alert('user type is anonymous');
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, 15);
+        this.renewSession();
+    } else {//alert('user type is authenticated!');
+        if(this.anonymousTimerId) {
+            //alert('timer cleared '+this.anonymousTimerId);
+            clearInterval(this.anonymousTimerId);
+        } else {alert('Timer not found '+this.anonymousTimerId);}
+        //authenticated users session extends till the next day
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, 86400);
+    }
+    
     this.timeOnSite = 0;
 
+};
+
+TimeOnSiteTracker.prototype.renewSession = function() {
+    var self = this;
+    this.anonymousTimerId = setInterval(function(){
+        console.log('cookie renewed at : '+(new Date()));
+        self.setCookie('TOSSessionKey', self.TOSSessionKey, 15);
+    }, (1 * 1000));
 };
 
 // URL blacklisting from tracking in "Time on site"
@@ -764,10 +760,12 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 
 };
 
-TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, exdays) {
+TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, secs) {
     var d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    //d.setTime(d.getTime() + (10 * 1000));
+    d.setTime(d.getTime() + (secs * 1000));
+
+    //console.log('cookie expire @ '+new Date(d));
+
     var expires = 'expires=' + d.toUTCString();
     document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
 };
@@ -823,22 +821,6 @@ TimeOnSiteTracker.prototype.removeCookie = function(cname) {
 
 //     }
 // };
-
-
-TimeOnSiteTracker.prototype.checkDoNotTrackSetting = function() {
-    if(navigator && navigator.doNotTrack) {
-        return true;
-
-    } else if(navigator && navigator.msDoNotTrack) { //IE 9, 10
-        return true;
-
-    }else if(window && window.doNotTrack) { //Safari 7.1 and IE 11
-        return true;
-
-    }
-
-    return false;
-};
 
 TimeOnSiteTracker.prototype.bindWindowHistory = function() {
     var self = this;
@@ -962,39 +944,3 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
         this.resetActivity();
     }
 };
-
-// // transfers sessionStorage from one tab to another
-// var preserveNewTabSessionStorage = function() {
-//     console.log('New tab session monitoring: on');
-//     // transfers sessionStorage from one tab to another
-//     var sessionStorage_transfer = function(event) {
-//       if(!event) { event = window.event; } // ie suq
-//       if(!event.newValue) return;          // do nothing if no value to work with
-//       if (event.key == 'getSessionStorage') {
-//         // another tab asked for the sessionStorage -> send it
-//         localStorage.setItem('sessionStorage', JSON.stringify(sessionStorage));
-//         // the other tab should now have it, so we're done with it.
-//         localStorage.removeItem('sessionStorage'); // <- could do short timeout as well.
-//       } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
-//         // another tab sent data <- get it
-//         var data = JSON.parse(event.newValue);
-//         for (var key in data) {
-//           sessionStorage.setItem(key, data[key]);
-//         }
-//       }
-//     };
-
-//     // listen for changes to localStorage
-//     if(window.addEventListener) {
-//       window.addEventListener("storage", sessionStorage_transfer, false);
-//     } else {
-//       window.attachEvent("onstorage", sessionStorage_transfer);
-//     };
-
-
-//     // Ask other tabs for session storage (this is ONLY to trigger event)
-//     if (!sessionStorage.length) {
-//       localStorage.setItem('getSessionStorage', 'foobar');
-//       localStorage.removeItem('getSessionStorage', 'foobar');
-//     };
-// }();
