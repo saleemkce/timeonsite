@@ -17,18 +17,17 @@ describe('TimeOnSiteTracker Tests', function () {
             'varyingStartTime','pageEntryTime','totalTimeSpent','returnInSeconds',
             'isTimeOnSiteAllowed','callback','timeSpentArr',
             'storeInLocalStorage','storageSupported','TOSDateKeysHolder','TOSDayKeyPrefix',
-            'activity','config','xhr','timeOnSite','TOSSessionKey','customData','request',
-            'isRequestHeadersAvailable','initialize','getTimeDiff','arrayAggregate',
-            'isURLValid','createTOSId','getTOSSessionKey','createTOSSessionKey',
-            'initBlacklistUrlConfig','monitorSession','checkBlacklistUrl','getPageData',
-            'getTimeOnPage','mergeCustomData','setCustomData','unsetCustomData','resetActivity',
+            'activity','config','xhr','timeOnSite','TOSSessionKey','customData','TOSUserId',
+            'anonymousTimerId','request','isRequestHeadersAvailable','initialize','getTimeDiff',
+            'arrayAggregate','isURLValid','createTOSId','millisecondToSecond','secondToDuration',
+            'getTOSSessionKey','createTOSSessionKey','startSession','endSession',
+            'initBlacklistUrlConfig','monitorUser','monitorSession','createNewSession',
+            'renewSession','checkBlacklistUrl','getPageData','getTimeOnPage',
+            'mergeCustomData','setCustomData','unsetCustomData','resetActivity',
             'startActivity','endActivity','processActivityData','saveToLocalStorage',
             'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
-            'cancelXMLHTTPRequest','bindWindowFocus','bindWindowUnload',
-            'processTOSData', 'millisecondToSecond', 'secondToDuration', 
-            'executeURLChangeCustoms', 'bindWindowHistory', 'startSession',
-            'endSession', 'setCookie', 'getCookie', 'removeCookie', 'TOSUserId',
-            'createNewSession', 'checkDoNotTrackSetting' 
+            'cancelXMLHTTPRequest','bindWindowFocus','setCookie','getCookie','removeCookie',
+            'bindWindowHistory','executeURLChangeCustoms','bindWindowUnload','processTOSData' 
             //'bindURLChange',
         ];
 

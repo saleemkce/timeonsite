@@ -53,7 +53,8 @@ var TimeOnSiteTracker = function(config) {
 
     //local storage config
     this.request = {
-        url: '',
+        url: 'http://localhost:4500/data/tos',
+        // url: '',
         headers: []
     };
     this.isRequestHeadersAvailable = false;
@@ -255,7 +256,8 @@ TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
 
         if(((config.blacklistUrl) instanceof Array) && (config.blacklistUrl).length) {
             if(!this.checkBlacklistUrl(config.blacklistUrl)) {
-               this.isTimeOnSiteAllowed = false;
+                console.info('This page is blacklisted for tracking TOS!');
+                this.isTimeOnSiteAllowed = false;
             }
         }
     }
@@ -631,8 +633,8 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
  * @param  {[array]} itemData [description]
  * @return void;
  */
-TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {//console.log('PP');console.log(thisItem);
-    
+TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
+    //console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&');console.log(this.request.url);
     var url = this.request.url,
         params = JSON.stringify(itemData[0]),
         dateObj = (new Date()),
