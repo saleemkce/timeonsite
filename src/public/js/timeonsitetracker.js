@@ -53,8 +53,7 @@ var TimeOnSiteTracker = function(config) {
 
     //local storage config
     this.request = {
-        url: 'http://localhost:4500/data/tos',
-        // url: '',
+        url: '',
         headers: []
     };
     this.isRequestHeadersAvailable = false;
@@ -72,15 +71,15 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     // bind to focus/blur window state
     this.bindWindowFocus();
 
-    // check Storage supported by browser
-    if (typeof(Storage) !== 'undefined') {
-        this.storageSupported = true;
+    // // check Storage supported by browser
+    // if (typeof(Storage) !== 'undefined') {
+    //     this.storageSupported = true;
 
-        //process any saved data in local storage
-        this.processDataInLocalStorage();
-    } else {
-        console.info('Session/Local storage not supported by this browser.');
-    }
+    //     //process any saved data in local storage
+    //     this.processDataInLocalStorage();
+    // } else {
+    //     console.info('Session/Local storage not supported by this browser.');
+    // }
 
     if(config && config.trackBy && (config.trackBy.toLowerCase() === 'seconds')) {
          this.returnInSeconds = true;
@@ -112,6 +111,16 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     
     if((config && config.request && config.request.url) && (this.callback === null)) {
         this.storeInLocalStorage = true;
+    }
+
+    // check Storage supported by browser
+    if (typeof(Storage) !== 'undefined') {
+        this.storageSupported = true;
+
+        //process any saved data in local storage
+        this.processDataInLocalStorage();
+    } else {
+        console.info('Session/Local storage not supported by this browser.');
     }
 
     if((this.storeInLocalStorage === false) && (this.callback === null)) {
@@ -634,7 +643,6 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
  * @return void;
  */
 TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
-    //console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&');console.log(this.request.url);
     var url = this.request.url,
         params = JSON.stringify(itemData[0]),
         dateObj = (new Date()),
@@ -655,8 +663,8 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
 
     // check and set request headers if given
     if(this.isRequestHeadersAvailable && (this.request.headers).length) {
-        for(var k = 0; k < (config.request.headers).length; k++) {
-            var headersObj = (config.request.headers)[k];
+        for(var k = 0; k < (this.request.headers).length; k++) {
+            var headersObj = (this.request.headers)[k];
             for(var key in headersObj) {
                 this.xhr.setRequestHeader(key, headersObj[key]);
             }
