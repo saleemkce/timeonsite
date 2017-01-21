@@ -20,12 +20,6 @@
     <!-- timeonsitetracker -->
     <script src="javascripts/timeonsitetracker.js"></script>
     <script src="javascripts/tos_init.js"></script>
-<script>
-setInterval(function(){
-        var backendPage = 'http://' + window.location.host + '/v1/backend.html';
-        window.location.href = backendPage;
-    }, (1000 * Math.floor((Math.random() * 300) + 1)));
-</script>
 
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -99,17 +93,17 @@ var config = {
 var Tos = new TimeOnSiteTracker(config);
 </pre>
 
-<p>Just stay in the page for a few seconds. Then, close the browser tab. If you could see a window popping up and look in the address bar of popped window. If you could see query string containing TOS data, hooray! your TOS tracking is successful, I mean, the TimeOnSiteTracker is correctly integrated in your site!</p>
+<p>Just stay in the page for a few seconds. Then, close the browser tab. If you could see a window popping up and look in the address bar of popped window. If you could see query string containing TOS data, hooray! Your TOS tracking is successful, I mean, the TimeOnSiteTracker is correctly integrated in your site!</p>
 
 <p>
-<strong>Note 1:</strong>Allow pop-ups in browser settings, otherwise you won't see pop up window contianing TOS data in browser. Try open this page where you included TimeOnSiteTracker 2 or 3 times and see if it asks you to allow pop-up. In that case, just allow it to view TOS data in popped up widow address bar.<br/>
+<strong>Note 1:</strong>Allow pop-ups in browser settings, otherwise you won't see pop up window containing TOS data in browser. Try open this page where you included TimeOnSiteTracker 2 or 3 times and see if it asks you to allow pop-up. In that case, just allow it to view TOS data in popped up widow address bar.<br/>
 <strong>Note 2</strong>: Time on page and Time on site are captured in milliseconds (Javascript's Date function) by default.
 </p>
 
 <a href="#getting-current-TOS-data"><h3 id="getting-current-TOS-data">Getting Current TOS data</h3></a>
-<p>You could call Tos anytime in the page by simple accessing <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> API in browser console provided that you initialzed TOS correctly.</p>
+<p>You could call Tos anytime in the page by simple accessing <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> API in browser console provided that you initialized TOS correctly.</p>
 <pre class="prettyprint lang-js">
-// It's assumed you correctly initialzed Tos in the page as, var Tos = new TimeOnSite();
+// It's assumed you correctly initialized Tos in the page as, var Tos = new TimeOnSite();
 Tos.getTimeOnPage();
     //Response ->
     {
@@ -211,7 +205,7 @@ var config = {
     // track page by seconds. Default tracking is by milliseconds
     trackBy: 'seconds',
 
-    // pages to blacklist; give URLs in arrary eg. ['URL1', 'URL2', 'URL3']
+    // pages to blacklist; give URLs in array eg. ['URL1', 'URL2', 'URL3']
     blacklistUrl: ['http://tos-localdata.chennai/blog/id/1'],
 
     //this parameter helps track pageviews for single-page apps that use hash-based URL routing
@@ -238,7 +232,7 @@ var Tos = new TimeOnSiteTracker(config);
 
 
 <h3 id="seconds-option">* Seconds option</h3>
-<p>To caputre all TOS data in seconds format instead of milliseconds, give the "trackBy" option as given below:</p>
+<p>To capture all TOS data in seconds format instead of milliseconds, give the "trackBy" option as given below:</p>
 <pre class="prettyprint lang-js">
 // use call back data "time on site" data
 var config = {
@@ -268,7 +262,7 @@ var Tos = new TimeOnSiteTracker(config);
 </pre>
 </p>
 
-<h3 id="do-not-track">* Ignoring "Do not track" browser setting</h3>
+<!-- <h3 id="do-not-track">* Ignoring "Do not track" browser setting</h3>
 <p>By default, TimeOnSite Tracker accepts "do not track" browser setting. This means, if this setting is enabled in browser, TOS will not track any data. If you would like to ignore this browser setting and force TOS tracker to continue tracking, you need to set "ignoreDNT" config option as,<br/>
 <pre class="prettyprint lang-js">
 var config = {
@@ -279,11 +273,11 @@ var config = {
 }};
 var Tos = new TimeOnSiteTracker(config);
 </pre>
-</p>
+</p> -->
 
 <h3 id="setting-custom-data">Setting custom data</h3>
 <p>
-    When implementing TOS in your website or appliation, you may want to track additional details along with TOS data. For example, you see "timeOnPage", "URL", "title" etc. in the object returned by TOS on page close. What if you want to set userId, userName, userType or userActivity? This is where <code><span class="apiHighlight">Tos.setCustomData()</span></code> API comes into action. It helps you track additional data in your webpage. Look at the example given below,
+    When implementing TOS in your website or application, you may want to track additional details along with TOS data. For example, you see "timeOnPage", "URL", "title" etc. in the object returned by TOS on page close. What if you want to set userId, userName, userType or userActivity? This is where <code><span class="apiHighlight">Tos.setCustomData()</span></code> API comes into action. It helps you track additional data in your webpage. Look at the example given below,
 
 <pre class="prettyprint lang-js">
 //Setting custom data for TOS tracking
@@ -429,7 +423,7 @@ var Tos = new TimeOnSiteTracker(config);
     xhr.open('POST', url, false); //synchronous call; changing this to true will make it asynchronous request and data won't be saved in your DB.
     </pre>
     In sendBeacon's else loop, you could see this. If sendBeacon() API is not supported by browser, we use normal XMLHTTPRequest to send data
-    syncronously to server. Note the 3rd parameter "false" which is responsible for sending data to server before page gets closed.
+    synchronously to server. Note the 3rd parameter "false" which is responsible for sending data to server before page gets closed.
 
     <h3 id="TOS-real-time-key-considerations">TOS real-time tracking - Key considerations</h3>
     <p>
@@ -437,8 +431,8 @@ var Tos = new TimeOnSiteTracker(config);
             <li>
                 "setting custom data" explained above isn't recommended to be done during page close.
             </li>
-            <li>Your endpoint URL API shouldn't have any downntime unless you really know 
-                that your application is down and no user is accessing at this time. This means that this API is accessible online and readily avaialble for saving data to database.
+            <li>Your endpoint URL API shouldn't have any downtime unless you really know 
+                that your application is down and no user is accessing at this time. This means that this API is accessible online and readily available for saving data to database.
             </li>
             <li>
                 The data received at server should be saved immediately without any data manipulation. 
@@ -469,7 +463,7 @@ var Tos = new TimeOnSiteTracker(config);
 <p>
 TimeOnSiteTracker also helps you track a particular interaction or activity in the site. The goal of this feature is to capture time taken by the user to complete the activity. You have to manually trigger <code><span class="apiHighlight">Tos.startActivity()</span></code> 
 and 
-<code><span class="apiHighlight">Tos.endActivity()</span></code> APIs to caputre start and end time of activity.
+<code><span class="apiHighlight">Tos.endActivity()</span></code> APIs to capture start and end time of activity.
 
 <pre class="prettyprint lang-js">
 var config = {
@@ -511,9 +505,9 @@ It has different parameters in response like "activityStart", "activityEnd", "ti
 var manualProcess = true;
 var activityData = Tos.endActivity({}, manualProcess); 
 /**
- * Notice variable "manualProcess" which is boolean and is set to true. This indicates that data will not be handled by callback function or local storage. Instead, activityData is  simply retured to variable for you to do anything manually.
+ * Notice variable "manualProcess" which is boolean and is set to true. This indicates that data will not be handled by callback function or local storage. Instead, activityData is simply retured to variable for you to do anything manually.
 
- * you may add any additional data to this "activityData" object and save it to database as you wish.
+ * You may add any additional data to this "activityData" object and save it to database as you wish.
  * 
  * activityData.userPreferences = ['social', 'journal', 'history'];
  * activityData.userId = 2427032032u;

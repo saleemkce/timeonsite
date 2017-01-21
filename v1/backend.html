@@ -19,13 +19,7 @@
 
     <!-- timeonsitetracker -->
     <script src="../javascripts/timeonsitetracker.js"></script>
-    <script src="../javascripts/tos_init.js"></script> 
-<script>
-setInterval(function(){
-        var homePage = 'http://' + window.location.host;
-        window.location.href = homePage;
-    }, (1000 * Math.floor((Math.random() * 300) + 1)));
-    </script>
+    <script src="../javascripts/tos_init.js"></script>
     
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -135,7 +129,7 @@ module.exports.SaveTos = function(req, res, next) {
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The example uses node's express framework to handle server-side data. We have three files here for saving data with node.js. A route file, a model file and a controller file.<br/><br/>
                 * In route file, we create a route named "/tos" which is of POST method to accept data from incoming requests.
                 <br/><br/>
-                * In model file, we create new shema named "tos" which will save our TOS data. Since mongoDB is schema-free, we can save any number of fields in its collection. This is preferrable for collecting large number of custom data in TOS over RDBMS like MSSQL, MySql or Oracle.
+                * In model file, we create new schema named "tos" which will save our TOS data. Since mongoDB is schema-free, we can save any number of fields in its collection. This is preferrable for collecting large number of custom data in TOS over RDBMS like MSSQL, MySql or Oracle.
                 <br/><br/>
                 * In controller file, we just check if there is data in "SaveTos" method. Then we load schema file and save our TOS data. By now, you might check your mongoDB collection to see if there is any data saved successfully.
                 </p>
@@ -146,7 +140,7 @@ module.exports.SaveTos = function(req, res, next) {
 // Create database named "test". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
 
 CREATE TABLE tos(id INT AUTO_INCREMENT,
-    tos_id INT,
+    tos_id BIGINT(20),
     tos_session_key VARCHAR(50),
     url VARCHAR(10000),
     title VARCHAR(5000),
@@ -201,7 +195,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <p>
                 * We form the required SQL query for saving our data in MySql or any other RDBMS of your preference. Create a database named "test". Then execute the given query to create new table named "tos".<br/><br/>
-                * Create a new file named "tos.php" which checks if there is any incoming request with POST data. In case of valid data, it saves the data to "tos" table in database we just created. Do not forget to start your server (Apache, nginx etc.) that runs PHP while working out this example. Since saving data in RDBMS is shema-based and type checking is strict, you need to be careful in defining the fields while creating the table given above. In case of adding custom data or additional data in future, you need to modify schema and verify thoroughly to avoid query failure or data loss.
+                * Create a new file named "tos.php" which checks if there is any incoming request with POST data. In case of valid data, it saves the data to "tos" table in database we just created. Do not forget to start your server (Apache, nginx etc.) that runs PHP while working out this example. Since saving data in RDBMS is schema-based and type checking is strict, you need to be careful in defining the fields while creating the table given above. In case of adding custom data or additional data in future, you need to modify schema and verify thoroughly to avoid query failure or data loss.
                 </p>
 
 
