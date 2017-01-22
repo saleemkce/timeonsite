@@ -51,6 +51,22 @@ var TimeOnSiteTracker = function(config) {
     this.TOSUserId = 'anonymous';
     this.anonymousTimerId = null;
 
+    /**
+     * Anonymous user session:
+     * anonymous user session lasts as long as the browser tab is open. Though 
+     * it's 15 seconds here. It's continuously renewed for next 15 seconds. If the 
+     * user closes the tab and doesn't open it immediately for the next 15 seconds, 
+     * then this anonymous user session is ended by TOSTracker.
+     *
+     * Authenticated user session:
+     * authenticated user session will be valid for 1 day unless the user 
+     * is logged out explicitly
+     */
+    this.sessionValidity = {
+        anonymous: 15, //15 seconds
+        oneDayInSecs: 86400 //86400 seconds = 1 day
+    };
+
     //local storage config
     this.request = {
         url: '',
@@ -225,9 +241,9 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
 
         var newSessionDuration  = 0;
         this.TOSUserId = userId;
-        this.setCookie('TOSUserId', userId, 86400);
-        this.setCookie('TOSSessionKey', this.TOSSessionKey, 86400);
-        this.setCookie('TOSSessionDuration', newSessionDuration, 86400);
+        this.setCookie('TOSUserId', userId, this.sessionValidity.oneDayInSecs);
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, this.sessionValidity.oneDayInSecs);
+        this.setCookie('TOSSessionDuration', newSessionDuration, this.sessionValidity.oneDayInSecs);
     } else {
         console.warn('Please give proper userId to start TOS session.');
     }
@@ -304,26 +320,20 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
     //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessDura: ' + sessionDuration);
     count = pageData.timeOnPage + sessionDuration;
     this.TOSSessionKey = sessionKey;
-    this.setCookie('TOSSessionDuration', count, 86400);
+    this.setCookie('TOSSessionDuration', count, this.sessionValidity.oneDayInSecs);
 
     this.timeOnSite = count;
 
 };
 
 TimeOnSiteTracker.prototype.createNewSession = function(userType) {
-    this.setCookie('TOSSessionDuration', 0, 86400);
+    this.setCookie('TOSSessionDuration', 0, this.sessionValidity.oneDayInSecs);
     this.TOSSessionKey = this.createTOSSessionKey();
     //alert('new cookie created!!!');
-
-    /**
-     * anonymous users have a short session of 15 seconds 
-     * but gets extended every second to next 15 seconds till the 
-     * browser tab is open. If the browser is closed, the anonymous 
-     * user session expired in next 15 seconds.
-     */
+    
     if(userType === 'anonymous') {
         //alert('user type is anonymous');
-        this.setCookie('TOSSessionKey', this.TOSSessionKey, 15);
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, this.sessionValidity.anonymous);
         this.renewSession();
     } else {//alert('user type is authenticated!');
         if(this.anonymousTimerId) {
@@ -331,9 +341,9 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
             clearInterval(this.anonymousTimerId);
         } else {alert('Timer not found '+this.anonymousTimerId);}
         //authenticated users session extends till the next day
-        this.setCookie('TOSSessionKey', this.TOSSessionKey, 86400);
+        this.setCookie('TOSSessionKey', this.TOSSessionKey, this.sessionValidity.oneDayInSecs);
     }
-    
+
     this.timeOnSite = 0;
 
 };
@@ -342,8 +352,8 @@ TimeOnSiteTracker.prototype.renewSession = function() {
     var self = this;
     this.anonymousTimerId = setInterval(function(){
         console.log('cookie renewed at : '+(new Date()));
-        self.setCookie('TOSSessionKey', self.TOSSessionKey, 15);
-    }, (1 * 1000));
+        self.setCookie('TOSSessionKey', self.TOSSessionKey, self.sessionValidity.anonymous);
+    }, (1 * 1000)); //anonymous user cookie is refresed every second
 };
 
 // URL blacklisting from tracking in "Time on site"
