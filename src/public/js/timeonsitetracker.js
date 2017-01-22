@@ -648,8 +648,8 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
  * [sendData This method reads data from local storage and make API calls with POST 
  * method synchronously for posting data to server one at a time. When page close event 
  * occurs, the API call is cancelled.]
- * @param  {[string]} dateKey  [description]
- * @param  {[array]} itemData [description]
+ * @param  {[string]} dateKey  [Key that is holding the data for a specific date]
+ * @param  {[array]} itemData [The array of TOS data]
  * @return void;
  */
 TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
@@ -659,7 +659,7 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
         currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
         self = this;
 
-    this.xhr = false;
+    this.xhr = null;
     if (window.XMLHttpRequest) {
         this.xhr = new XMLHttpRequest();
     } else { // code for IE6, IE5
@@ -693,6 +693,13 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
                     }, 500);
                 } else {
                     self.removeDateKey(dateKey);
+
+                    /**
+                     * When data is processed from local storage, xhr variable should be 
+                     * reset (self.xhr = null) to prevent "cancelXMLHTTPRequest" method call 
+                     * that occurs at page close.
+                     */
+                    self.xhr = null;
                 }
             } 
         }
@@ -701,13 +708,19 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     
 };
 
+/**
+ * [cancelXMLHTTPRequest This method is called only for data stored in local storage. 
+ * When TOSTracker is processing previous page data on new page entry and the current 
+ * page is closed, xhr request is cancelled since it's blocking XMLHttpRequest. The 
+ * remaining data will be processed in the next page]
+ */
 TimeOnSiteTracker.prototype.cancelXMLHTTPRequest = function() {
 
     // check if "abort" exists since earlier version of firefox don't have this method
     if(this.xhr && (typeof this.xhr.abort === 'function')) {
-        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
-        console.log(this.xhr);
-        console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+        // console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+        // console.log(this.xhr);
+        // console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
         this.xhr.abort();
     }
 };
