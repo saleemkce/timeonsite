@@ -376,6 +376,24 @@ describe('Activity tracking Tests', function () {
 
         expect(Tos.callback).to.equal(config.callback);
     });
+
+    /**
+     * if manualProcess, the 2nd parameter for endActivity() method and of type boolean,  
+     * is given, then data is neither sent to local storage nor to available callback. 
+     * Instead, the activity data object is returned to user who can save it later manually.
+     */
+    it('check if endActivity method works with manualProcess (2nd) parameter', function (done) {
+        var activity = {x: 1, y:2},
+            manualProcess = true,
+            activityData;
+
+        Tos.startActivity();
+        activityData = Tos.endActivity(activity, manualProcess);
+
+        expect(activityData.x).to.equal(activity.x);
+        expect(activityData.y).to.equal(activity.y);
+        done();
+    });
     
 
 });
