@@ -247,6 +247,10 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
         this.processTOSData();
 
         // create new authenticated TOS session
+        
+        this.setCookie('TOSAnonSessionRefresh', 0, this.sessionValidity.oneDayInSecs);
+        console.info('Refresh state MODIFIED!');
+
         this.TOSUserId = userId;
         this.setCookie('TOSUserId', userId, this.sessionValidity.oneDayInSecs);
         this.createNewSession();
@@ -340,6 +344,7 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     if(userType === 'anonymous') {
         //alert('user type is anonymous');
         this.setCookie('TOSSessionKey', this.TOSSessionKey, this.sessionValidity.anonymous);
+        this.setCookie('TOSAnonSessionRefresh', 1, this.sessionValidity.oneDayInSecs);
         this.renewSession();
     } else {//alert('user type is authenticated!');
         if(this.anonymousTimerId) {
@@ -360,7 +365,21 @@ TimeOnSiteTracker.prototype.renewSession = function() {
         if (self.developerMode) {
             console.log('Cookie renewed at : '+(new Date()));
         }
-        self.setCookie('TOSSessionKey', self.TOSSessionKey, self.sessionValidity.anonymous);
+
+
+        var refreshState = self.getCookie('TOSAnonSessionRefresh');
+        
+
+        if(refreshState == 1) {
+            //self.setCookie('TOSAnonSessionRefresh', 0, self.sessionValidity.oneDayInSecs);
+            self.setCookie('TOSSessionKey', self.TOSSessionKey, self.sessionValidity.anonymous);
+            console.info('state Allowed : ' + refreshState);
+        } else {
+            console.error('state NOT allowed: ' + refreshState);
+        }
+
+
+        //self.setCookie('TOSSessionKey', self.TOSSessionKey, self.sessionValidity.anonymous);
     }, (1 * 1000)); //anonymous user cookie is refresed every second
 };
 
