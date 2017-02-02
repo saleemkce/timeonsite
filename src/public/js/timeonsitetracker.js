@@ -67,6 +67,12 @@ var TimeOnSiteTracker = function(config) {
         oneDayInSecs: 86400 //86400 seconds = 1 day
     };
 
+    //Settings for TOS cookie path and domain so as to restrict access to sub-domains
+    this.TOSCookie = {
+        path: null,
+        domain: null
+    };
+
     //local storage config
     this.request = {
         url: '',
@@ -116,6 +122,19 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         this.bindWindowHistory();
     }
 
+    this.TOSCookie.customCookieString = '';
+    if (config && config.TOSCookie) {
+        if (config.TOSCookie.path) {
+            this.TOSCookie.customCookieString += 'path=' + config.TOSCookie.path + ';';
+        }
+
+        if (config.TOSCookie.domain) {
+            this.TOSCookie.customCookieString += 'domain=' + config.TOSCookie.domain + ';';
+        }
+    } else {
+        this.TOSCookie.customCookieString += 'path=/;';
+    }
+
     if(config && config.request && config.request.url) {
         this.request.url = config.request.url;
         this.isURLValid(this.request.url);
@@ -151,7 +170,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     //Enable "developer mode" to view TOS real-time internal data and logs
     if (config && config.developerMode) {
-         this.developerMode = true;
+        this.developerMode = true;
+        console.info('TOS cookie created with path/domain :' + this.TOSCookie.customCookieString);
     }
 
     // create and monitor TOS session
@@ -821,13 +841,19 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 };
 
 TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, secs) {
-    var d = new Date();
+    var d = new Date(),
+        expires,
+        cookieString;
     d.setTime(d.getTime() + (secs * 1000));
 
     //console.log('cookie expire @ '+new Date(d));
+    
+    expires = 'expires=' + d.toUTCString();
+    cookieString = cname + '=' + cvalue + ';' + expires + ';' + this.TOSCookie.customCookieString;
 
-    var expires = 'expires=' + d.toUTCString();
-    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+    //document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+    document.cookie = cookieString;
+    
 };
 
 TimeOnSiteTracker.prototype.getCookie = function(cname) {
