@@ -466,9 +466,44 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
 
         var Tos = new TimeOnSiteTracker(config);
         //expect(Tos.isTimeOnSiteAllowed).to.equal(false);
-
     });
 
+    it('Initialize TimeOnSiteTracker without TOSCookie param', function () {
+        var config = {
+            trackBy: 'seconds'
+        },
+        defaultCookiePath = 'path=/;';
+
+        // Default Cookie String should have path as "path=/"
+        var Tos = new TimeOnSiteTracker();
+        expect(Tos.TOSCookie.customCookieString).to.equal(defaultCookiePath);
+    });
+
+    it('Initialize TimeOnSiteTracker with TOSCookie param', function () {
+        var configA = {
+            TOSCookie: {
+                path: '/',
+                domain: 'localhost'
+            }
+        },
+        configB = {
+            TOSCookie: {
+                path: '/blog',
+                domain: '.localdata-tos.chennai'
+            }
+        };
+        customSettingPathA = 'path=' + configA.TOSCookie.path + ';' + 'domain=' + configA.TOSCookie.domain + ';',
+        customSettingPathB = 'path=' + configB.TOSCookie.path + ';' + 'domain=' + configB.TOSCookie.domain + ';',
+        Tos;
+
+        Tos = new TimeOnSiteTracker(configA);
+        //customSettingPathA => 'path=/;domain=localhost;'
+        expect(Tos.TOSCookie.customCookieString).to.equal(customSettingPathA);
+
+        Tos = new TimeOnSiteTracker(configB);
+        //customSettingPathB => 'path=/blog;domain=.localdata-tos.chennai;'
+        expect(Tos.TOSCookie.customCookieString).to.equal(customSettingPathB);
+    });
 
 });
 
