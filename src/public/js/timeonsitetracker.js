@@ -267,10 +267,16 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
         this.processTOSData();
 
         // create new authenticated TOS session
-        
+        /**
+         *  TOSAnonSessionRefresh cookie is a state watcher cookie. Fixes multi-tab 
+         *  session state overwrite problem.
+         *   
+         *  TOSAnonSessionRefresh = 1 (Session is anonymous. Anonymous session cookie
+         *   is allowed to be refreshed periodically)
+         *  TOSAnonSessionRefresh = 0 (Session is authenticated. Anonymous session cookie 
+         *  is not allowed to be refreshed periodically)
+         */
         this.setCookie('TOSAnonSessionRefresh', 0, this.sessionValidity.oneDayInSecs);
-        console.info('Refresh state MODIFIED!');
-
         this.TOSUserId = userId;
         this.setCookie('TOSUserId', userId, this.sessionValidity.oneDayInSecs);
         this.createNewSession();
@@ -380,26 +386,22 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
 };
 
 TimeOnSiteTracker.prototype.renewSession = function() {
-    var self = this;
-    this.anonymousTimerId = setInterval(function(){
-        if (self.developerMode) {
-            console.log('Cookie renewed at : '+(new Date()));
-        }
+    var self = this,
+        refreshState;
+    this.anonymousTimerId = setInterval(function() {
 
-
-        var refreshState = self.getCookie('TOSAnonSessionRefresh');
-        
-
-        if(refreshState == 1) {
-            //self.setCookie('TOSAnonSessionRefresh', 0, self.sessionValidity.oneDayInSecs);
+        refreshState = self.getCookie('TOSAnonSessionRefresh');
+        /**
+         * Checks if user session is anonymous before altering cookie 
+         * lifetime for preventing multi-tab session overwrite issue 
+         */
+        if (refreshState == 1) {
             self.setCookie('TOSSessionKey', self.TOSSessionKey, self.sessionValidity.anonymous);
-            console.info('state Allowed : ' + refreshState);
-        } else {
-            console.error('state NOT allowed: ' + refreshState);
+
+            if (self.developerMode) {
+                console.log('Cookie renewed at : '+(new Date()));
+            }
         }
-
-
-        //self.setCookie('TOSSessionKey', self.TOSSessionKey, self.sessionValidity.anonymous);
     }, (1 * 1000)); //anonymous user cookie is refresed every second
 };
 
