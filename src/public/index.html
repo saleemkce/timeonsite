@@ -3,7 +3,7 @@
 <head>
 <meta charset='UTF-8'>
 <title>Test Node application - TimeOnSiteTracker</title>
-<script src="js/timeonsitetracker.min.js"></script>
+<script src="js/timeonsitetracker.js"></script>
 </head>
 
 <body>
@@ -30,7 +30,11 @@ var config = {
     		{'App-session': 'x2872034ULT'}
     	]
     },
-    developerMode: true
+    developerMode: true,
+    TOSCookie: {
+        path: '/',
+        //domain: ((window.location.hostname) ? 'localhost' : ('.' + window.location.hostname))
+    }
 };
 var Tos = new TimeOnSiteTracker(config);
 </script>
