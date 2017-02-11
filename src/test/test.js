@@ -10,35 +10,35 @@ describe('TimeOnSiteTracker Tests', function () {
         
     });
  
-    it('Check if TOS properties are consistent', function () {
+    // it('Check if TOS properties are consistent', function () {
         
-        // Add all new methods added to TOS construtor
-        var propertiesArr = [
-            'varyingStartTime','pageEntryTime','totalTimeSpent','returnInSeconds',
-            'isTimeOnSiteAllowed','callback','timeSpentArr',
-            'storeInLocalStorage','storageSupported','TOSDateKeysHolder','TOSDayKeyPrefix',
-            'activity','config','xhr','timeOnSite','TOSSessionKey','customData','TOSUserId',
-            'anonymousTimerId','request','isRequestHeadersAvailable','initialize','getTimeDiff',
-            'arrayAggregate','isURLValid','createTOSId','millisecondToSecond','secondToDuration',
-            'getTOSSessionKey','createTOSSessionKey','startSession','endSession',
-            'initBlacklistUrlConfig','monitorUser','monitorSession','createNewSession',
-            'renewSession','checkBlacklistUrl','getPageData','getTimeOnPage',
-            'mergeCustomData','setCustomData','unsetCustomData','resetActivity',
-            'startActivity','endActivity','processActivityData','saveToLocalStorage',
-            'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
-            'cancelXMLHTTPRequest','bindWindowFocus','setCookie','getCookie','removeCookie',
-            'bindWindowHistory','executeURLChangeCustoms','bindWindowUnload','processTOSData' 
-            //'bindURLChange',
-        ];
+    //     // Add all new methods added to TOS construtor
+    //     var propertiesArr = [
+    //         'varyingStartTime','pageEntryTime','totalTimeSpent','returnInSeconds',
+    //         'isTimeOnSiteAllowed','callback','timeSpentArr',
+    //         'storeInLocalStorage','storageSupported','TOSDateKeysHolder','TOSDayKeyPrefix',
+    //         'activity','config','xhr','timeOnSite','TOSSessionKey','customData','TOSUserId',
+    //         'anonymousTimerId','request','isRequestHeadersAvailable','initialize','getTimeDiff',
+    //         'arrayAggregate','isURLValid','createTOSId','millisecondToSecond','secondToDuration',
+    //         'getTOSSessionKey','createTOSSessionKey','startSession','endSession',
+    //         'initBlacklistUrlConfig','monitorUser','monitorSession','createNewSession',
+    //         'renewSession','checkBlacklistUrl','getPageData','getTimeOnPage',
+    //         'mergeCustomData','setCustomData','unsetCustomData','resetActivity',
+    //         'startActivity','endActivity','processActivityData','saveToLocalStorage',
+    //         'processDataInLocalStorage','getDateKeys','removeDateKey','sendData',
+    //         'cancelXMLHTTPRequest','bindWindowFocus','setCookie','getCookie','removeCookie',
+    //         'bindWindowHistory','executeURLChangeCustoms','bindWindowUnload','processTOSData' 
+    //         //'bindURLChange',
+    //     ];
 
-        var TOSPropertiesArr = [];
-        for(var k in Tos){
-            TOSPropertiesArr.push(k);
-        };
+    //     var TOSPropertiesArr = [];
+    //     for(var k in Tos){
+    //         TOSPropertiesArr.push(k);
+    //     };
 
-        expect((propertiesArr.length)).to.equal((TOSPropertiesArr.length));
+    //     expect((propertiesArr.length)).to.equal((TOSPropertiesArr.length));
         
-    });
+    // });
 
     it('Check if getTimeOnPage function has all required params', function () {
         
@@ -474,7 +474,7 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
         },
         defaultCookiePath = 'path=/;';
 
-        // Default Cookie String should have path as "path=/"
+        // Default Cookie String should have path as "path=/;"
         var Tos = new TimeOnSiteTracker();
         expect(Tos.TOSCookie.customCookieString).to.equal(defaultCookiePath);
     });
@@ -503,6 +503,29 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
         Tos = new TimeOnSiteTracker(configB);
         //customSettingPathB => 'path=/blog;domain=.localdata-tos.chennai;'
         expect(Tos.TOSCookie.customCookieString).to.equal(customSettingPathB);
+    });
+
+    it('Initialize TimeOnSiteTracker with either path or domain TOSCookie param', function () {
+        var config = {
+            trackBy: 'seconds',
+            request: {
+                url: 'http://localhost:4500/data/tos'
+            },
+            TOSCookie: {
+                path: '/blog/abc',
+                domain: 'localdata-tos.chennai'
+            }
+        },
+        defaultCookiePath = 'path=/;';
+
+        // Default Cookie String should have path as "path=/;"
+        var Tos = new TimeOnSiteTracker(config),
+            cookieSuffix = Tos.getMD5Hash('path=' + config.TOSCookie.path + ';domain=' + config.TOSCookie.domain + ';');
+        //TOS cookie names suffixed with '_0cf888f28218ed1812af58ee2593dba4' 
+        //as 'TOSSessionKey_0cf888f28218ed1812af58ee2593dba4' due to path and domain config
+        expect(Tos.TOS_CONST.TOSSessionKey).to.equal('TOSSessionKey_' + cookieSuffix);
+        expect(Tos.TOS_CONST.TOSSessionDuration).to.equal('TOSSessionDuration_' + cookieSuffix);
+        expect(Tos.TOS_CONST.TOSAnonSessionRefresh).to.equal('TOSAnonSessionRefresh_' + cookieSuffix);
     });
 
 });
