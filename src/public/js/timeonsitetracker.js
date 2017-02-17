@@ -132,11 +132,14 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     this.TOSCookie.customCookieString = '';
     if (config && config.TOSCookie) {
         if (config.TOSCookie.path) {
-            this.TOSCookie.customCookieString += 'path=' + config.TOSCookie.path + ';';
+            this.TOSCookie.customCookieString += 'path=' + this.validateCookieInput(config.TOSCookie.path) + ';';
+        } else {
+            // case: TOS Cookie object given but path not given
+            this.TOSCookie.customCookieString += 'path=/;';
         }
 
         if (config.TOSCookie.domain) {
-            this.TOSCookie.customCookieString += 'domain=' + config.TOSCookie.domain + ';';
+            this.TOSCookie.customCookieString += 'domain=' + this.validateCookieInput(config.TOSCookie.domain) + ';';
         }
     } else {
         this.TOSCookie.customCookieString += 'path=/;';
@@ -212,6 +215,18 @@ TimeOnSiteTracker.prototype.getTimeDiff = function(startTime, endTime) {
     var diff;
     diff = endTime - startTime;
     return diff;
+};
+
+/**
+ * [validateCookieInput Checks if cookie input ends with ';' and removes it]
+ * @param  {[string]} cookieVal [The cookie input]
+ * @return {[string]}     [The sanitized input]
+ */
+TimeOnSiteTracker.prototype.validateCookieInput = function(cookieVal) {
+    if (cookieVal && cookieVal.length && (cookieVal.substring(cookieVal.length - 1) === ';')) {
+        cookieVal = cookieVal.substring(0, cookieVal.length - 1);
+    }
+    return cookieVal;
 };
 
 // TimeOnSiteTracker.prototype.addTimeSpent = function(a, b) {

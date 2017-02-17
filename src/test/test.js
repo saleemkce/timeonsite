@@ -530,6 +530,37 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
 
 });
 
+
+describe('Check if validateCookieInput method works', function () {
+        var config = {
+            trackBy: 'seconds',
+            callback: function(data) {
+        }},
+        expectedCookiePath = '/',
+        expectedCookieDomain = 'localhost',
+
+        //initialize TOSTraacker
+        Tos = new TimeOnSiteTracker(config);
+
+        it('cookie path with ";" character as bad input ', function () {
+            // cookie input ending with ";" gets removed and sanitized input is returned
+            var cookiePath = Tos.validateCookieInput('/;'),
+                cookieDomain = Tos.validateCookieInput('localhost;');
+
+                expect(cookiePath).to.equal(expectedCookiePath);
+                expect(cookieDomain).to.equal(expectedCookieDomain);
+        });
+
+        it('cookie path without ";" character as correct input ', function () {
+            // cookie input not ending with ";" is returned as it is
+            var cookiePath = Tos.validateCookieInput('/'),
+                cookieDomain = Tos.validateCookieInput('localhost');
+
+                expect(cookiePath).to.equal(expectedCookiePath);
+                expect(cookieDomain).to.equal(expectedCookieDomain);
+        });
+});
+
 describe('TimeOnSiteTracker with user session', function () {
         var config = {
             trackBy: 'seconds',
