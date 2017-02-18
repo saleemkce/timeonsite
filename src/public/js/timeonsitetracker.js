@@ -343,6 +343,31 @@ TimeOnSiteTracker.prototype.showProgress = function() {
     console.log('TimeOnPage(TOP): ' + d.timeOnPage + ' ' + d.timeOnPageTrackedBy);
 };
 
+/**
+ * [extendSession Method to extend or renew existing authenticated user session]
+ * @param  {[integer]} seconds [the cookie expiry time in seconds]
+ */
+TimeOnSiteTracker.prototype.extendSession = function(seconds) {
+    if (this.getCookie(this.TOS_CONST.TOSUserId) && (typeof seconds === 'number')) {
+        var expiryTime = parseInt(seconds),
+            duration = this.getCookie(this.TOS_CONST.TOSSessionDuration);
+
+        if (duration) {
+            duration = parseInt(duration);
+        } else {
+            duration = 0;
+        }
+
+        this.setCookie(this.TOS_CONST.TOSUserId, this.TOSUserId, expiryTime);
+        this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, expiryTime);
+        this.setCookie(this.TOS_CONST.TOSSessionDuration, duration, expiryTime);
+        this.setCookie(this.TOS_CONST.TOSAnonSessionRefresh, 0, expiryTime);
+
+    } else {
+        console.warn('Either anonymous session detected or given input is not a number!');
+    }
+};
+
 TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
     if(config && config.blacklistUrl) {
 
@@ -434,7 +459,7 @@ TimeOnSiteTracker.prototype.renewSession = function() {
             self.setCookie(self.TOS_CONST.TOSSessionKey, self.TOSSessionKey, self.sessionValidity.anonymous);
 
             if (self.developerMode) {
-                console.log('Cookie renewed at : '+(new Date()));
+                console.log('Session renewed at : ' + (new Date()));
             }
         }
     }, (1 * 1000)); //anonymous user cookie is refresed every second
