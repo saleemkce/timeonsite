@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Test Node application - TimeOnSiteTracker</title>
+<script src="../js/timeonsitetracker.js"></script>
+</head>
+
+<body>
+TimeOnSiteTracker loaded!
+<br/>
+<a target ='_blank' href='http://www.example.com'>EXAMPLE site with Secure cookie option</a>
+<br/>
+
+<!-- <a href='file:///C:/Users/skhan/Desktop/tests/time.html#abcIndio'>anchor tag with # change</a> -->
+
+<a target="_blank" href='index.html'>Same page with _blank option</a><br/>
+
+<a href='index.html#abcIndio'>Same page with hash URL</a>
+
+
+<script type="text/javascript">
+var config = {
+	trackBy: 'seconds',
+    developerMode: true,
+    request: { // presence of request object denotes that data is to be saved in local storage
+        url: 'http://localhost:4500/data/tos',
+        headers: [
+        ]
+    },
+    TOSCookie: {
+        path: '/static/secure',
+        domain: 'localhost',
+        enforceSecure: true
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+</script>
+
+</body>
+
+</html>
