@@ -64,7 +64,8 @@ var TimeOnSiteTracker = function(config) {
      */
     this.sessionValidity = {
         anonymous: 15, //15 seconds
-        oneDayInSecs: 86400 //86400 seconds = 1 day
+        oneDayInSecs: 86400, //86400 seconds = 1 day
+        oneMonthInSeconds: 2592000 //2592000 seconds = 1 month
     };
 
     //Settings for TOS cookie path and domain so as to restrict access to sub-domains
@@ -86,7 +87,8 @@ var TimeOnSiteTracker = function(config) {
         TOSSessionKey: 'TOSSessionKey',
         TOSSessionDuration: 'TOSSessionDuration',
         TOSUserId: 'TOSUserId',
-        TOSAnonSessionRefresh: 'TOSAnonSessionRefresh'
+        TOSAnonSessionRefresh: 'TOSAnonSessionRefresh',
+        TOSCheckCookieSupport: 'TOSIsCookieSupported'
     }
     
     console.log('Time at page entry: ' + this.varyingStartTime);
@@ -101,16 +103,6 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     // bind to focus/blur window state
     this.bindWindowFocus();
-
-    // // check Storage supported by browser
-    // if (typeof(Storage) !== 'undefined') {
-    //     this.storageSupported = true;
-
-    //     //process any saved data in local storage
-    //     this.processDataInLocalStorage();
-    // } else {
-    //     console.info('Session/Local storage not supported by this browser.');
-    // }
 
     if(config && config.trackBy && (config.trackBy.toLowerCase() === 'seconds')) {
          this.returnInSeconds = true;
@@ -201,6 +193,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         console.info('TOS cookie created with path/domain : ' + this.TOSCookie.customCookieString);
     }
 
+    this.checkCookieSupport();
+
     // create and monitor TOS session
     this.monitorUser();
 
@@ -212,7 +206,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         var self = this;
         setInterval(function(){
             self.showProgress();
-        }, 1000);
+        }, (1 * 1000));
     }
     
 };
@@ -350,6 +344,24 @@ TimeOnSiteTracker.prototype.showProgress = function() {
 };
 
 /**
+ * [checkCookieSupport Checks if the browser allows to set and retrieve cookies]
+ */
+TimeOnSiteTracker.prototype.checkCookieSupport = function() {
+    var self = this;
+
+    if (!this.getCookie(this.TOS_CONST.TOSCheckCookieSupport)) {
+        this.setCookie(this.TOS_CONST.TOSCheckCookieSupport, 'yes', this.sessionValidity.oneMonthInSeconds);
+
+        setTimeout(function() {
+            if (!self.getCookie(self.TOS_CONST.TOSCheckCookieSupport)) {
+                console.error('Setting cookie not supported by this browser. Exiting TOS...');
+                self.isTimeOnSiteAllowed = false;
+            }
+        }, (2 * 1000)); // Check 2 seconds after setting cookie
+    }
+};
+
+/**
  * [extendSession Method to extend or renew existing authenticated user session]
  * @param  {[integer]} seconds [the cookie expiry time in seconds]
  */
@@ -471,6 +483,9 @@ TimeOnSiteTracker.prototype.renewSession = function() {
     }, (1 * 1000)); //anonymous user cookie is refresed every second
 };
 
+/**
+ * [monitorSessionStateChange Method to ensure session key and ID consistency]
+ */
 TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
     var self = this,
         newSessionKey,
@@ -493,7 +508,7 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
         
 
         console.error('new : ', self.TOSSessionKey, self.TOSUserId);
-    }, 1500);
+    }, (1.5 * 1000));
 
 };
 
