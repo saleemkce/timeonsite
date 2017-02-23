@@ -206,6 +206,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     this.monitorSession();
 
+    this.monitorSessionStateChange();
+
     if (this.developerMode) {
         var self = this;
         setInterval(function(){
@@ -467,6 +469,32 @@ TimeOnSiteTracker.prototype.renewSession = function() {
             }
         }
     }, (1 * 1000)); //anonymous user cookie is refresed every second
+};
+
+TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
+    var self = this,
+        newSessionKey,
+        newUserId;
+        
+    setInterval(function() {
+        newSessionKey = self.getCookie(self.TOS_CONST.TOSSessionKey),
+        newUserId = self.getCookie(self.TOS_CONST.TOSUserId);
+
+        console.error('old : ', self.TOSSessionKey, self.TOSUserId);
+        if (newSessionKey) {
+            self.TOSSessionKey = newSessionKey;
+        }
+
+        if (newUserId) {
+            self.TOSUserId = newUserId;
+        } else {
+            self.TOSUserId = 'anonymous';
+        }
+        
+
+        console.error('new : ', self.TOSSessionKey, self.TOSUserId);
+    }, 1500);
+
 };
 
 // URL blacklisting from tracking in "Time on site"
