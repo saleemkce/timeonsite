@@ -570,7 +570,8 @@ describe('TimeOnSiteTracker with user session', function () {
         it('userId checking in TOS session', function () {
             var Tos = new TimeOnSiteTracker(config),
                 userId = Tos.getTimeOnPage().TOSUserId,
-                authenticatedUserId = 'saleemkce';
+                authenticatedUserId = 'saleemkce',
+                extendSessionTimeInSeconds = 3600;
 
             // userId should be 'anonymous' before starting session
             expect(Tos.TOSUserId).to.equal('anonymous');
@@ -582,6 +583,9 @@ describe('TimeOnSiteTracker with user session', function () {
             // userId should be authenticated userId value after starting session
             expect(Tos.TOSUserId).to.equal(authenticatedUserId);
             expect(userId).to.equal(authenticatedUserId);
+
+            //check if extend session works
+            Tos.extendSession(extendSessionTimeInSeconds);
 
             Tos.endSession();
             userId = Tos.getTimeOnPage().TOSUserId;

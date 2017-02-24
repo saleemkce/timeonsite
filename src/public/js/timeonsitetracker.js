@@ -152,6 +152,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         this.TOS_CONST.TOSSessionDuration = this.TOS_CONST.TOSSessionDuration + '_' + TOSCookieSuffix;
         this.TOS_CONST.TOSUserId = this.TOS_CONST.TOSUserId + '_' + TOSCookieSuffix;
         this.TOS_CONST.TOSAnonSessionRefresh = this.TOS_CONST.TOSAnonSessionRefresh + '_' + TOSCookieSuffix;
+        this.TOS_CONST.TOSCheckCookieSupport = this.TOS_CONST.TOSCheckCookieSupport + '_' + TOSCookieSuffix;
     }
 
     if(config && config.request && config.request.url) {
@@ -366,7 +367,7 @@ TimeOnSiteTracker.prototype.checkCookieSupport = function() {
  * @param  {[integer]} seconds [the cookie expiry time in seconds]
  */
 TimeOnSiteTracker.prototype.extendSession = function(seconds) {
-    if (this.getCookie(this.TOS_CONST.TOSUserId) && (typeof seconds === 'number')) {
+    if ((typeof seconds === 'number') && this.getCookie(this.TOS_CONST.TOSUserId)) {
         var expiryTime = parseInt(seconds),
             duration = this.getCookie(this.TOS_CONST.TOSSessionDuration);
 
@@ -443,18 +444,18 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     this.setCookie(this.TOS_CONST.TOSSessionDuration, 0, this.sessionValidity.oneDayInSecs);
     this.TOSSessionKey = this.createTOSSessionKey();
-    //alert('new cookie created!!!');
+    //console.info('new cookie created!!!');
     
     if(userType === 'anonymous') {
-        //alert('user type is anonymous');
         this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, this.sessionValidity.anonymous);
         this.setCookie(this.TOS_CONST.TOSAnonSessionRefresh, 1, this.sessionValidity.oneDayInSecs);
         this.renewSession();
-    } else {//alert('user type is authenticated!');
+    } else {
         if(this.anonymousTimerId) {
             clearInterval(this.anonymousTimerId);
             console.info('Timer cleared '+this.anonymousTimerId);
-        } else {alert('Timer not found '+this.anonymousTimerId);}
+        }
+        
         //authenticated users session extends till the next day
         this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, this.sessionValidity.oneDayInSecs);
     }
