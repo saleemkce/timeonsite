@@ -109,6 +109,10 @@ var TimeOnSiteTracker = function(config) {
 
 };
 
+/**
+ * [initialize It reads the config and initializes the TOS tracking configuration]
+ * @param  {[object]} config [application's configuration object for TOS tracking]
+ */
 TimeOnSiteTracker.prototype.initialize = function(config) {
     // bind to window close event
     this.bindWindowUnload();
@@ -197,7 +201,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     }
 
     if ((config && config.request && config.request.url) && this.callback) {
-        console.warn('Both callback and local storage options given. Give either one!');
+        this.storeInLocalStorage = true;
+        console.warn('Both callback and local storage options given. Local Storage takes precedence. Give either one!');
     }
 
     //Enable "developer mode" to view TOS real-time internal data and logs
@@ -224,6 +229,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     
 };
 
+/**
+ * [getTimeDiff It gives difference in time between two date objects]
+ * @param  {[date]} startTime [a date object parameter]
+ * @param  {[date]} endTime   [a date object parameter]
+ * @return {[integer]}           [time difference between two date objects]
+ */
 TimeOnSiteTracker.prototype.getTimeDiff = function(startTime, endTime) {
     return (endTime - startTime);
 };
@@ -244,6 +255,11 @@ TimeOnSiteTracker.prototype.validateCookieInput = function(cookieVal) {
 //     return a + b;
 // };
 
+/**
+ * [arrayAggregate Method to get addition of time data]
+ * @param  {[array]} arr [array of time data]
+ * @return {[integer]}     [count of all time data in given array]
+ */
 TimeOnSiteTracker.prototype.arrayAggregate = function(arr) {
     var sum = 0;
     for (var i = 0; i < arr.length; i++) {
@@ -253,23 +269,16 @@ TimeOnSiteTracker.prototype.arrayAggregate = function(arr) {
     return sum;
 };
 
+/**
+ * [isURLValid It checks if given string is valid URL]
+ * @param  {[string]}  url [the domain URL]
+ */
 TimeOnSiteTracker.prototype.isURLValid = function(url) {
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if (!regexp.test(url)) {
         console.error('Given URL is not in valid format : "' + url + '"');
     }
 };
-
-
-// TimeOnSiteTracker.prototype.toSerialize = function(obj) {
-//     var parts = [];
-//     for (var i in obj) {
-//         if (obj.hasOwnProperty(i)) {
-//             parts.push(encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]));
-//         }
-//     }
-//     return parts.join("&");
-// };
 
 /**
  * [createTOSId Creates a new TOSId for each TOS initialziation and Tos.getTimeOnPage() call]
@@ -279,18 +288,36 @@ TimeOnSiteTracker.prototype.createTOSId = function() {
     return Math.floor(new Date().valueOf() * Math.random());
 };
 
+/**
+ * [millisecondToSecond It converts given time parameter from millisecond to second]
+ * @param  {[integer]} millsec [time in milliseconds]
+ * @return {[integer]}         [converted value in seconds]
+ */
 TimeOnSiteTracker.prototype.millisecondToSecond = function (millsec) {
   return (millsec / 1000);
 };
 
+/**
+ * [secondToDuration It converts given seconds to dd:hh:mm:ss format]
+ * @param  {[integer]} sec [time parameter in seconds]
+ * @return {[string]}     [time in dd:hh:mm:ss format]
+ */
 TimeOnSiteTracker.prototype.secondToDuration = function (sec) {
   return (parseInt(sec / 86400) + 'd ' + (new Date(sec%86400*1000)).toUTCString().replace(/.*(\d{2}):(\d{2}):(\d{2}).*/, "$1h $2m $3s"));
 };
 
+/**
+ * [getTOSSessionKey It returns current TOS session key of user]
+ * @return {[string]} [TOS session key]
+ */
 TimeOnSiteTracker.prototype.getTOSSessionKey = function() {
     return this.TOSSessionKey;
 };
 
+/**
+ * [createTOSSessionKey It creates TOS session key for current session]
+ * @return {[string]} [TOS session key]
+ */
 TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
     var date = new Date(),
         millisec = date.getMilliseconds() + '',
@@ -299,6 +326,10 @@ TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
     return uniqId;
 };
 
+/**
+ * [startSession It starts authenticated user session. Its TOSUserId is usually set to app user ID]
+ * @param  {[string]} userId [Application user ID]
+ */
 TimeOnSiteTracker.prototype.startSession = function(userId) {
     if (userId && (userId.toString()).length) {
 
@@ -332,6 +363,10 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
 
 };
 
+/**
+ * [endSession It ends authenticated user session. Usually, it needs to be called 
+ * when "logout" action occurs in the application]
+ */
 TimeOnSiteTracker.prototype.endSession = function() {
     //process data accumulated so far before ending session
     this.monitorSession();
@@ -349,6 +384,9 @@ TimeOnSiteTracker.prototype.endSession = function() {
 
 };
 
+/**
+ * [showProgress It shows the real-time TOP (Time on page) in browser console]
+ */
 TimeOnSiteTracker.prototype.showProgress = function() {
     var d = this.getTimeOnPage();
     console.log('TimeOnPage(TOP): ' + d.timeOnPage + ' ' + d.timeOnPageTrackedBy);
@@ -397,6 +435,10 @@ TimeOnSiteTracker.prototype.extendSession = function(seconds) {
     }
 };
 
+/**
+ * [initBlacklistUrlConfig It checks if the current page is allowed to be tracked TOS with user configuration object]
+ * @param  {[object]} config [TOS config object; passed during TimeOnSiteTracker initialization]
+ */
 TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
     if (config && config.blacklistUrl) {
 
@@ -413,6 +455,9 @@ TimeOnSiteTracker.prototype.initBlacklistUrlConfig = function(config) {
     }
 };
 
+/**
+ * [monitorUser It checks if user is anonymous or authenticated on page load and at initialization]
+ */
 TimeOnSiteTracker.prototype.monitorUser = function() {
     var authenticatedUser = this.getCookie(this.TOS_CONST.TOSUserId),
         sessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey);
@@ -429,6 +474,10 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
 
 };
 
+/**
+ * [monitorSession It updates current TOP data in global cookie data before page 
+ * is closed or reloaded]
+ */
 TimeOnSiteTracker.prototype.monitorSession = function() {
     var sessionDuration = this.getCookie(this.TOS_CONST.TOSSessionDuration),
         sessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey),
@@ -451,6 +500,10 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 
 };
 
+/**
+ * [createNewSession It creates new TOS session either anonymous or authenticated]
+ * @param  {[string]} userType [usually "anonymous" user]
+ */
 TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     this.setCookie(this.TOS_CONST.TOSSessionDuration, 0, this.sessionValidity.oneDayInSecs);
     this.TOSSessionKey = this.createTOSSessionKey();
@@ -474,6 +527,9 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
 
 };
 
+/**
+ * [renewSession Keeps anonymous session key alive for a specific duration]
+ */
 TimeOnSiteTracker.prototype.renewSession = function() {
     var self = this,
         refreshState;
@@ -496,6 +552,10 @@ TimeOnSiteTracker.prototype.renewSession = function() {
 
 /**
  * [monitorSessionStateChange Method to ensure session key and ID consistency]
+ *
+ * When multiple browser tabs are opened and user is logged out in one of the tabs, then 
+ * all other pages are updated to be anonymous and vice versa to ensure session
+ * consistency in multi-tab environment.
  */
 TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
     var self = this,
@@ -524,6 +584,11 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
 };
 
 // URL blacklisting from tracking in "Time on site"
+/**
+ * [checkBlacklistUrl It checks if current page is black-listed by user]
+ * @param  {[string]} blacklistUrl [Array of URLs that needs to be blacklisted]
+ * @return {[boolean]}              [returns false if current page is found in blacklistUrl array]
+ */
 TimeOnSiteTracker.prototype.checkBlacklistUrl = function(blacklistUrl) {
     var currentPage = document.URL;
     for (var i = 0; i < blacklistUrl.length; i++) {
@@ -535,6 +600,10 @@ TimeOnSiteTracker.prototype.checkBlacklistUrl = function(blacklistUrl) {
     return true;
 };
 
+/**
+ * [getPageData It returns a part of TOP data]
+ * @return {[object]} [part of TOP data]
+ */
 TimeOnSiteTracker.prototype.getPageData = function() {
     var page = {};
     page.TOSId = this.createTOSId();
@@ -545,6 +614,10 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     return page;
 }
 
+/**
+ * [getTimeOnPage It returns actual TOP-Time On Page data]
+ * @return {[object]} [TOP data]
+ */
 TimeOnSiteTracker.prototype.getTimeOnPage = function() {
     var currentTime = new Date(),
         newTimeSpent = 0,
@@ -578,6 +651,11 @@ TimeOnSiteTracker.prototype.getTimeOnPage = function() {
     
 };
 
+/**
+ * [mergeCustomData It merges custom data set by user with TOP data]
+ * @param  {[object]} data [user-defined/custom data]
+ * @return {[object]}      [TOP data along with custom data if any]
+ */
 TimeOnSiteTracker.prototype.mergeCustomData = function(data) {
     if (this.customData) {
         for (var key in this.customData) {
@@ -587,6 +665,10 @@ TimeOnSiteTracker.prototype.mergeCustomData = function(data) {
     return data;
 };
 
+/**
+ * [setCustomData It adds custom data to TOP data object if given by user]
+ * @param {[object]} data [user-defined/custom data]
+ */
 TimeOnSiteTracker.prototype.setCustomData = function(data) {
     if (data && Object.keys(data).length) {
         this.customData = data;
@@ -595,9 +677,13 @@ TimeOnSiteTracker.prototype.setCustomData = function(data) {
     }
 };
 
+/**
+ * [unsetCustomData It removes the custom data from TOP data object if already set by user]
+ */
 TimeOnSiteTracker.prototype.unsetCustomData = function() {
     this.customData = null;
 };
+
 /**
  * [getMD5Hash Given a string, returns its md5 hash]
  * @return {[string]}
@@ -613,6 +699,10 @@ TimeOnSiteTracker.prototype.resetActivity = function() {
     this.activity.totalTimeSpentArr = [];
 };
 
+/**
+ * [startActivity Method to initiate TOS activity tracking]
+ * @param  {[object]} activityDetails [object of activity data. Optional field]
+ */
 TimeOnSiteTracker.prototype.startActivity = function(activityDetails) {
     if (activityDetails && Object.keys(activityDetails).length) {
         this.startActivityDetails = activityDetails;
@@ -625,7 +715,14 @@ TimeOnSiteTracker.prototype.startActivity = function(activityDetails) {
     }
 };
 
-//manualProcess = true setting prevents data from being sent immediately to server on ending activity
+/**
+ * [endActivity It ends already started activity tracking]
+ * @param  {[object]} activityDetails [custom data that is set by user while tracking activity. Optional field]
+ * @param  {[boolean]} manualProcess   [If it is set to true, then data is neither sent to 
+ *     callback nor to local stroage. Application can use the returned activity data 
+ *     directly for further processing]
+ * @return {[object]}                 [activity tracking object]
+ */
 TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProcess) {
     var page = {};
 
@@ -644,7 +741,11 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         }
 
         if (this.developerMode) {
-            console.log('Total time spent : ' + this.activity.totalTimeSpent + ' in array: '+ ((this.getTimeDiff(this.activity.varyingStartTime, endActivityTime))/1000));
+            if (this.returnInSeconds) {
+                console.log('Total time spent : ' + this.activity.totalTimeSpent + ' in array: '+ ((this.getTimeDiff(this.activity.varyingStartTime, endActivityTime))/1000));
+            } else {
+                console.log('Total time spent : ' + this.activity.totalTimeSpent + ' in array: '+ (this.getTimeDiff(this.activity.varyingStartTime, endActivityTime)));
+            }
         }
         
         page = this.getPageData();
@@ -687,6 +788,10 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
     return page;
 };
 
+/**
+ * [processActivityData It sends back data to callback else it saves the data in local storage]
+ * @param  {[object]} data [TOS activity data object]
+ */
 TimeOnSiteTracker.prototype.processActivityData = function(data) {
     if (typeof this.callback === 'function') {
         data.realTimeTracking = true;
@@ -696,9 +801,11 @@ TimeOnSiteTracker.prototype.processActivityData = function(data) {
     }
 };
 
-// save time on site data to Local storage.
+/**
+ * [saveToLocalStorage It saves the TOP or activity data to local storage]
+ * @param  {[object]} data [TOP or activity data]
+ */
 TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
-
     if (this.storageSupported) {
 
         var dateObj = (new Date()),
@@ -745,8 +852,12 @@ TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
     } else {
         console.warn('Local storage not supported for TOS tracking!');
     }
+
 };
 
+/**
+ * [processDataInLocalStorage It reads the data in local storage and processes the data]
+ */
 TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
 
     var dateKeys = this.getDateKeys();
@@ -776,6 +887,10 @@ TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
     }
 };
 
+/**
+ * [getDateKeys get date-based keys that hold TOS data]
+ * @return {[array]} [date-based keys]
+ */
 TimeOnSiteTracker.prototype.getDateKeys = function() {
     var dateKeys = [];
     if (this.storageSupported) {
@@ -789,6 +904,10 @@ TimeOnSiteTracker.prototype.getDateKeys = function() {
     return dateKeys;
 };
 
+/**
+ * [removeDateKey Method to remove local storage key (a date string) that contains TOS data]
+ * @param  {[string]} dateKey [key that specifies data of any given day based on date]
+ */
 TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
     var keyName = this.TOSDateKeysHolder,
         dateKeys = this.getDateKeys();
@@ -797,24 +916,14 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
         if ((dateKeys instanceof Array) && dateKeys.length) {
             for (var i = 0; i < dateKeys.length; i++) {
                 if (dateKeys[i] == dateKey) {
-                    //console.log('before')
-                    //console.log(dateKeys)
                     dateKeys.splice(i, 1);
-                    //console.log('after')
-                    console.log(dateKeys);
-
-                    //console.info('key removed : ' + dateKey);
 
                     localStorage.removeItem(dateKey);
-
                     localStorage.setItem(keyName, JSON.stringify(dateKeys));
 
                     if (dateKeys.length) {
-                        //console.info('calling new key : ' + dateKeys[0]);
                         this.processDataInLocalStorage();
                     }
-                    //console.log(dateKeys);
-
                 }
             }
         }
@@ -905,7 +1014,11 @@ TimeOnSiteTracker.prototype.cancelXMLHTTPRequest = function() {
     }
 };
 
-
+/**
+ * [bindWindowFocus It keeps track of the user's focus of browser tabs. If user 
+ * navigates away from TOS tracked site in one or more browser tabs, then TOS tracking 
+ * stops until user returns back to the page]
+ */
 TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 
     // check the visiblility of the page
@@ -983,6 +1096,12 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 
 };
 
+/**
+ * [setCookie It creates cookie for tracking TOS tracking]
+ * @param {[string]} cname  [name of cookie]
+ * @param {[string || integer]} cvalue [value of cookie]
+ * @param {[integer]} secs   [the lifetime of cookie in seconds]
+ */
 TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, secs) {
     var d = new Date(),
         expires,
@@ -999,6 +1118,11 @@ TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, secs) {
     
 };
 
+/**
+ * [getCookie It retrieves the cookie contents]
+ * @param  {[string]} cname [name of cookie]
+ * @return {[string || integer]}       [the contents of cookie]
+ */
 TimeOnSiteTracker.prototype.getCookie = function(cname) {
     var name = cname + '=';
     var ca = document.cookie.split(';');
@@ -1014,6 +1138,10 @@ TimeOnSiteTracker.prototype.getCookie = function(cname) {
     return '';
 };
 
+/**
+ * [removeCookie It removes cookie]
+ * @param  {[string]} cname [name of cookie]
+ */
 TimeOnSiteTracker.prototype.removeCookie = function(cname) {
     if (this.getCookie(cname)) {
         document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; ' + this.TOSCookie.customCookieString;
@@ -1051,6 +1179,9 @@ TimeOnSiteTracker.prototype.removeCookie = function(cname) {
 //     }
 // };
 
+/**
+ * [bindWindowHistory It keeps track of page navigating for single-page apps]
+ */
 TimeOnSiteTracker.prototype.bindWindowHistory = function() {
     var self = this;
     
@@ -1105,6 +1236,10 @@ TimeOnSiteTracker.prototype.bindWindowHistory = function() {
     }
 };
 
+/**
+ * [executeURLChangeCustoms This method updates the current TOP data in global cookie; processes the data and runs
+ * checkBlacklistUrl method on page navigation]
+ */
 TimeOnSiteTracker.prototype.executeURLChangeCustoms = function() {
     this.monitorSession();
 
@@ -1114,10 +1249,7 @@ TimeOnSiteTracker.prototype.executeURLChangeCustoms = function() {
 };
 
 /**
- * [bindWindowUnload]
- *
- * A cross browser solution for window unload event.
- * 
+ * [bindWindowUnload A cross browser solution for window unload event]
  */
 TimeOnSiteTracker.prototype.bindWindowUnload = function() {
     var self = this,
@@ -1135,7 +1267,7 @@ TimeOnSiteTracker.prototype.bindWindowUnload = function() {
 
             self.processTOSData();
 
-            // cancelling running XHR requests...
+            // cancelling running XHR requests if any...
             self.cancelXMLHTTPRequest();
 
         }
@@ -1144,6 +1276,9 @@ TimeOnSiteTracker.prototype.bindWindowUnload = function() {
 
 };
 
+/**
+ * [processTOSData It processes the data and resets the global TOS variables]
+ */
 TimeOnSiteTracker.prototype.processTOSData = function() {
     if (this.developerMode) {
         console.log('Time at exit: ' + (new Date()));
