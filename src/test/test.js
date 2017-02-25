@@ -561,6 +561,36 @@ describe('Check if validateCookieInput method works', function () {
         });
 });
 
+describe('Check if cookie get/set/remove method works', function () {
+    var config = {
+            trackBy: 'seconds',
+            callback: function(data) {
+        }},
+        cookieName = 'testCookie',
+        cookieValue = 'saleemkce',
+        expiryTimeInSeconds = 60,
+        Tos = new TimeOnSiteTracker(config);
+
+    it('Set cookie data', function () {
+        Tos.setCookie(cookieName, cookieValue, expiryTimeInSeconds);
+        expect(Tos.getCookie(cookieName)).to.equal(cookieValue); 
+
+    });
+
+    it('Get cookie data', function () {
+        Tos.getCookie(cookieName);
+        expect(Tos.getCookie(cookieName)).to.equal(cookieValue); 
+
+    });
+
+    it('Remove cookie data', function () {
+        Tos.removeCookie(cookieName);
+        expect(Tos.getCookie(cookieName)).to.equal('');
+
+    });
+
+});
+
 describe('TimeOnSiteTracker with user session', function () {
         var config = {
             trackBy: 'seconds',
