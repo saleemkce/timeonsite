@@ -264,7 +264,7 @@ module.exports.SaveActivity = function(req, res, next) {
 // Create database named "test". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
 
 CREATE TABLE activity(id INT AUTO_INCREMENT,
-    tos_id INT,
+    tos_id BIGINT(20),
     tos_session_key VARCHAR(50),
     url VARCHAR(10000),
     title VARCHAR(5000),
