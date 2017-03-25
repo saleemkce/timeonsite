@@ -150,7 +150,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
             this.TOSCookie.customCookieString += 'domain=' + this.validateCookieInput(config.TOSCookie.domain) + ';';
         }
 
-        if (config.TOSCookie.enforceSecure) {
+        if (config.TOSCookie.enforceSecure && (location.protocol === 'https:')) {
             this.TOSCookie.customCookieString += 'secure;';
         }
     } else {
