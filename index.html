@@ -212,6 +212,12 @@ var config = {
     //this parameter helps track pageviews for single-page apps that use hash-based URL routing
     trackHistoryChange: true, 
 
+    //this parameter helps track user's TOS data separately for two different sub-domins of a site or a domain and its sub-domain. It works just like normal cookie for domain and path but is associated with TOS Tracking specifically
+    TOSCookie: {
+        path: '/',
+        domain: 'blog.example.com'
+    }
+
     //save to local storage. If you give callback along with this option, callback will take precedence
     request: {
         url: 'http://localhost:4500/data/tos', //your endpoint URL to which data would be sent via POST method in API call
@@ -264,8 +270,8 @@ var Tos = new TimeOnSiteTracker(config);
 </p>
 
 <h3 id="developer-mode-setting-for-debugging">* Developer mode setting for debugging</h3>
-<p>This option is very useful in debugging TOSTracker data. It also helps to point out any
-    incorrect input you might give while initializing timeonsitetracker.js. These all visible in browser console window (<strong>Open browser console and look at real-time TOSTracker data</strong>, you may see a lot of data in browser console when this option is enabled). Also this setting may be useful only for development or test environments and not recommended for production. This is enabled by "developerMode" as given below.<br/>
+<p>This option is very useful in debugging TOS Tracker data. It also helps to point out any
+    incorrect input you might give while initializing timeonsitetracker.js. These all visible in browser console window (<strong>Open browser console and look at real-time TOS Tracker data</strong>, you may see a lot of data in browser console when this option is enabled). Also this setting may be useful only for development or test environments and not recommended for production. This is enabled by "developerMode" as given below.<br/>
 <pre class="prettyprint lang-js">
 var config = {
     trackBy: 'seconds',
@@ -293,6 +299,52 @@ var config = {
 var Tos = new TimeOnSiteTracker(config);
 </pre>
 </p> -->
+
+<h3 id="tos-cookie-and-domain-setting">TOS Cookie and Domain Setting</h3>
+<p>
+    This is a very important setting when working with domains and sub-domains for TOS Tracking.  This cookie is used to determine if current TOS tracking applies to whole domain or a sub domain in the given site.  If you are going to track entire site without differentiating domain and sub domain, you may leave this options. For this, you need to provide "TOSCookie" in config object as given below so that tracking works as per your needs,<br/>
+<pre class="prettyprint lang-js">
+//Setting custom data for TOS tracking
+var config = {
+    trackBy: 'seconds',
+    TOSCookie: {
+        path: '/',
+        domain: 'example.com'
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+    <p>In the above line, TOS Tracker is going to track all domain and sub-domain as one thing. For example, consider TOS Tracking is implemented in example.com. If the above cookie is set for path => '/' and domain => 'example.com' in example.com, then TOS tracking is same for both blog.example.com and about.example.com. But, blog.example.com is actually different from about.example.com, each serves its own purpose and their usage should be treated differently. Since we gave domain as "example.com", TOS timing parameter gets mingled if a user tries to access blog.example.com and about.example.com one by one`at the same time. To avoid data mixing and keep each thing different, domain parameter helps us do that</p>
+
+
+<pre class="prettyprint lang-js">
+//Setting custom data for TOS tracking
+
+//Example 1: setting for blog.exmaple.com
+var config = {
+    trackBy: 'seconds',
+    TOSCookie: {
+        path: '/',
+        domain: 'blog.example.com'
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+
+//Example 2: setting for about.exmaple.com
+var config = {
+    trackBy: 'seconds',
+    TOSCookie: {
+        path: '/',
+        domain: 'about.example.com'
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+    <p>When the setting is changed as above, user simultaneously accessing 'blog' and 'about' sub-domains is protected from data mixing of TOS data. It works just like domain cookies in sites but for tracking TOS.</p>
+</p>
+
 
 <h3 id="setting-custom-data">Setting custom data</h3>
 <p>
