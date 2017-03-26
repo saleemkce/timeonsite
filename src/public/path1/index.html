@@ -20,16 +20,17 @@ TimeOnSiteTracker loaded!
 
 
 <script type="text/javascript">
+//localhost:3000/static/path1/index.html
 var config = {
 	trackBy: 'seconds',
+    developerMode: true,
     request: { // presence of request object denotes that data is to be saved in local storage
         url: 'http://localhost:4500/data/tos',
         headers: [
         ]
     },
-    developerMode: true,
     TOSCookie: {
-        path: '/static/site2',
+        path: '/static/site1',
         domain: 'localhost'
     }
 };

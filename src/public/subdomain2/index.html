@@ -9,7 +9,7 @@
 <body>
 TimeOnSiteTracker loaded!
 <br/>
-<a target ='_blank' href='http://www.example.com'>EXAMPLE site with Secure cookie option</a>
+<a target ='_blank' href='http://www.example.com'>EXAMPLE external site with _blank option</a>
 <br/>
 
 <!-- <a href='file:///C:/Users/skhan/Desktop/tests/time.html#abcIndio'>anchor tag with # change</a> -->
@@ -20,7 +20,7 @@ TimeOnSiteTracker loaded!
 
 
 <script type="text/javascript">
-//localhost:3000/static/secure/index.html
+//localdata-tos.chennai:3000/static/subdomain2/index.html
 var config = {
 	trackBy: 'seconds',
     developerMode: true,
@@ -30,9 +30,8 @@ var config = {
         ]
     },
     TOSCookie: {
-        path: '/static/secure',
-        domain: 'localhost',
-        enforceSecure: true
+        path: '/',
+        domain: 'api.localdata-tos.chennai'
     }
 };
 var Tos = new TimeOnSiteTracker(config);
