@@ -50,6 +50,9 @@ var TimeOnSiteTracker = function(config) {
     this.customData = null;
     this.TOSUserId = 'anonymous';
     this.anonymousTimerId = null;
+    this.sessionStateChangeTimerId = null;
+
+    this.fileIntegrityCode = 'ae4c20f53073125154d68d59c1818f8b';
 
     /**
      * Anonymous user session:
@@ -219,6 +222,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     this.monitorSession();
 
     this.monitorSessionStateChange();
+
+    this.fileValidation();
 
     if (this.developerMode) {
         var self = this;
@@ -562,7 +567,7 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
         newSessionKey,
         newUserId;
         
-    setInterval(function() {
+    this.sessionStateChangeTimerId = setInterval(function() {
         newSessionKey = self.getCookie(self.TOS_CONST.TOSSessionKey),
         newUserId = self.getCookie(self.TOS_CONST.TOSUserId);
 
@@ -798,6 +803,22 @@ TimeOnSiteTracker.prototype.processActivityData = function(data) {
         this.callback(data);
     } else if (this.storeInLocalStorage) {
         this.saveToLocalStorage(data);
+    }
+};
+
+TimeOnSiteTracker.prototype.fileValidation = function() {
+    var codeName = 'undefined';
+    if (typeof TimeOnSiteTracker !== 'undefined') {
+        codeName = 'TimeOnSiteTracker';
+    }
+
+    if (this.getMD5Hash(codeName) !== this.fileIntegrityCode) {
+        //stop printing real-time TOS data and messages
+        this.developerMode = false;
+        this.isTimeOnSiteAllowed = false;
+        if (this.sessionStateChangeTimerId) {
+            clearInterval(this.sessionStateChangeTimerId);
+        }
     }
 };
 
@@ -1098,11 +1119,11 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 
 /**
  * [setCookie It creates cookie for tracking TOS tracking]
- * @param {[string]} cname  [name of cookie]
- * @param {[string || integer]} cvalue [value of cookie]
+ * @param {[string]} cookieName  [name of cookie]
+ * @param {[string || integer]} cookieValue [value of cookie]
  * @param {[integer]} secs   [the lifetime of cookie in seconds]
  */
-TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, secs) {
+TimeOnSiteTracker.prototype.setCookie = function(cookieName, cookieValue, secs) {
     var d = new Date(),
         expires,
         cookieString;
@@ -1111,28 +1132,31 @@ TimeOnSiteTracker.prototype.setCookie = function(cname, cvalue, secs) {
     //console.log('cookie expire @ '+new Date(d));
     
     expires = 'expires=' + d.toUTCString();
-    cookieString = cname + '=' + cvalue + '; ' + expires + '; ' + this.TOSCookie.customCookieString;
+    cookieString = cookieName + '=' + cookieValue + '; ' + expires + '; ' + this.TOSCookie.customCookieString;
 
-    //document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+    //document.cookie = cookieName + '=' + cookieValue + ';' + expires + ';path=/';
     document.cookie = cookieString;
     
 };
 
 /**
  * [getCookie It retrieves the cookie contents]
- * @param  {[string]} cname [name of cookie]
+ * @param  {[string]} cookieName [name of cookie]
  * @return {[string || integer]}       [the contents of cookie]
  */
-TimeOnSiteTracker.prototype.getCookie = function(cname) {
-    var name = cname + '=';
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
+TimeOnSiteTracker.prototype.getCookie = function(cookieName) {
+    var name,
+        cookies = document.cookie.split(';');
+
+    name = cookieName + '=';
+
+    for (var i = 0; i < cookies.length; i++) {
+        var _cookie = cookies[i];
+        while (_cookie.charAt(0) == ' ') {
+            _cookie = _cookie.substring(1);
         }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
+        if (_cookie.indexOf(name) == 0) {
+            return _cookie.substring(name.length, _cookie.length);
         }
     }
     return '';
@@ -1140,11 +1164,11 @@ TimeOnSiteTracker.prototype.getCookie = function(cname) {
 
 /**
  * [removeCookie It removes cookie]
- * @param  {[string]} cname [name of cookie]
+ * @param  {[string]} cookieName [name of cookie]
  */
-TimeOnSiteTracker.prototype.removeCookie = function(cname) {
-    if (this.getCookie(cname)) {
-        document.cookie = cname + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; ' + this.TOSCookie.customCookieString;
+TimeOnSiteTracker.prototype.removeCookie = function(cookieName) {
+    if (this.getCookie(cookieName)) {
+        document.cookie = cookieName + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; ' + this.TOSCookie.customCookieString;
     }
 };
 

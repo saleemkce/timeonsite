@@ -649,13 +649,6 @@ describe('TimeOnSiteTracker with localstorage', function () {
         expect(dateKeys.length).to.be.at.least(0);
     });
 
-    // it('Check if localstorage removeDateKey method works', function () {
-    //     var dateKey = 'TOS_11_26_2016';
-    //     Tos.removeDateKey(dateKey);
-    //     var dateKeys = Tos.getDateKeys();
-    //     expect(dateKeys.length).to.equal(0);
-    // });
-
     it('Check if localstorage processDataInLocalStorage method works', function () {
         var data = [
             {
@@ -679,6 +672,23 @@ describe('TimeOnSiteTracker with localstorage', function () {
 
         Tos.processDataInLocalStorage();
     });
+
+    it('Check if localstorage removeDateKey method works', function () {
+        var dateKeys = Tos.getDateKeys();
+        for (var j = 0; j < dateKeys.length; j++) {
+            Tos.removeDateKey(dateKeys[j]);
+        }
+        dateKeys = Tos.getDateKeys();
+        expect(dateKeys.length).to.equal(0);
+    });
     
+    it('Check if fileValidation method works', function () {
+        Tos.fileValidation();
+        expect(Tos.sessionStateChangeTimerId).to.not.be.null;
+        expect(Tos.sessionStateChangeTimerId).to.be.a('number');
+
+        // since given timonsitetracker.js and its class definition remain unaltered, TOS tracking should be allowed for given page/app
+        expect(Tos.isTimeOnSiteAllowed).to.equal(true); 
+    });
 
 });
