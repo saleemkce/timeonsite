@@ -43,6 +43,7 @@
           <a href="#setting-custom-data">Setting custom data</a><br/>
           <a href="#unsetting-custom-data">Unsetting custom data</a><br/>
           <a href="#user-sessions">User sessions **</a><br/>
+          <a href="#extending-user-sessions">Extending User Sessions</a><br/>
           <a href="#saving-data-to-local-storage-for-performance">Saving data to local storage</a><br/>
           <a href="#real-time-tracking-example">Real-time <br/>&nbsp;&nbsp;Tracking Example</a><br/>
           <a href="#additional-features">Additional Features</a><br/>
@@ -400,6 +401,23 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
     Tos.endSession(); 
 </pre>
 <p>Remember, you may call <code><span class="apiHighlight">Tos.startSession()</span></code> API only when user logs into your application and call <code><span class="apiHighlight">Tos.endSession()</span></code> only when user logs out. Calling <code><span class="apiHighlight">Tos.endSession()</span></code> too many times or unnecessarily may create inconsistent identity data in your DB. Failing to call <code><span class="apiHighlight">Tos.endSession()</span></code>, when user logs out in your application, may result in loss of that session data.</p>
+
+<h3 id="extending-user-sessions">Extending user session</h3>
+<p>In section "<strong>User sessions</strong>" above, we saw how to capture TOS data for authenticated users in your application by calling <code><span class="apiHighlight">Tos.startSession('testUser1')</span></code>. Once started, this session information is stored in cookie and stays there for 1 day until Tos.endSession() is called. When Tos.endSession() is called, this authenticated user session is destroyed from cookie.  For some applications, they may set smaller lifetime for authenticated sessions. TimeOnSite tracker needs to be in sync with such applications for capturing TOS data of authenticated users.  In TimeOnSite tracker, fortunately, there is a way to modify default lifetime of cookies for authenticated users. This is done by calling <code><span class="apiHighlight">Tos.extendSession()</span></code> methed after starting TOS session.</p>
+<pre class="prettyprint lang-js">
+    // when user is logged into your site, call startSession.
+    Tos.startSession('testUserId1'); //"testUserId1" stays in cookie for next 1 day but your application preference is to auto-destroy authenticated user session every one hour. In this case, you are forced to auto-destory TOS authenticated session at the same time.
+
+    //Just call extend session API.
+    Tos.extendSession(3600); // This modifies current authenticated session lifetime to 1 hour instead of default 1 day.
+
+    // or give any value
+    Tos.extendSession(900); // This modifies current authenticated session lifetime to 15 minutes instead of default 1 day.
+
+    // or give even bigger value
+    Tos.extendSession(604800); // This modifies current authenticated session lifetime to 7 days (1 week) instead of default 1 day.
+</pre>
+<p>The method <code><span class="apiHighlight">Tos.extendSession(3600)</span></code> accepts first parameter as time period in seconds. It is of type number. In this snippet, 3600 seconds which is 1 hour. Also be aware that the value given to this API modifies the lifetime of cookie instead of adding to existing default 1 day lifetime of cookie. If you give incorrect value or very less time period like 10 seconds, it may not work correctly. This API is applicable only for authenticated user sessions.</p>
 
 
 <h3 id="saving-data-to-local-storage-for-performance">Saving data to local storage for performance</h3>
