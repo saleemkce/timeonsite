@@ -26,7 +26,8 @@
 var TimeOnSiteTracker = function(config) {
     
     this.varyingStartTime = new Date();
-    this.pageEntryTime = (new Date()).toISOString();
+    this.pageEntryTime = this.getDateTime();
+    this.activityStartTime = null;
     this.totalTimeSpent = 0;
     this.returnInSeconds = false;
 
@@ -309,6 +310,14 @@ TimeOnSiteTracker.prototype.millisecondToSecond = function (millsec) {
  */
 TimeOnSiteTracker.prototype.secondToDuration = function (sec) {
   return (parseInt(sec / 86400) + 'd ' + (new Date(sec%86400*1000)).toUTCString().replace(/.*(\d{2}):(\d{2}):(\d{2}).*/, "$1h $2m $3s"));
+};
+
+/**
+ * [getDateTime returns date time in most-widely used format YYYY-MM-DD HH:MM:SS]
+ * @return {[string]} [date time in specific format]
+ */
+TimeOnSiteTracker.prototype.getDateTime = function () {
+    return (new Date()).toISOString().substr(0, 19).replace('T', ' ');
 };
 
 /**
@@ -644,7 +653,7 @@ TimeOnSiteTracker.prototype.getTimeOnPage = function() {
     page = this.mergeCustomData(page);
 
     page.entryTime = this.pageEntryTime;
-    page.currentTime = (new Date()).toISOString();
+    page.currentTime = this.getDateTime();
     page.timeOnPage = Math.round(newTimeSpent);
     page.timeOnPageTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
     page.timeOnSite = this.timeOnSite;
@@ -699,6 +708,7 @@ TimeOnSiteTracker.prototype.getMD5Hash = function(s){function L(k,d){return(k<<d
  * [resetActivity It is used for both initializing and resetting activity varibales]
  */
 TimeOnSiteTracker.prototype.resetActivity = function() {
+    this.activityStartTime = this.getDateTime();
     this.activity.varyingStartTime = new Date();
     this.activity.totalTimeSpent = 0;
     this.activity.totalTimeSpentArr = [];
@@ -709,12 +719,13 @@ TimeOnSiteTracker.prototype.resetActivity = function() {
  * @param  {[object]} activityDetails [object of activity data. Optional field]
  */
 TimeOnSiteTracker.prototype.startActivity = function(activityDetails) {
+    this.resetActivity();
+    this.activity.activityStarted = true;
+
     if (activityDetails && Object.keys(activityDetails).length) {
         this.startActivityDetails = activityDetails;
     }
 
-    this.resetActivity();
-    this.activity.activityStarted = true;
     if (this.developerMode) {
         console.log('Activity starts at : ' + this.activity.varyingStartTime);
     }
@@ -754,8 +765,8 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         }
         
         page = this.getPageData();
-        page.activityStart = (this.activity.varyingStartTime).toISOString();
-        page.activityEnd = (new Date()).toISOString();
+        page.activityStart = this.activityStartTime;
+        page.activityEnd = this.getDateTime();
         page.timeTaken = Math.round(activityDuration);
         page.timeTakenTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
         page.timeTakenByDuration = ((this.returnInSeconds === true) ? this.secondToDuration(page.timeTaken) : this.secondToDuration(this.millisecondToSecond(page.timeTaken)));
@@ -1310,7 +1321,7 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     }
 
     var data = this.getTimeOnPage();
-    data.exitTime = (new Date()).toISOString();
+    data.exitTime = this.getDateTime();
 
     /**
      * execute callback if given in config
@@ -1328,7 +1339,7 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
 
     // Initialize variables on URL change.
     this.varyingStartTime = new Date(),
-    this.pageEntryTime = (new Date()).toISOString(),
+    this.pageEntryTime = this.getDateTime(),
     this.totalTimeSpent = 0,
     this.timeSpentArr = [];
 

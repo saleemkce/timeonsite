@@ -119,6 +119,21 @@ describe('TimeOnSiteTracker Tests', function () {
         expect(Tos.getTimeDiff(date1, date2)).to.equal(appropriateDiff);
     });
 
+    it('check if getDateTime method works', function () {
+        var dateTime = Tos.getDateTime();
+
+        expect(dateTime).to.not.be.null;
+        expect(dateTime).to.be.a('string');
+
+        /*
+            check if given format contains year and time separated by space.
+            with this data split by space will make array eg. ['2010-01-01', '00:00:00']
+         */
+        expect((dateTime.split(' ')).length).to.equal(2);
+    });
+
+    
+
     
     it('check if createTOSId method works', function () {
         var TosId = Tos.createTOSId();
