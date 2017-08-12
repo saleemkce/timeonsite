@@ -143,6 +143,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     this.TOSCookie.customCookieString = '';
     if (config && config.TOSCookie) {
+
+        //seting cookie path if given
         if (config.TOSCookie.path) {
             this.TOSCookie.customCookieString += 'path=' + this.validateCookieInput(config.TOSCookie.path) + ';';
         } else {
@@ -150,10 +152,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
             this.TOSCookie.customCookieString += 'path=/;';
         }
 
+        //seting cookie domain if given
         if (config.TOSCookie.domain) {
             this.TOSCookie.customCookieString += 'domain=' + this.validateCookieInput(config.TOSCookie.domain) + ';';
         }
 
+        //seting secure cookie if given & site accessed as https
         if (config.TOSCookie.enforceSecure && (location.protocol === 'https:')) {
             this.TOSCookie.customCookieString += 'secure;';
         }
@@ -444,6 +448,10 @@ TimeOnSiteTracker.prototype.extendSession = function(seconds) {
         this.setCookie(this.TOS_CONST.TOSSessionDuration, duration, expiryTime);
         this.setCookie(this.TOS_CONST.TOSAnonSessionRefresh, 0, expiryTime);
 
+        var t = new Date();
+        t.setTime(t.getTime() + (expiryTime * 1000));
+        console.info('Session extended till ' + new Date(t));
+
     } else {
         console.warn('Either anonymous session detected or given input is not a number!');
     }
@@ -477,11 +485,15 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
         sessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey);
 
     if (authenticatedUser && authenticatedUser.length) {
-        console.info('Authenticated user!!!');
+        this.TOSSessionKey = sessionKey;
         this.TOSUserId = authenticatedUser;
+        console.info('Authenticated user. TOSSessionKey: ' + this.TOSSessionKey + ' & TOSUserId: ' + this.TOSUserId);
+
     } else if (sessionKey && (!authenticatedUser)) {
-        console.info('Anonymous user!!!');
+        console.info('Anonymous user. TOSSessionKey: ' + sessionKey);
+        this.TOSSessionKey = sessionKey;
         this.renewSession();
+
     } else {
         this.createNewSession('anonymous');
     }
