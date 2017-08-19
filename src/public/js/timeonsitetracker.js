@@ -317,11 +317,11 @@ TimeOnSiteTracker.prototype.secondToDuration = function (sec) {
 };
 
 /**
- * [getDateTime returns date time in most-widely used format YYYY-MM-DD HH:MM:SS]
+ * [getDateTime returns date time in most-widely used format YYYY-MM-DD HH:MM:SS.SSS]
  * @return {[string]} [date time in specific format]
  */
 TimeOnSiteTracker.prototype.getDateTime = function () {
-    return (new Date()).toISOString().substr(0, 19).replace('T', ' ');
+    return (new Date()).toISOString().substr(0, 23).replace('T', ' ');
 };
 
 /**

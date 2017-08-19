@@ -120,10 +120,17 @@ describe('TimeOnSiteTracker Tests', function () {
     });
 
     it('check if getDateTime method works', function () {
-        var dateTime = Tos.getDateTime();
+        var dateTime = Tos.getDateTime(),
+            millisecondSegArr = (dateTime.split('.'));
 
         expect(dateTime).to.not.be.null;
         expect(dateTime).to.be.a('string');
+
+        // It should contain millisecond unit
+        expect(millisecondSegArr.length).to.equal(2);
+
+        //millisecond unit should have length >=3 as per common datetime milliseconds length
+        expect(millisecondSegArr[1].length).to.equal(3);
 
         /*
             check if given format contains year and time separated by space.
