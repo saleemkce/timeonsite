@@ -846,6 +846,17 @@ TimeOnSiteTracker.prototype.fileValidation = function() {
 };
 
 /**
+ * [trackPageNavigation This method is useful for handling (tracking TOS in) 
+ * single-page app manually where page navigations may not be captured 
+ * correctly with native Javascript API. In that case, call this method manually
+ * on every page navigation as per your convenience. This method is not meant for 
+ * full page refresh/page load since that is handled by TimeOnSiteTracker.js itself]
+ */
+TimeOnSiteTracker.prototype.trackPageNavigation = function() {
+    this.executeURLChangeCustoms();
+};
+
+/**
  * [saveToLocalStorage It saves the TOP or activity data to local storage]
  * @param  {[object]} data [TOP or activity data]
  */
@@ -879,16 +890,12 @@ TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
             localStorage.setItem(keyName, JSON.stringify(keyArr));
         }
 
-
         var item = localStorage.getItem(currentDayKey);
         if (item) {
-            //console.log('TOS available!');
             var oldItem = JSON.parse(item);
-            oldItem.push(data)
-            //console.log(oldItem);
+            oldItem.push(data);
             localStorage.setItem(currentDayKey, JSON.stringify(oldItem));
         } else {
-            //console.log('new TOS added!');
             var newItem = [];
             newItem.push(data);
             localStorage.setItem(currentDayKey, JSON.stringify(newItem));
@@ -903,31 +910,22 @@ TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
  * [processDataInLocalStorage It reads the data in local storage and processes the data]
  */
 TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
-
     var dateKeys = this.getDateKeys();
 
     if ((dateKeys instanceof Array) && dateKeys.length) {
-        var dateObj = (new Date()),
-            //currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
-            dateKey = dateKeys[0];
+        var dateKey = dateKeys[0];
 
-        //if (currentDayKey != dateKey) {
-            console.log('this day key : ' + dateKey)
+        console.log('day key : ' + dateKey);
 
-            var item = localStorage.getItem(dateKey);
+        var item = localStorage.getItem(dateKey);
 
-            if (item) {
-                var itemData = JSON.parse(item);
-                
-                if ((itemData instanceof Array) && itemData.length) {
-
-                    this.sendData(dateKey, itemData);
-                }
+        if (item) {
+            var itemData = JSON.parse(item);
+            
+            if ((itemData instanceof Array) && itemData.length) {
+                this.sendData(dateKey, itemData);
             }
-        // } else {
-        //     console.warn('Todays date key found!');
-        // }
-        
+        }
     }
 };
 
@@ -986,8 +984,6 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
 TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     var url = this.request.url,
         params = JSON.stringify(itemData[0]),
-        dateObj = (new Date()),
-        currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
         self = this;
 
     this.xhr = null;
@@ -1016,8 +1012,13 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
         if (self.xhr.readyState == 4 && self.xhr.status == 200) {
             if (self.xhr.responseText == 'success') {
                 itemData.shift();
+
                 console.log('itemData.length is : '+ itemData.length);
                 if (itemData.length) {
+
+                    //save remaining data in dateKey back to localstorage
+                    localStorage.setItem(dateKey, JSON.stringify(itemData));
+                    
                     console.log('calling next item to process');
                     setTimeout(function() {
                         self.sendData(dateKey, itemData);
