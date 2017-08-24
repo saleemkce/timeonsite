@@ -292,10 +292,10 @@ TimeOnSiteTracker.prototype.isURLValid = function(url) {
 
 /**
  * [createTOSId Creates a new TOSId for each TOS initialziation and Tos.getTimeOnPage() call]
- * @return {[integer]} [It may be of length 12 to 15]
+ * @return {[integer]} [TOS ID; It may have length (digit size) 16 to 18]
  */
 TimeOnSiteTracker.prototype.createTOSId = function() {
-    return Math.floor(new Date().valueOf() * Math.random());
+    return new Date().valueOf() * Math.floor((Math.random() * 9010) + 1000);
 };
 
 /**
@@ -334,14 +334,12 @@ TimeOnSiteTracker.prototype.getTOSSessionKey = function() {
 
 /**
  * [createTOSSessionKey It creates TOS session key for current session]
- * @return {[string]} [TOS session key]
+ * @return {[string]} [TOS session key; It may have string length between 20 to 25]
  */
 TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
     var date = new Date(),
-        millisec = date.getMilliseconds() + '',
-        uniqId = (++date) + millisec + (Math.floor((Math.random() * 10000) + 1));
-
-    return uniqId;
+        millisec = date.getMilliseconds() + '';
+    return (Math.floor((Math.random() * 9010) + 1000)) + '' + (++date) + millisec + (Math.floor((Math.random() * 90) + 10));
 };
 
 /**
