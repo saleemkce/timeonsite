@@ -451,7 +451,7 @@ TimeOnSiteTracker.prototype.extendSession = function(seconds) {
         console.info('Session extended till ' + new Date(t));
 
     } else {
-        console.warn('Either anonymous session detected or given input is not a number!');
+        console.warn('Either anonymous session detected or given input seconds is not a number!');
     }
 };
 
@@ -500,7 +500,7 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
 
 /**
  * [monitorSession It updates current TOP data in global cookie data before page 
- * is closed or reloaded]
+ * is loaded for first time, closed or reloaded]
  */
 TimeOnSiteTracker.prototype.monitorSession = function() {
     var sessionDuration = this.getCookie(this.TOS_CONST.TOSSessionDuration),
@@ -531,7 +531,6 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     this.setCookie(this.TOS_CONST.TOSSessionDuration, 0, this.sessionValidity.oneDayInSecs);
     this.TOSSessionKey = this.createTOSSessionKey();
-    //console.info('new cookie created!!!');
     
     if (userType === 'anonymous') {
         this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, this.sessionValidity.anonymous);
@@ -540,7 +539,6 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     } else {
         if (this.anonymousTimerId) {
             clearInterval(this.anonymousTimerId);
-            console.info('Timer cleared '+this.anonymousTimerId);
         }
 
         //authenticated users session extends till the next day
@@ -571,7 +569,7 @@ TimeOnSiteTracker.prototype.renewSession = function() {
                 console.log('Session renewed at : ' + (new Date()));
             }
         }
-    }, (1 * 1000)); //anonymous user cookie is refresed every second
+    }, (1 * 1000)); //anonymous user cookie is refreshed every second
 };
 
 /**
@@ -620,8 +618,8 @@ TimeOnSiteTracker.prototype.checkBlacklistUrl = function(blacklistUrl) {
             return false;
         }
     }
-
     return true;
+
 };
 
 /**
@@ -636,6 +634,7 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     page.URL = document.URL;
     page.title = document.title;
     return page;
+
 }
 
 /**
@@ -820,13 +819,16 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
  */
 TimeOnSiteTracker.prototype.processActivityData = function(data) {
     if (typeof this.callback === 'function') {
-        data.realTimeTracking = true;
         this.callback(data);
     } else if (this.storeInLocalStorage) {
         this.saveToLocalStorage(data);
     }
 };
 
+/**
+ * [fileValidation It ensures integrity of TimeOnSiteTracker library]
+ * @return {[void]}
+ */
 TimeOnSiteTracker.prototype.fileValidation = function() {
     var codeName = 'undefined';
     if (typeof TimeOnSiteTracker !== 'undefined') {
@@ -1112,20 +1114,20 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
                     console.log(self.timeSpentArr);
                 }
 
-                var currentTime = new Date();
+                var nowTime = new Date();
                 if (self.returnInSeconds) {
-                    (self.timeSpentArr).push(((self.getTimeDiff(self.varyingStartTime, currentTime))/1000));
+                    (self.timeSpentArr).push(((self.getTimeDiff(self.varyingStartTime, nowTime))/1000));
                 } else {
-                    (self.timeSpentArr).push(self.getTimeDiff(self.varyingStartTime, currentTime));
+                    (self.timeSpentArr).push(self.getTimeDiff(self.varyingStartTime, nowTime));
                 }
 
                 // compute time duratation for activity if it was started.
                 if (self.activity.activityStarted) {
                     console.log(self.activity.totalTimeSpentArr);
                     if (self.returnInSeconds) {
-                        (self.activity.totalTimeSpentArr).push(((self.getTimeDiff(self.activity.varyingStartTime, currentTime))/1000));
+                        (self.activity.totalTimeSpentArr).push(((self.getTimeDiff(self.activity.varyingStartTime, nowTime))/1000));
                     } else {
-                        (self.activity.totalTimeSpentArr).push(self.getTimeDiff(self.activity.varyingStartTime, currentTime));
+                        (self.activity.totalTimeSpentArr).push(self.getTimeDiff(self.activity.varyingStartTime, nowTime));
                     }
                 }    
             }
@@ -1150,13 +1152,9 @@ TimeOnSiteTracker.prototype.setCookie = function(cookieName, cookieValue, secs) 
         expires,
         cookieString;
     d.setTime(d.getTime() + (secs * 1000));
-
-    //console.log('cookie expire @ '+new Date(d));
     
     expires = 'expires=' + d.toUTCString();
     cookieString = cookieName + '=' + cookieValue + '; ' + expires + '; ' + this.TOSCookie.customCookieString;
-
-    //document.cookie = cookieName + '=' + cookieValue + ';' + expires + ';path=/';
     document.cookie = cookieString;
     
 };
@@ -1339,7 +1337,6 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
      */
     if (this.isTimeOnSiteAllowed) {
         if (typeof this.callback === 'function') {
-            data.realTimeTracking = true;
             this.callback(data);
             
         } else if (this.storeInLocalStorage) {
