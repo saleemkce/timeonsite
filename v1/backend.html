@@ -85,7 +85,6 @@ Schema = new mongoose.Schema({
     TOSSessionKey: String,
     title: String,
     URL: String,
-    currentTime: Date,
     entryTime: Date,
     exitTime: Date,
     timeOnPage: Number,
@@ -139,20 +138,23 @@ module.exports.SaveTos = function(req, res, next) {
 <pre class="prettyprint lang-sql">
 // Create database named "test". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
 
-CREATE TABLE tos(id INT AUTO_INCREMENT,
-    tos_id BIGINT(20),
-    tos_session_key VARCHAR(50),
-    url VARCHAR(10000),
-    title VARCHAR(5000),
-    entry_time datetime,
-    exit_time datetime,
-    timeonpage INT,
-    timeonpage_tracked_by VARCHAR(15),
-    timeonsite INT,
-    tracking_type VARCHAR(15),
-    realtime_tracking BOOLEAN NOT NULL DEFAULT 0,
-    transferred_with VARCHAR(15) NULL,
-    PRIMARY KEY ( id )) CHARACTER SET utf8 COLLATE utf8_general_ci
+CREATE TABLE `tos` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `tos_id` bigint(19) DEFAULT NULL,
+ `tos_session_key` varchar(50) DEFAULT NULL,
+ `tos_user_id` varchar(1000) DEFAULT NULL,
+ `url` varchar(10000) DEFAULT NULL,
+ `title` varchar(5000) DEFAULT NULL,
+ `entry_time` datetime(3) DEFAULT NULL,
+ `exit_time` datetime(3) DEFAULT NULL,
+ `timeonpage` int(11) DEFAULT NULL,
+ `timeonpage_by_duration` varchar(20) DEFAULT NULL,
+ `timeonpage_tracked_by` varchar(15) DEFAULT NULL,
+ `timeonsite` int(11) DEFAULT NULL,
+ `timeonsite_by_duration` varchar(20) DEFAULT NULL,
+ `tracking_type` varchar(15) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) CHARACTER SET utf8 COLLATE utf8_general_ci
 </pre><br/>
 <pre class="prettyprint lang-php">
 <xmp>
@@ -334,7 +336,6 @@ Body:
     "URL" : "http://tos-localdata.chennai/home",
     "title" : "Home page - testing TOS!",
     "entryTime" : "2016-11-23T16:42:22.766Z",
-    "currentTime" : "2016-11-23T16:42:44.189Z",
     "timeOnPage" : 21,
     "timeOnPageTrackedBy" : "second",
     "timeOnSite" : 1359,

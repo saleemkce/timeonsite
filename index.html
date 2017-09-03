@@ -112,8 +112,7 @@ Tos.getTimeOnPage();
         TOSSessionKey: "14802525481391382263",
         TOSUserId: "anonymous",
         title: "Test application - TimeOnSiteTracker",
-        URL: "http://tos-localdata.chennai/home.php",
-        currentTime: "2016-11-27T13:17:31.242Z",
+        URL: "http://tos-localdata.chennai/home.php"
         entryTime: "2016-11-27T13:15:48.136Z",
         timeOnPage: 103,
         timeOnSite: 0,
@@ -150,11 +149,6 @@ Tos.getTimeOnPage();
             <td>URL</td>
             <td>String</td>
             <td>Page URL</td>
-        </tr>
-        <tr>
-            <td>currentTime</td>
-            <td>String</td>
-            <td>It refers to time when Tos.getTimeOnPage() is called</td>
         </tr>
         <tr>
             <td>entryTime</td>
@@ -346,6 +340,28 @@ var Tos = new TimeOnSiteTracker(config);
     <p>When the setting is changed as above, user simultaneously accessing 'blog' and 'about' sub-domains is protected from data mixing of TOS data. It works just like domain cookies in sites but for tracking TOS.</p>
 </p>
 
+<h3>Tracking single-page apps</h3>
+<p>
+    TimeOnSite tracker captures TOS information for normal web pages when page is closed, reloaded or navigated to another page using <strong>beforeunload</strong> browser API. This is not the case with single-page apps where navigation to different pages does not trigger beforeunload window event and in this case TOS is not tracked. To overcome the problem, fortunately, browsers support <strong>window.history</strong> API which gets called when page navigation occurs in single-page apps. For example, to navigate from <strong>example.com/#home</strong> -> <strong>example.com/#contact</strong> page in single-page app. When you go from "home" page to "contact" page, history API helps track the page navigation correctly. To make use of it, give config <strong>trackHistoryChange</strong> as,  
+<pre class="prettyprint lang-js">
+var config = {
+    trackBy: 'seconds',
+
+    trackHistoryChange: true,
+
+    callback: function(data) { // if you give callback, it becomes real-time tracking
+        console.log(data);
+
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+    Remember that failing to configure this <strong>trackHistoryChange</strong> setting may not identify different pages correctly in tracked TOS data.<br/><br/>
+
+    Additionally, if certain web applications/browsers are not working correctly even with "trackHistoryChange" setting. You may consider using <strong>trackNavigation()</strong> API manually. This is like manually tracking page navigation when everything else fails. To use this, when a page navigation occurs, call the API manually like <strong>Tos.trackNavigation()</strong>.   
+</p>
+
+
 
 <h3 id="setting-custom-data">Setting custom data</h3>
 <p>
@@ -360,6 +376,7 @@ var custom = {
 };
 Tos.setCustomData(custom); //before the page is closed, this data is appended to TOS result.
 </pre>
+</p>
 
 <h3 id="unsetting-custom-data">Unsetting custom data</h3>
 <p>To remove the custom data already set, simply call <code><span class="apiHighlight">Tos.unsetCustomData()</span></code> API and you are done. It will only remove any custom data set by you.</p>
@@ -373,8 +390,7 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
     TOSSessionKey: "14802525481391382263",
     TOSUserId: "anonymous",
     title: "Test application - TimeOnSiteTracker",
-    URL: "http://tos-localdata.chennai/home.php",
-    currentTime: "2016-11-27T13:17:31.242Z",
+    URL: "http://tos-localdata.chennai/home.php"
     entryTime: "2016-11-27T13:15:48.136Z",
     timeOnPage: 103,
     timeOnSite: 0,
