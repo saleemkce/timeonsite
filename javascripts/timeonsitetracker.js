@@ -26,7 +26,8 @@
 var TimeOnSiteTracker = function(config) {
     
     this.varyingStartTime = new Date();
-    this.pageEntryTime = (new Date()).toISOString();
+    this.pageEntryTime = this.getDateTime();
+    this.activityStartTime = null;
     this.totalTimeSpent = 0;
     this.returnInSeconds = false;
 
@@ -142,6 +143,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     this.TOSCookie.customCookieString = '';
     if (config && config.TOSCookie) {
+
+        //seting cookie path if given
         if (config.TOSCookie.path) {
             this.TOSCookie.customCookieString += 'path=' + this.validateCookieInput(config.TOSCookie.path) + ';';
         } else {
@@ -149,10 +152,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
             this.TOSCookie.customCookieString += 'path=/;';
         }
 
+        //seting cookie domain if given
         if (config.TOSCookie.domain) {
             this.TOSCookie.customCookieString += 'domain=' + this.validateCookieInput(config.TOSCookie.domain) + ';';
         }
 
+        //seting secure cookie if given & site accessed as https
         if (config.TOSCookie.enforceSecure && (location.protocol === 'https:')) {
             this.TOSCookie.customCookieString += 'secure;';
         }
@@ -287,10 +292,10 @@ TimeOnSiteTracker.prototype.isURLValid = function(url) {
 
 /**
  * [createTOSId Creates a new TOSId for each TOS initialziation and Tos.getTimeOnPage() call]
- * @return {[integer]} [It may be of length 12 to 15]
+ * @return {[integer]} [TOS ID; It may have length (digit size) 16 to 18]
  */
 TimeOnSiteTracker.prototype.createTOSId = function() {
-    return Math.floor(new Date().valueOf() * Math.random());
+    return new Date().valueOf() * Math.floor((Math.random() * 9010) + 1000);
 };
 
 /**
@@ -312,6 +317,14 @@ TimeOnSiteTracker.prototype.secondToDuration = function (sec) {
 };
 
 /**
+ * [getDateTime returns date time in most-widely used format YYYY-MM-DD HH:MM:SS.SSS]
+ * @return {[string]} [date time in specific format]
+ */
+TimeOnSiteTracker.prototype.getDateTime = function () {
+    return (new Date()).toISOString().substr(0, 23).replace('T', ' ');
+};
+
+/**
  * [getTOSSessionKey It returns current TOS session key of user]
  * @return {[string]} [TOS session key]
  */
@@ -321,14 +334,12 @@ TimeOnSiteTracker.prototype.getTOSSessionKey = function() {
 
 /**
  * [createTOSSessionKey It creates TOS session key for current session]
- * @return {[string]} [TOS session key]
+ * @return {[string]} [TOS session key; It may have string length between 20 to 25]
  */
 TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
     var date = new Date(),
-        millisec = date.getMilliseconds() + '',
-        uniqId = (++date) + millisec + (Math.floor((Math.random() * 10000) + 1));
-
-    return uniqId;
+        millisec = date.getMilliseconds() + '';
+    return (Math.floor((Math.random() * 9010) + 1000)) + '' + (++date) + millisec + (Math.floor((Math.random() * 90) + 10));
 };
 
 /**
@@ -435,8 +446,12 @@ TimeOnSiteTracker.prototype.extendSession = function(seconds) {
         this.setCookie(this.TOS_CONST.TOSSessionDuration, duration, expiryTime);
         this.setCookie(this.TOS_CONST.TOSAnonSessionRefresh, 0, expiryTime);
 
+        var t = new Date();
+        t.setTime(t.getTime() + (expiryTime * 1000));
+        console.info('Session extended till ' + new Date(t));
+
     } else {
-        console.warn('Either anonymous session detected or given input is not a number!');
+        console.warn('Either anonymous session detected or given input seconds is not a number!');
     }
 };
 
@@ -468,11 +483,15 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
         sessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey);
 
     if (authenticatedUser && authenticatedUser.length) {
-        console.info('Authenticated user!!!');
+        this.TOSSessionKey = sessionKey;
         this.TOSUserId = authenticatedUser;
+        console.info('Authenticated user. TOSSessionKey: ' + this.TOSSessionKey + ' & TOSUserId: ' + this.TOSUserId);
+
     } else if (sessionKey && (!authenticatedUser)) {
-        console.info('Anonymous user!!!');
+        console.info('Anonymous user. TOSSessionKey: ' + sessionKey);
+        this.TOSSessionKey = sessionKey;
         this.renewSession();
+
     } else {
         this.createNewSession('anonymous');
     }
@@ -481,7 +500,7 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
 
 /**
  * [monitorSession It updates current TOP data in global cookie data before page 
- * is closed or reloaded]
+ * is loaded for first time, closed or reloaded]
  */
 TimeOnSiteTracker.prototype.monitorSession = function() {
     var sessionDuration = this.getCookie(this.TOS_CONST.TOSSessionDuration),
@@ -512,7 +531,6 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     this.setCookie(this.TOS_CONST.TOSSessionDuration, 0, this.sessionValidity.oneDayInSecs);
     this.TOSSessionKey = this.createTOSSessionKey();
-    //console.info('new cookie created!!!');
     
     if (userType === 'anonymous') {
         this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, this.sessionValidity.anonymous);
@@ -521,7 +539,6 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     } else {
         if (this.anonymousTimerId) {
             clearInterval(this.anonymousTimerId);
-            console.info('Timer cleared '+this.anonymousTimerId);
         }
 
         //authenticated users session extends till the next day
@@ -552,7 +569,7 @@ TimeOnSiteTracker.prototype.renewSession = function() {
                 console.log('Session renewed at : ' + (new Date()));
             }
         }
-    }, (1 * 1000)); //anonymous user cookie is refresed every second
+    }, (1 * 1000)); //anonymous user cookie is refreshed every second
 };
 
 /**
@@ -601,8 +618,8 @@ TimeOnSiteTracker.prototype.checkBlacklistUrl = function(blacklistUrl) {
             return false;
         }
     }
-
     return true;
+
 };
 
 /**
@@ -617,6 +634,7 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     page.URL = document.URL;
     page.title = document.title;
     return page;
+
 }
 
 /**
@@ -644,7 +662,7 @@ TimeOnSiteTracker.prototype.getTimeOnPage = function() {
     page = this.mergeCustomData(page);
 
     page.entryTime = this.pageEntryTime;
-    page.currentTime = (new Date()).toISOString();
+    page.currentTime = this.getDateTime();
     page.timeOnPage = Math.round(newTimeSpent);
     page.timeOnPageTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
     page.timeOnSite = this.timeOnSite;
@@ -699,6 +717,7 @@ TimeOnSiteTracker.prototype.getMD5Hash = function(s){function L(k,d){return(k<<d
  * [resetActivity It is used for both initializing and resetting activity varibales]
  */
 TimeOnSiteTracker.prototype.resetActivity = function() {
+    this.activityStartTime = this.getDateTime();
     this.activity.varyingStartTime = new Date();
     this.activity.totalTimeSpent = 0;
     this.activity.totalTimeSpentArr = [];
@@ -709,12 +728,13 @@ TimeOnSiteTracker.prototype.resetActivity = function() {
  * @param  {[object]} activityDetails [object of activity data. Optional field]
  */
 TimeOnSiteTracker.prototype.startActivity = function(activityDetails) {
+    this.resetActivity();
+    this.activity.activityStarted = true;
+
     if (activityDetails && Object.keys(activityDetails).length) {
         this.startActivityDetails = activityDetails;
     }
 
-    this.resetActivity();
-    this.activity.activityStarted = true;
     if (this.developerMode) {
         console.log('Activity starts at : ' + this.activity.varyingStartTime);
     }
@@ -754,8 +774,8 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         }
         
         page = this.getPageData();
-        page.activityStart = (this.activity.varyingStartTime).toISOString();
-        page.activityEnd = (new Date()).toISOString();
+        page.activityStart = this.activityStartTime;
+        page.activityEnd = this.getDateTime();
         page.timeTaken = Math.round(activityDuration);
         page.timeTakenTrackedBy = ((this.returnInSeconds === true) ? 'second' : 'millisecond');
         page.timeTakenByDuration = ((this.returnInSeconds === true) ? this.secondToDuration(page.timeTaken) : this.secondToDuration(this.millisecondToSecond(page.timeTaken)));
@@ -799,13 +819,16 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
  */
 TimeOnSiteTracker.prototype.processActivityData = function(data) {
     if (typeof this.callback === 'function') {
-        data.realTimeTracking = true;
         this.callback(data);
     } else if (this.storeInLocalStorage) {
         this.saveToLocalStorage(data);
     }
 };
 
+/**
+ * [fileValidation It ensures integrity of TimeOnSiteTracker library]
+ * @return {[void]}
+ */
 TimeOnSiteTracker.prototype.fileValidation = function() {
     var codeName = 'undefined';
     if (typeof TimeOnSiteTracker !== 'undefined') {
@@ -820,6 +843,17 @@ TimeOnSiteTracker.prototype.fileValidation = function() {
             clearInterval(this.sessionStateChangeTimerId);
         }
     }
+};
+
+/**
+ * [trackPageNavigation This method is useful for handling (tracking TOS in) 
+ * single-page app manually where page navigations may not be captured 
+ * correctly with native Javascript API. In that case, call this method manually
+ * on every page navigation as per your convenience. This method is not meant for 
+ * full page refresh/page load since that is handled by TimeOnSiteTracker.js itself]
+ */
+TimeOnSiteTracker.prototype.trackPageNavigation = function() {
+    this.executeURLChangeCustoms();
 };
 
 /**
@@ -856,16 +890,12 @@ TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
             localStorage.setItem(keyName, JSON.stringify(keyArr));
         }
 
-
         var item = localStorage.getItem(currentDayKey);
         if (item) {
-            //console.log('TOS available!');
             var oldItem = JSON.parse(item);
-            oldItem.push(data)
-            //console.log(oldItem);
+            oldItem.push(data);
             localStorage.setItem(currentDayKey, JSON.stringify(oldItem));
         } else {
-            //console.log('new TOS added!');
             var newItem = [];
             newItem.push(data);
             localStorage.setItem(currentDayKey, JSON.stringify(newItem));
@@ -880,31 +910,22 @@ TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
  * [processDataInLocalStorage It reads the data in local storage and processes the data]
  */
 TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
-
     var dateKeys = this.getDateKeys();
 
     if ((dateKeys instanceof Array) && dateKeys.length) {
-        var dateObj = (new Date()),
-            //currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
-            dateKey = dateKeys[0];
+        var dateKey = dateKeys[0];
 
-        //if (currentDayKey != dateKey) {
-            console.log('this day key : ' + dateKey)
+        console.log('day key : ' + dateKey);
 
-            var item = localStorage.getItem(dateKey);
+        var item = localStorage.getItem(dateKey);
 
-            if (item) {
-                var itemData = JSON.parse(item);
-                
-                if ((itemData instanceof Array) && itemData.length) {
-
-                    this.sendData(dateKey, itemData);
-                }
+        if (item) {
+            var itemData = JSON.parse(item);
+            
+            if ((itemData instanceof Array) && itemData.length) {
+                this.sendData(dateKey, itemData);
             }
-        // } else {
-        //     console.warn('Todays date key found!');
-        // }
-        
+        }
     }
 };
 
@@ -963,8 +984,6 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
 TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     var url = this.request.url,
         params = JSON.stringify(itemData[0]),
-        dateObj = (new Date()),
-        currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
         self = this;
 
     this.xhr = null;
@@ -993,8 +1012,13 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
         if (self.xhr.readyState == 4 && self.xhr.status == 200) {
             if (self.xhr.responseText == 'success') {
                 itemData.shift();
+
                 console.log('itemData.length is : '+ itemData.length);
                 if (itemData.length) {
+
+                    //save remaining data in dateKey back to localstorage
+                    localStorage.setItem(dateKey, JSON.stringify(itemData));
+                    
                     console.log('calling next item to process');
                     setTimeout(function() {
                         self.sendData(dateKey, itemData);
@@ -1090,20 +1114,20 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
                     console.log(self.timeSpentArr);
                 }
 
-                var currentTime = new Date();
+                var nowTime = new Date();
                 if (self.returnInSeconds) {
-                    (self.timeSpentArr).push(((self.getTimeDiff(self.varyingStartTime, currentTime))/1000));
+                    (self.timeSpentArr).push(((self.getTimeDiff(self.varyingStartTime, nowTime))/1000));
                 } else {
-                    (self.timeSpentArr).push(self.getTimeDiff(self.varyingStartTime, currentTime));
+                    (self.timeSpentArr).push(self.getTimeDiff(self.varyingStartTime, nowTime));
                 }
 
                 // compute time duratation for activity if it was started.
                 if (self.activity.activityStarted) {
                     console.log(self.activity.totalTimeSpentArr);
                     if (self.returnInSeconds) {
-                        (self.activity.totalTimeSpentArr).push(((self.getTimeDiff(self.activity.varyingStartTime, currentTime))/1000));
+                        (self.activity.totalTimeSpentArr).push(((self.getTimeDiff(self.activity.varyingStartTime, nowTime))/1000));
                     } else {
-                        (self.activity.totalTimeSpentArr).push(self.getTimeDiff(self.activity.varyingStartTime, currentTime));
+                        (self.activity.totalTimeSpentArr).push(self.getTimeDiff(self.activity.varyingStartTime, nowTime));
                     }
                 }    
             }
@@ -1128,13 +1152,9 @@ TimeOnSiteTracker.prototype.setCookie = function(cookieName, cookieValue, secs) 
         expires,
         cookieString;
     d.setTime(d.getTime() + (secs * 1000));
-
-    //console.log('cookie expire @ '+new Date(d));
     
     expires = 'expires=' + d.toUTCString();
     cookieString = cookieName + '=' + cookieValue + '; ' + expires + '; ' + this.TOSCookie.customCookieString;
-
-    //document.cookie = cookieName + '=' + cookieValue + ';' + expires + ';path=/';
     document.cookie = cookieString;
     
 };
@@ -1310,14 +1330,13 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     }
 
     var data = this.getTimeOnPage();
-    data.exitTime = (new Date()).toISOString();
+    data.exitTime = this.getDateTime();
 
     /**
      * execute callback if given in config
      */
     if (this.isTimeOnSiteAllowed) {
         if (typeof this.callback === 'function') {
-            data.realTimeTracking = true;
             this.callback(data);
             
         } else if (this.storeInLocalStorage) {
@@ -1328,7 +1347,7 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
 
     // Initialize variables on URL change.
     this.varyingStartTime = new Date(),
-    this.pageEntryTime = (new Date()).toISOString(),
+    this.pageEntryTime = this.getDateTime(),
     this.totalTimeSpent = 0,
     this.timeSpentArr = [];
 

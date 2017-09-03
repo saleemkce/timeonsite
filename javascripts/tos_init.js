@@ -10,12 +10,12 @@ var config = {
         if(data && data.trackingType) {
             
             // make use of sendBeacon if this API is supported by your browser
-            if(navigator && typeof navigator.sendBeacon === 'function'){
-                //var debug = data;
-                data.transferredWith = 'sendBeacon';
-                var blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
-                navigator.sendBeacon(endPointUrl, blob);
-            } else {
+            // if(navigator && typeof navigator.sendBeacon === 'function'){
+            //     //var debug = data;
+            //     data.transferredWith = 'sendBeacon';
+            //     var blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
+            //     navigator.sendBeacon(endPointUrl, blob);
+            // } else {
 
                 // XMLHttpRequest begins..
                 var params = JSON.stringify(data),
@@ -45,7 +45,7 @@ var config = {
                 xhr.send(params);
                 // XMLHttpRequest ends..
                 
-            }
+            // }
             
         }
         
