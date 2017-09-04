@@ -113,7 +113,7 @@ Tos.getTimeOnPage();
         TOSUserId: "anonymous",
         title: "Test application - TimeOnSiteTracker",
         URL: "http://tos-localdata.chennai/home.php"
-        entryTime: "2016-11-27T13:15:48.136Z",
+        entryTime: "2016-11-27 13:15:48.663",
         timeOnPage: 103,
         timeOnSite: 0,
         timeOnPageTrackedBy: "second",
@@ -391,7 +391,7 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
     TOSUserId: "anonymous",
     title: "Test application - TimeOnSiteTracker",
     URL: "http://tos-localdata.chennai/home.php"
-    entryTime: "2016-11-27T13:15:48.136Z",
+    entryTime: "2016-11-27 13:15:48.136",
     timeOnPage: 103,
     timeOnSite: 0,
     timeOnPageTrackedBy: "second",
@@ -595,12 +595,11 @@ Gives response as,
     TOSUserId: "anonymous",
     title: "Test application - TimeOnSiteTracker",
     URL: "http://tos-localdata.chennai/home.php",
-    activityStart: "2016-11-27T13:20:46.707Z",
-    activityEnd: "2016-11-27T13:20:50.213Z",
+    activityStart: "2016-11-27 13:20:46.707",
+    activityEnd: "2016-11-27 13:20:50.213",
     timeTaken:4,
     timeTakenByDuration: "0d 00h 00m 04s"
     timeTakenTrackedBy: "second",
-    realTimeTracking: true, // if triggered with callback function
     trackingType: "activity",
 }
 </pre>
@@ -672,11 +671,6 @@ var activityData = Tos.endActivity({}, manualProcess);
             <td>String</td>
             <td>The time when user finishes the activity</td>
         </tr>
-        <!-- <tr>
-            <td>realTimeTracking</td>
-            <td>Boolean</td>
-            <td>It denotes that TimeOnSiteTracker has utilized real-time and not local storage option</td>
-        </tr> -->
         <tr>
             <td>trackingType</td>
             <td>String</td>

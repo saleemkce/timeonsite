@@ -81,15 +81,7 @@ module.exports = function(app) {
 //file 2: tos.model.js
 var mongoose = require('mongoose'),
 Schema = new mongoose.Schema({
-    TOSId: Number,
-    TOSSessionKey: String,
-    title: String,
-    URL: String,
-    entryTime: Date,
-    exitTime: Date,
-    timeOnPage: Number,
-    timeOnPageTrackedBy: String,
-    timeOnSite: Number
+    //dynamic schema
 }, {
     versionKey: false,
     strict: false
@@ -107,14 +99,38 @@ module.exports.SaveTos = function(req, res, next) {
     var data = req.body;
     console.log(data);
 
+    var freshData = {};
+
     if(data && data.trackingType && data.trackingType == 'tos') {
-        var Tos = new TosSchema(data);
+
+        // converting to ISO date format
+        data.entryTime = (new Date(data.entryTime)).toISOString();
+        data.exitTime = (new Date(data.exitTime)).toISOString();
+
+        freshData = {
+            tos_id : data.TOSId,
+            tos_session_key : data.TOSSessionKey,
+            tos_user_id : data.TOSUserId,
+            url : data.URL,
+            title : data.title,
+            entry_time : data.entryTime,
+            timeonpage : data.timeOnPage,
+            timeonpage_tracked_by : data.timeOnPageTrackedBy,
+            timeonsite : data.timeOnSite,
+            timeonpage_by_duration : data.timeOnPageByDuration,
+            timeonsite_by_duration : data.timeOnSiteByDuration,
+            tracking_type : data.trackingType,
+            exit_time : data.exitTime
+        };
+
+
+        var Tos = new TosSchema(freshData);
         // Data saved to mongoDB's tos collection
-        Tos.save(data, function(err){
+        Tos.save(freshData, function(err){
             console.log(err);
         });
 
-        console.log('TOS type : ' + data.trackingType);
+        console.log('TOS type : ' + freshData.trackingType);
         console.log('Record No : ' + ++c);
     } else {
         console.log('TOS data not received. Please check your endpoint URL and POST data from client-side!');
@@ -179,7 +195,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Perform queries
-    $qry = "INSERT INTO tos (tos_id, tos_session_key, url, title, entry_time, exit_time, timeonpage, timeonpage_tracked_by, timeonsite, tracking_type, realtime_tracking, transferred_with) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->URL."', '".$data->title."', '".$data->entryTime."', '".$data->exitTime."', ".$data->timeOnPage.", '".$data->timeOnPageTrackedBy."', ".$data->timeOnSite.", '".$data->trackingType."', ".$data->realTimeTracking.", '".$data->trasferredWith."')";
+    $qry = "INSERT INTO tos (tos_id, tos_session_key, tos_user_id, url, title, entry_time, exit_time, timeonpage, timeonpage_by_duration, timeonpage_tracked_by, timeonsite, timeonsite_by_duration, tracking_type) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->TOSUserId."', '".$data->URL."', '".$data->title."', '".$data->entryTime."', '".$data->exitTime."', ".$data->timeOnPage.", '".$data->timeOnPageByDuration."', '".$data->timeOnPageTrackedBy."', ".$data->timeOnSite.", '".$data->timeOnSiteByDuration."', '".$data->trackingType."')";
     //echo $qry;
     $res = mysqli_query($con, $qry);
 
@@ -268,6 +284,7 @@ module.exports.SaveActivity = function(req, res, next) {
 CREATE TABLE activity(id INT AUTO_INCREMENT,
     tos_id BIGINT(20),
     tos_session_key VARCHAR(50),
+    tos_user_id varchar(1000) DEFAULT NULL,
     url VARCHAR(10000),
     title VARCHAR(5000),
     activity_duration INT,
@@ -275,8 +292,6 @@ CREATE TABLE activity(id INT AUTO_INCREMENT,
     activity_start DATETIME,
     activity_end DATETIME,
     tracking_type VARCHAR(15),
-    realtime_tracking BOOLEAN NOT NULL DEFAULT 0,
-    transferred_with VARCHAR(15) NULL,
     PRIMARY KEY ( id )) CHARACTER SET utf8 COLLATE utf8_general_ci
 </pre><br/>
 
@@ -331,18 +346,19 @@ Type: application/json
 // In request body,
 Body:
 {
-    "TOSId" : 32305137576,
-    "TOSSessionKey" : "14807574018248237618",
-    "URL" : "http://tos-localdata.chennai/home",
-    "title" : "Home page - testing TOS!",
-    "entryTime" : "2016-11-23T16:42:22.766Z",
-    "timeOnPage" : 21,
+    "TOSId" : 263367021778,
+    "TOSSessionKey" : "14835465391401391732",
+    "TOSUserId" : "anonymous",
+    "URL" : "http://localdata-tos.chennai/#user-sessions",
+    "title" : "TimeonsiteTracker by saleemkce",
+    "entryTime" : "2016-09-04 16:01:22.081",
+    "timeOnPage" : 339,
+    "timeOnPageByDuration" : "0d 00h 05m 39s",
     "timeOnPageTrackedBy" : "second",
-    "timeOnSite" : 1359,
+    "timeOnSite" : 0,
+    "timeOnSiteByDuration" : "0d 00h 00m 00s",
     "trackingType" : "tos",
-    "exitTime" : "2016-11-23T16:42:44.189Z",
-    "realTimeTracking" : true,
-    "trasferredWith" : "sendBecon"
+    "exitTime" : "2016-09-04 16:07:00.945"
 }
 </pre>
                 <p>In HTTP client like Postman, you could test if your route works before applying the code in your application.</p>
