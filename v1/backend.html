@@ -156,7 +156,7 @@ module.exports.SaveTos = function(req, res, next) {
 
 CREATE TABLE `tos` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
- `tos_id` bigint(19) DEFAULT NULL,
+ `tos_id` bigint(20) DEFAULT NULL,
  `tos_session_key` varchar(50) DEFAULT NULL,
  `tos_user_id` varchar(1000) DEFAULT NULL,
  `url` varchar(10000) DEFAULT NULL,
@@ -255,14 +255,34 @@ module.exports.SaveActivity = function(req, res, next) {
     var data = req.body;
     console.log(data);
 
+    var freshData = {};
+
     if(data && data.trackingType && data.trackingType == 'activity') {
-        var Activity = new ActivitySchema(data);
+
+        data.activityStart = (new Date(data.activityStart)).toISOString();
+        data.activityEnd = (new Date(data.activityEnd)).toISOString();
+
+        freshData = {
+            tos_id : data.TOSId,
+            tos_session_key : data.TOSSessionKey,
+            tos_user_id : data.TOSUserId,
+            url : data.URL,
+            title : data.title,
+            activity_start: data.activityStart,
+            activity_end: data.activityEnd,
+            time_taken: data.timeTaken,
+            time_taken_by_duration: data.timeTakenByDuration,
+            time_taken_tracked_by: data.timeTakenTrackedBy,
+            tracking_type: data.trackingType
+        };
+
+        var Activity = new ActivitySchema(freshData);
         // Data saved to mongoDB's tos collection
-        Activity.save(data, function(err){
+        Activity.save(freshData, function(err){
             console.log(err);
         });
 
-        console.log('TOS type : ' + data.trackingType);
+        console.log('TOS type : ' + freshData.trackingType);
         console.log('Record No : ' + ++c);
     } else {
         console.log('TOS activity data not received. Please check your endpoint URL and POST data from client-side!');
@@ -281,18 +301,21 @@ module.exports.SaveActivity = function(req, res, next) {
 <pre class="prettyprint lang-sql">
 // Create database named "test". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
 
-CREATE TABLE activity(id INT AUTO_INCREMENT,
-    tos_id BIGINT(20),
-    tos_session_key VARCHAR(50),
-    tos_user_id varchar(1000) DEFAULT NULL,
-    url VARCHAR(10000),
-    title VARCHAR(5000),
-    activity_duration INT,
-    activity_duration_tracked_by VARCHAR(15),
-    activity_start DATETIME,
-    activity_end DATETIME,
-    tracking_type VARCHAR(15),
-    PRIMARY KEY ( id )) CHARACTER SET utf8 COLLATE utf8_general_ci
+CREATE TABLE `activity` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `tos_id` bigint(20) DEFAULT NULL,
+ `tos_session_key` varchar(50) DEFAULT NULL,
+ `tos_user_id` varchar(1000) DEFAULT NULL,
+ `url` varchar(10000) DEFAULT NULL,
+ `title` varchar(5000) DEFAULT NULL,
+ `activity_start` datetime(3) DEFAULT NULL,
+ `activity_end` datetime(3) DEFAULT NULL,
+ `time_taken` int(11) DEFAULT NULL,
+ `time_taken_by_duration` varchar(20) DEFAULT NULL,
+ `time_taken_tracked_by` varchar(15) DEFAULT NULL,
+ `tracking_type` varchar(15) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) CHARACTER SET utf8 COLLATE utf8_general_ci
 </pre><br/>
 
 <pre class="prettyprint lang-php">
@@ -318,7 +341,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Perform queries
-    $qry = "INSERT INTO activity (tos_id, tos_session_key, url, title, activity_duration, activity_duration_tracked_by, activity_start, activity_end, tracking_type, realtime_tracking, transferred_with) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->URL."', '".$data->title."', ".$data->activityDuration.", '".$data->activityDurationTrackedBy."', '".$data->activityStart."', '".$data->activityEnd."', '".$data->trackingType."', ".$data->realTimeTracking.", '".$data->trasferredWith."')";
+    $qry = "INSERT INTO activity (tos_id, tos_session_key, tos_user_id, url, title, activity_start, activity_end, time_taken, time_taken_by_duration, time_taken_tracked_by, tracking_type) VALUES (".$data->TOSId.", '".$data->TOSSessionKey."', '".$data->TOSUserId."', '".$data->URL."', '".$data->title."', '".$data->activityStart."', '".$data->activityEnd."', ".$data->timeTaken.",  '".$data->timeTakenByDuration."', '".$data->timeTakenTrackedBy."', '".$data->trackingType."')";
     //echo $qry;
     $res = mysqli_query($con, $qry);
 
@@ -352,13 +375,13 @@ Body:
     "URL" : "http://localdata-tos.chennai/#user-sessions",
     "title" : "TimeonsiteTracker by saleemkce",
     "entryTime" : "2016-09-04 16:01:22.081",
-    "timeOnPage" : 339,
+    "timeOnPage" : 10,
     "timeOnPageByDuration" : "0d 00h 05m 39s",
     "timeOnPageTrackedBy" : "second",
-    "timeOnSite" : 0,
+    "timeOnSite" : 10,
     "timeOnSiteByDuration" : "0d 00h 00m 00s",
     "trackingType" : "tos",
-    "exitTime" : "2016-09-04 16:07:00.945"
+    "exitTime" : "2016-09-04 16:01:32.945"
 }
 </pre>
                 <p>In HTTP client like Postman, you could test if your route works before applying the code in your application.</p>
