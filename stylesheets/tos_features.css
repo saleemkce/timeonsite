@@ -1,0 +1,86 @@
+.tos_intro_heading {
+	text-align: left;
+	color: #8b5bff;
+	padding: 25px;
+	padding-left: 0px;
+}
+
+.timer_container {
+	float: left;
+	width: 250px;
+	height:200px;
+	border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    margin-bottom:20px;
+    cursor: pointer;
+}
+
+.timer_container_odd {
+	margin-right: 20px;
+}
+
+.timer_container_heading {
+	width: 100%;
+	height: 35px;
+	display: block;
+	border-radius: 8px;
+	/*background-color: #000;*/
+	background-color: #4c4c4c;
+	text-align: center;
+	color: #fff;
+	padding-top: 10px;
+}
+
+.timer_container_set2 {
+	display: inline-block;
+	margin-top: 15px;
+}
+
+.timer_container_info_header {
+	text-align: center;
+	padding-top: 50px;
+}
+
+.timer_container_info {
+	font-size: 25px;
+}
+
+.pattern_in {
+	color: #249400;
+}
+
+.pattern_out {
+	color: #ff09ca;
+}
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background: rgba(0,0,0,0.6);
+	z-index: 10;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	display: none;
+}
+
+.info-arrow {
+	width: 0; 
+	height: 0;
+    margin-left: 255px; 
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid transparent;
+	border-right:10px solid #dad7d7;
+}
+
+.timer-info-box {
+	height: 40px;
+	width: 99px;
+	position: relative;
+	border-radius: 5px;
+	margin-top: -22px;
+	margin-left: 265px;
+	padding: 8px;
+	background: #dad7d7;
+}

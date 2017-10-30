@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="TimeOnSite(TOS) tracker helps you measure how long user stayed in your website and individual pages. It helps you find key metrics like time on page(TOP) and time on site(TOS) accurately.">
+    <meta name="keywords" content="timeonsite documentation, timeonsite docs, tos, top, time on site, time on page, ,timeonsite tracker document">
+    <meta name="robot" content="index,follow">
+    <title>TimeonsiteTracker Documentation</title>
+
+
+    <link rel="stylesheet" href="../stylesheets/styles.css">
+    <link rel="stylesheet" href="../stylesheets/github-light.css">
+
+    <link rel="stylesheet" href="../stylesheets/custom.css">
+    <link rel="stylesheet" href="../stylesheets/sunburst.css">
+    <meta name="viewport" content="width=device-width">
+
+
+    <!-- timeonsitetracker -->
+    <script src="../javascripts/timeonsitetracker.js"></script>
+    <script src="../javascripts/tos_init.js"></script>
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>TimeonsiteTracker (TOS)</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/saleemkce/timeonsite">View the Project on GitHub <small>saleemkce/timeonsite</small></a></p>
+
+        <p><a href="../v1/backend.html">v1.0.0</a></p>
+
+        <p>
+          <a href="#what-is-timeOnSite-tracker">What is TOS?</a><br/>
+          <a href="#getting-started">Getting Started</a><br/>
+          <a href="#getting-current-TOS-data">Getting current TOS</a><br/>
+          <a href="#TOS-configuration-option">TOS configuration option</a><br/>
+          <a href="#setting-custom-data">Setting custom data</a><br/>
+          <a href="#unsetting-custom-data">Unsetting custom data</a><br/>
+          <a href="#user-sessions">User sessions **</a><br/>
+          <a href="#extending-user-sessions">Extending User Sessions</a><br/>
+          <a href="#saving-data-to-local-storage-for-performance">Saving data to local storage</a><br/>
+          <a href="#real-time-tracking-example">Real-time <br/>&nbsp;&nbsp;Tracking Example</a><br/>
+          <a href="#additional-features">Additional Features</a><br/>
+          <a href="../v1/backend.html#examples">Backend - Examples</a><br/>
+              
+
+          <!-- <li><a href="https://github.com/saleemkce/timeonsite">View On <strong>GitHub</strong></a></li> -->
+        </p>
+
+        <ul>
+          <li><a href="https://github.com/saleemkce/timeonsite/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/saleemkce/timeonsite/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/saleemkce/timeonsite">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+
+      <section class="coverImg">
+        <div class="text">
+            Time On Site Tracker
+        </div>
+      </section>
+
+      <section>
+        <h3>
+<!-- <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+
+<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here <a href="https://guides.github.com/features/mastering-markdown/">using GitHub Flavored Markdown</a>, select a template crafted by a designer, and publish. After your page is generated, you can check out the new <code>gh-pages</code> branch locally. If you’re using GitHub Desktop, simply sync your repository and you’ll see the new branch.</p> -->
+
+<h3 id="what-is-timeOnSite-tracker">What is TimeOnSite(TOS) Tracker?</h3>
+<p>
+  TimeOnSite(TOS) tracker is a Javascript snippet that when included in a website will track how much time user spent in the site. The goal of the project is to find time spent by user in individual pages and session as a whole.
+</p>
+
+<h3 id="getting-started">Getting Started!</h3>
+<p>Include the <strong>timeonsitetracker.min.js</strong> in your site, like</p>
+<pre class="prettyprint lang-js">
+&lt;head&gt; 
+    &lt;script src=&quot;timeonsitetracker.min.js&quot;&gt;&lt;/script&gt; 
+&lt;/head&gt;
+</pre>
+
+<p>Then, in HTML body inlcude this script as,</p>
+<pre class="prettyprint lang-js">
+var config = {
+  callback: function(data) {  // if you give callback, it becomes real-time tracking
+    window.open('http://www.example.com?'+JSON.stringify(data), 'hi', 'height=200,width=200');
+  }};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+<p>Just stay in the page for a few seconds. Then, close the browser tab. If you could see a window popping up and look in the address bar of popped window. If you could see query string containing TOS data, hooray! Your TOS tracking is successful, I mean, the TimeOnSiteTracker is correctly integrated in your site!</p>
+
+<p>
+<strong>Note 1:</strong>Allow pop-ups in browser settings, otherwise you won't see pop up window containing TOS data in browser. Try open this page where you included TimeOnSiteTracker 2 or 3 times and see if it asks you to allow pop-up. In that case, just allow it to view TOS data in popped up widow address bar.<br/>
+<strong>Note 2</strong>: Time on page and Time on site are captured in milliseconds (Javascript's Date function) by default.
+</p>
+
+<a href="#getting-current-TOS-data"><h3 id="getting-current-TOS-data">Getting Current TOS data</h3></a>
+<p>You could call Tos anytime in the page by simple accessing <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> API in browser console provided that you initialized TOS correctly.</p>
+<pre class="prettyprint lang-js">
+// It's assumed you correctly initialized Tos in the page as, var Tos = new TimeOnSite();
+Tos.getTimeOnPage();
+    //Response ->
+    {
+        TOSId: 1129620185532,
+        TOSSessionKey: "14802525481391382263",
+        TOSUserId: "anonymous",
+        title: "Test application - TimeOnSiteTracker",
+        URL: "http://tos-localdata.chennai/home.php"
+        entryTime: "2016-11-27 13:15:48.663",
+        timeOnPage: 103,
+        timeOnSite: 0,
+        timeOnPageTrackedBy: "second",
+        timeOnPageByDuration: "0d 00h 01m 43s",
+        timeOnSiteByDuration: "0d 00h 00m 00s",
+        trackingType: "tos",
+    }
+</pre>
+
+<p>
+    <table id="TOSTable">
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>TOSId</td>
+            <td>Integer</td>
+            <td>unique TOS id that is created when Tos.getTimeOnPage() is called</td>
+        </tr>
+        <tr>
+            <td>TOSSessionKey</td>
+            <td>String</td>
+            <td>It tracks particular user session. If user clicks 5 different pages in the same site, then all TOSSessionKey will refer to same session</td>
+        </tr>
+        <tr>
+            <td>title</td>
+            <td>String</td>
+            <td>Title of the web page</td>
+        </tr>
+        <tr>
+            <td>URL</td>
+            <td>String</td>
+            <td>Page URL</td>
+        </tr>
+        <tr>
+            <td>entryTime</td>
+            <td>String</td>
+            <td>The time when user enters the site and TOS Tracker is initialized</td>
+        </tr>
+        <tr>
+            <td>timeOnPage</td>
+            <td>Integer</td>
+            <td>Time spent by user in current page</td>
+        </tr>
+        <tr>
+            <td>timeOnPageByDuration</td>
+            <td>String</td>
+            <td>Time duration in more readable format</td>
+        </tr>
+        <tr>
+            <td>timeOnPageTrackedBy</td>
+            <td>String</td>
+            <td>It denotes whether page is being tracked by "second" or "millisecond"</td>
+        </tr>
+        <tr>
+            <td>timeOnSite</td>
+            <td>Integer</td>
+            <td>Time spent by user in the session(sum of TimeOnPage(TOP))</td>
+        </tr>
+        <tr>
+            <td>timeOnSiteByDuration</td>
+            <td>String</td>
+            <td>Time duration in more readable format (sum of TimeOnPage(TOP))</td>
+        </tr>
+       
+        <tr>
+            <td>trackingType</td>
+            <td>String</td>
+            <td>It can be "tos" or "activity" which refers to either time on site tracking or activity tracking</td>
+        </tr>
+    </table>
+    <strong>* Note</strong>
+    <a href="../v1/backend.html#PHP">Please check this example for data types to be used in various databases like Mongo, Oracle etc.</a>
+</p>
+
+<h3 id="TOS-configuration-option">TOS configuration option</h3>
+<p>When initializing timeonsitetracker.js in your site, the first parameter requires a
+"config" parameter which is optional and which controls the way TOS data is tracked.
+For example, look at the following option.
+<pre class="prettyprint lang-js">
+var config = {
+    
+    // track page by seconds. Default tracking is by milliseconds
+    trackBy: 'seconds',
+
+    // pages to blacklist; give URLs in array eg. ['URL1', 'URL2', 'URL3']
+    blacklistUrl: ['http://tos-localdata.chennai/blog/id/1'],
+
+    //this parameter helps track pageviews for single-page apps that use hash-based URL routing
+    trackHistoryChange: true, 
+
+    //this parameter helps track user's TOS data separately for two different sub-domins of a site or a domain and its sub-domain. It works just like normal cookie for domain and path but is associated with TOS Tracking specifically
+    TOSCookie: {
+        path: '/',
+        domain: 'blog.example.com'
+    }
+
+    //save to local storage. If you give callback along with this option, callback will take precedence
+    request: {
+        url: 'http://localhost:4500/data/tos', //your endpoint URL to which data would be sent via POST method in API call
+        headers: [
+            {'App-userID': 234982348923}, //optional headers if any like authentication, token etc.
+            {'App-session': 'x2872034ULT'} //optional headers if any
+        ]
+    },
+
+    // if you give callback, it becomes real-time tracking because data is sent to server immediately on page close
+    callback: function(data) {
+        window.open('http://www.example.com', 'hi', 'height=200,width=200');
+}};
+
+// this is just for illustration, give only the options that you need.
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+</p>
+
+
+<h3 id="seconds-option">* Seconds option</h3>
+<p>To capture all TOS data in seconds format instead of milliseconds, give the "trackBy" option as given below:</p>
+<pre class="prettyprint lang-js">
+// use call back data "time on site" data
+var config = {
+    trackBy: 'seconds', 
+    callback: function(data) {  // if you give callback, it becomes real-time tracking
+    console.log(data);
+    // give your end-point URL to save data to DB
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+
+<h3 id="blacklisting-URL-from-getting-tracked">* Blacklisting URL from getting tracked</h3>
+<p>You may want to block specifc page from getting tracked. For this,
+you need to give "blacklistUrl" parameter,<br/>
+<pre class="prettyprint lang-js">
+var config = {
+    trackBy: 'seconds',
+    blacklistUrl: ['http://tos-localdata.chennai/home.php'], // pages to blacklist; give 
+    //URLs in arrary eg. ['URL1', 'URL2', 'URL3']
+
+    callback: function(data) { // if you give callback, it becomes real-time tracking
+        console.log(data);
+
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+</p>
+
+<h3 id="developer-mode-setting-for-debugging">* Developer mode setting for debugging</h3>
+<p>This option is very useful in debugging TOS Tracker data. It also helps to point out any
+    incorrect input you might give while initializing timeonsitetracker.js. These all visible in browser console window (<strong>Open browser console and look at real-time TOS Tracker data</strong>, you may see a lot of data in browser console when this option is enabled). Also this setting may be useful only for development or test environments and not recommended for production. This is enabled by "developerMode" as given below.<br/>
+<pre class="prettyprint lang-js">
+var config = {
+    trackBy: 'seconds',
+    developerMode: true,
+    request: { // presence of request object denotes that data is to be saved in local storage
+        url: 'http://localhost:4500/data/tos',
+        headers: [
+            // optional headers if any
+        ]
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+</p>
+
+<!-- <h3 id="do-not-track">* Ignoring "Do not track" browser setting</h3>
+<p>By default, TimeOnSite Tracker accepts "do not track" browser setting. This means, if this setting is enabled in browser, TOS will not track any data. If you would like to ignore this browser setting and force TOS tracker to continue tracking, you need to set "ignoreDNT" config option as,<br/>
+<pre class="prettyprint lang-js">
+var config = {
+    ignoreDNT: true,
+    callback: function(data) { // if you give callback, it becomes real-time tracking
+        console.log(data);
+
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+</p> -->
+
+<h3 id="tos-cookie-and-domain-setting">TOS Cookie and Domain Setting</h3>
+<p>
+    This is a very important setting when working with domains and sub-domains for TOS Tracking.  This cookie is used to determine if current TOS tracking applies to whole domain or a sub domain in the given site.  If you are going to track entire site without differentiating domain and sub domain, you may leave this options. For this, you need to provide "TOSCookie" in config object as given below so that tracking works as per your needs,<br/>
+<pre class="prettyprint lang-js">
+//Setting custom data for TOS tracking
+var config = {
+    trackBy: 'seconds',
+    TOSCookie: {
+        path: '/',
+        domain: 'example.com'
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+    <p>In the above line, TOS Tracker is going to track all domain and sub-domain as one thing. For example, consider TOS Tracking is implemented in example.com. If the above cookie is set for path => '/' and domain => 'example.com' in example.com, then TOS tracking is same for both blog.example.com and about.example.com. But, blog.example.com is actually different from about.example.com, each serves its own purpose and their usage should be treated differently. Since we gave domain as "example.com", TOS timing parameter gets mingled if a user tries to access blog.example.com and about.example.com one by one`at the same time. To avoid data mixing and keep each thing different, domain parameter helps us do that</p>
+
+
+<pre class="prettyprint lang-js">
+//Setting custom data for TOS tracking
+
+//Example 1: setting for blog.exmaple.com
+var config = {
+    trackBy: 'seconds',
+    TOSCookie: {
+        path: '/',
+        domain: 'blog.example.com'
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+
+//Example 2: setting for about.exmaple.com
+var config = {
+    trackBy: 'seconds',
+    TOSCookie: {
+        path: '/',
+        domain: 'about.example.com'
+    }
+};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+    <p>When the setting is changed as above, user simultaneously accessing 'blog' and 'about' sub-domains is protected from data mixing of TOS data. It works just like domain cookies in sites but for tracking TOS.</p>
+</p>
+
+<h3>Tracking single-page apps</h3>
+<p>
+    TimeOnSite tracker captures TOS information for normal web pages when page is closed, reloaded or navigated to another page using <strong>beforeunload</strong> browser API. This is not the case with single-page apps where navigation to different pages does not trigger beforeunload window event and in this case TOS is not tracked. To overcome the problem, fortunately, browsers support <strong>window.history</strong> API which gets called when page navigation occurs in single-page apps. For example, to navigate from <strong>example.com/#home</strong> -> <strong>example.com/#contact</strong> page in single-page app. When you go from "home" page to "contact" page, history API helps track the page navigation correctly. To make use of it, give config <strong>trackHistoryChange</strong> as,  
+<pre class="prettyprint lang-js">
+var config = {
+    trackBy: 'seconds',
+
+    trackHistoryChange: true,
+
+    callback: function(data) { // if you give callback, it becomes real-time tracking
+        console.log(data);
+
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+    Remember that failing to configure this <strong>trackHistoryChange</strong> setting may not identify different pages correctly in tracked TOS data.<br/><br/>
+
+    Additionally, if certain web applications/browsers are not working correctly even with "trackHistoryChange" setting. You may consider using <strong>trackNavigation()</strong> API manually. This is like manually tracking page navigation when everything else fails. To use this, when a page navigation occurs, call the API manually like <strong>Tos.trackNavigation()</strong>.   
+</p>
+
+
+
+<h3 id="setting-custom-data">Setting custom data</h3>
+<p>
+    When implementing TOS in your website or application, you may want to track additional details along with TOS data. For example, you see "timeOnPage", "URL", "title" etc. in the object returned by TOS on page close. What if you want to set userId, userName, userType or userActivity? This is where <code><span class="apiHighlight">Tos.setCustomData()</span></code> API comes into action. It helps you track additional data in your webpage. Look at the example given below,
+
+<pre class="prettyprint lang-js">
+//Setting custom data for TOS tracking
+var custom = {
+    userId: 'u23842238924',
+    userName: 'Khan', 
+    actions: ['view', 'audio-start', 'read']
+};
+Tos.setCustomData(custom); //before the page is closed, this data is appended to TOS result.
+</pre>
+</p>
+
+<h3 id="unsetting-custom-data">Unsetting custom data</h3>
+<p>To remove the custom data already set, simply call <code><span class="apiHighlight">Tos.unsetCustomData()</span></code> API and you are done. It will only remove any custom data set by you.</p>
+
+Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code>, you could see this custom data along with usual TOS data
+
+<pre class="prettyprint lang-js">
+//Response ->
+{
+    TOSId: 1129620185532,
+    TOSSessionKey: "14802525481391382263",
+    TOSUserId: "anonymous",
+    title: "Test application - TimeOnSiteTracker",
+    URL: "http://tos-localdata.chennai/home.php"
+    entryTime: "2016-11-27 13:15:48.136",
+    timeOnPage: 103,
+    timeOnSite: 0,
+    timeOnPageTrackedBy: "second",
+    timeOnPageByDuration: "0d 00h 01m 43s",
+    timeOnSiteByDuration: "0d 00h 00m 00s",
+    trackingType: "tos",
+
+    //custom data added to TOS response. It would be saved to DB on page close. Wow!
+    userId: 'u23842238924',
+    userName: 'Khan', 
+    actions: ['view', 'audio-start', 'read']
+}
+</pre>
+</p>
+
+<h3 id="user-sessions">User sessions</h3>
+<p>You have learnt a lot about TimeOnSiteTracker and its configuration options. Now, it's time to set user ID to track and understand the behaviour of authenticated users in your application. For this, you may use <code><span class="apiHighlight">Tos.startSession()</span></code> API as given in example below. Moreover, this is <strong>optional</strong> setting but highly recommended in case your application makes use of authentication/login routine. If not set, all TOS tracking will be tracked as "anonymous" users in your application.</p>
+<pre class="prettyprint lang-js">
+    // when user is logged into your site, call startSession.
+    Tos.startSession('u2439ULasxv'); //"u2439ULasxv" is user id as available in your application
+
+    //when user logs out of your application, call endSession.
+    Tos.endSession(); 
+</pre>
+<p>Remember, you may call <code><span class="apiHighlight">Tos.startSession()</span></code> API only when user logs into your application and call <code><span class="apiHighlight">Tos.endSession()</span></code> only when user logs out. Calling <code><span class="apiHighlight">Tos.endSession()</span></code> too many times or unnecessarily may create inconsistent identity data in your DB. Failing to call <code><span class="apiHighlight">Tos.endSession()</span></code>, when user logs out in your application, may result in loss of that session data.</p>
+
+<h3 id="extending-user-sessions">Extending user session</h3>
+<p>In section "<strong>User sessions</strong>" above, we saw how to capture TOS data for authenticated users in your application by calling <code><span class="apiHighlight">Tos.startSession('testUser1')</span></code>. Once started, this session information is stored in cookie and stays there for 1 day until Tos.endSession() is called. When Tos.endSession() is called, this authenticated user session is destroyed from cookie.  For some applications, they may set smaller lifetime for authenticated sessions. TimeOnSite tracker needs to be in sync with such applications for capturing TOS data of authenticated users.  In TimeOnSite tracker, fortunately, there is a way to modify default lifetime of cookies for authenticated users. This is done by calling <code><span class="apiHighlight">Tos.extendSession()</span></code> methed after starting TOS session.</p>
+<pre class="prettyprint lang-js">
+    // when user is logged into your site, call startSession.
+    Tos.startSession('testUserId1'); //"testUserId1" stays in cookie for next 1 day but your application preference is to auto-destroy authenticated user session every one hour. In this case, you are forced to auto-destory TOS authenticated session at the same time.
+
+    //Just call extend session API.
+    Tos.extendSession(3600); // This modifies current authenticated session lifetime to 1 hour instead of default 1 day.
+
+    // or give any value
+    Tos.extendSession(900); // This modifies current authenticated session lifetime to 15 minutes instead of default 1 day.
+
+    // or give even bigger value
+    Tos.extendSession(604800); // This modifies current authenticated session lifetime to 7 days (1 week) instead of default 1 day.
+</pre>
+<p>The method <code><span class="apiHighlight">Tos.extendSession(3600)</span></code> accepts first parameter as time period in seconds. It is of type number. In this snippet, 3600 seconds which is 1 hour. Also be aware that the value given to this API modifies the lifetime of cookie instead of adding to existing default 1 day lifetime of cookie. If you give incorrect value or very less time period like 10 seconds, it may not work correctly. This API is applicable only for authenticated user sessions.</p>
+
+
+<h3 id="saving-data-to-local-storage-for-performance">Saving data to local storage for performance</h3>
+<p>When you give callback, TimeOnSiteTracker tries to send data immediately on page/tab close.  Since it makes a HTTP request at this point and it is synchronous, it slows down the tab close action otherwise the navigation would be a bit slower. But, this is real-time tracking.  On the other hand, if you give local storage option, data is saved to local storage and processed later. This won't be real-time but it doesn't affect user's site navigation.</p>
+
+<pre class="prettyprint lang-js">
+// save to local storage; don't give callback when saving to local storage
+var config = {
+    trackBy: 'seconds',
+    request: {  // presence of request object denotes that data is to be saved in local storage
+        url: 'http://localhost:4500/data/tos', //your endpoint URL to which data would be sent via POST method in API call
+        headers: [
+            {'App-userID': 234982348923}, //optional headers if any like authentication, token etc.
+            {'App-session': 'x2872034ULT'} //optional headers if any
+        ]   
+}};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+<h3 id="real-time-tracking-example">Real-time Tracking Example</h3>
+<pre class="prettyprint lang-js">
+// save with XMLHttpRequest or sendBeacon
+var config = {
+    trackBy: 'seconds',
+    callback: function(data) {
+        console.log(data);
+
+        // give your endpoint URL/ server-side URL that is going to handle your TOS data which is of POST method. Eg. PHP, nodejs or python URL which saves this data to your DB
+
+        var endPointUrl = 'http://localhost:4500/data/tos'; // replace with your endpoint URL
+
+        if(data && data.trackingType) {
+            
+            // make use of sendBeacon if this API is supported by your browser
+            if(navigator && typeof navigator.sendBeacon === 'function'){
+                data.trasferredWith = 'sendBeacon';
+                var blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
+                navigator.sendBeacon(endPointUrl, blob);
+            } else {
+
+                // XMLHttpRequest begins..
+                var url = endPointUrl,
+                    params = JSON.stringify(data),
+                    xhr;
+
+                if (window.XMLHttpRequest) {
+                    xhr = new XMLHttpRequest();
+                } else { // code for IE6, IE5
+                    xhr = new ActiveXObject('Microsoft.XMLHTTP');
+                }
+
+                xhr.open('POST', url, false); //synchronous call; changing this to true will make it
+                //asynchronous request and data won't be saved in your DB.
+
+                //Send the proper header information along with the request
+                xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+                xhr.onreadystatechange = function() {//Call a function when the state changes.
+                    if(xhr.readyState == 4 && xhr.status == 200) {
+                        if(xhr.responseText == 'success') {
+                            console.log('Data saved successfully!');
+                            //Warning: But you should not do more operations here since it will block
+                            //user from closing the application or slow down site navigation
+                        } 
+                    }
+                }
+                xhr.send(params);
+                // XMLHttpRequest ends..
+                
+            }
+            
+        }
+        
+    }};
+var Tos = new TimeOnSiteTracker(config);
+</pre>
+
+<p>
+    <h3 id="code-explained">Code explained:</h3>
+    Since this is real-time tracking, we don't specify local storage option. We denote this  as real-time by giving "callback" option. Since code is simple and self-explanatory, we only explain the high-level details here.
+
+    <pre class="prettyprint lang-js">
+    if(data && data.trackingType){
+    </pre>
+    we check if there is data from TimeOnSiteTracker.js during page close.
+
+    <pre class="prettyprint lang-js">
+    if(navigator && typeof navigator.sendBeacon === 'function'){
+    </pre>
+    we check if browser supports sendBeacon() API which could send data asynchronously and safely to server without blocking user interface. If this API is supported by browser, we make use of it.
+
+    <pre class="prettyprint lang-js">
+    xhr.open('POST', url, false); //synchronous call; changing this to true will make it asynchronous request and data won't be saved in your DB.
+    </pre>
+    In sendBeacon's else loop, you could see this. If sendBeacon() API is not supported by browser, we use normal XMLHTTPRequest to send data
+    synchronously to server. Note the 3rd parameter "false" which is responsible for sending data to server before page gets closed.
+
+    <h3 id="TOS-real-time-key-considerations">TOS real-time tracking - Key considerations</h3>
+    <p>
+        <ul>
+            <li>
+                "setting custom data" explained above isn't recommended to be done during page close.
+            </li>
+            <li>Your endpoint URL API shouldn't have any downtime unless you really know 
+                that your application is down and no user is accessing at this time. This means that this API is accessible online and readily available for saving data to database.
+            </li>
+            <li>
+                The data received at server should be saved immediately without any data manipulation. 
+            </li>
+            <li>
+                Only basic checks like data is not null, required field is present etc. can be done. Further data manipulation or data association with other tables should be done via cron job or scheduling later.
+            </li>
+            <li>If any of these conditions is violated, it will block user from closing the page or slow down UI drastically. On the contrary, these rules are not applicable when using local storage because that is not real-time</li>
+        </ul>
+    </p>
+
+    <p>
+        <!-- <a href="https://www.paypal.me/saleemkce/10" class="user-mention">Send $10</a>
+        <a href="https://www.paypal.me/saleemkce/20" class="user-mention">Send $20</a>
+
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="WRW8PYL2X4L2Q">
+            <input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal – The safer, easier way to pay online!">
+            <img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1">
+            </form> -->
+    </p>
+</p>
+
+
+<h2 id="additional-features">Additional Features</h2>
+<h3 id="activity-tracking">Activity Tracking</h3>
+<p>
+TimeOnSiteTracker also helps you track a particular interaction or activity in the site. The goal of this feature is to capture time taken by the user to complete the activity. You have to manually trigger <code><span class="apiHighlight">Tos.startActivity()</span></code> 
+and 
+<code><span class="apiHighlight">Tos.endActivity()</span></code> APIs to capture start and end time of activity.
+
+<pre class="prettyprint lang-js">
+var config = {
+    trackBy: 'seconds'
+}};
+var Tos = new TimeOnSiteTracker(config);
+
+// After initializing the TimeOnSiteTracker on page load, call startActivity() as
+Tos.startActivity(); // this will start tracking the activity
+
+// .
+// .
+// .
+// after a while,
+
+Tos.endActivity();
+// calling .endActivity() will give back response
+
+Gives response as,
+{
+    TOSId: 585872449448,
+    TOSSessionKey: "14802525481391382263",
+    TOSUserId: "anonymous",
+    title: "Test application - TimeOnSiteTracker",
+    URL: "http://tos-localdata.chennai/home.php",
+    activityStart: "2016-11-27 13:20:46.707",
+    activityEnd: "2016-11-27 13:20:50.213",
+    timeTaken:4,
+    timeTakenByDuration: "0d 00h 00m 04s"
+    timeTakenTrackedBy: "second",
+    trackingType: "activity",
+}
+</pre>
+
+It has different parameters in response like "activityStart", "activityEnd", "timeTaken" etc. It's independent of normal TOS tracking which starts at page load and ends at page close.
+
+<strong>Note: </strong> If callback had been given, it will send data to server immediately. On the other hand, if local storage option had been given, it saves the data to storage for later processing. If neither callback nor local storage option is given, it just returns the activity data back to variable. For instance,
+
+<pre class="prettyprint lang-js">
+var manualProcess = true;
+var activityData = Tos.endActivity({}, manualProcess); 
+/**
+ * Notice variable "manualProcess" which is boolean and is set to true. This indicates that data will not be handled by callback function or local storage. Instead, activityData is simply retured to variable for you to do anything manually.
+
+ * You may add any additional data to this "activityData" object and save it to database as you wish.
+ * 
+ * activityData.userPreferences = ['social', 'journal', 'history'];
+ * activityData.userId = 2427032032u;
+ * 
+ * Now save "activityData" object to database for understanding user preferences.
+ */
+</pre>
+</p>
+
+<p>
+    <table id="TOSTable">
+        <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>TOSId</td>
+            <td>Integer</td>
+            <td>unique TOS id that is created when Tos.getTimeOnPage() is called</td>
+        </tr>
+        <tr>
+            <td>TOSSessionKey</td>
+            <td>String</td>
+            <td>It tracks particular user session. If user clicks 5 different pages in the same site, then all TOSSessionKey will refer to same session</td>
+        </tr>
+        <tr>
+            <td>title</td>
+            <td>String</td>
+            <td>Title of the web page</td>
+        </tr>
+        <tr>
+            <td>URL</td>
+            <td>String</td>
+            <td>Page URL</td>
+        </tr>
+        <tr>
+            <td>timeTaken</td>
+            <td>Integer</td>
+            <td>The time duration it takes for user to complete the activity/interaction</td>
+        </tr>
+        <tr>
+            <td>timeTakenTrackedBy</td>
+            <td>String</td>
+            <td>It denotes whether page is being tracked by "second" or "millisecond"</td>
+        </tr>
+        <tr>
+            <td>activityStart</td>
+            <td>String</td>
+            <td>The time when user starts the activity</td>
+        </tr>
+        <tr>
+            <td>activityEnd</td>
+            <td>String</td>
+            <td>The time when user finishes the activity</td>
+        </tr>
+        <tr>
+            <td>trackingType</td>
+            <td>String</td>
+            <td>It can be "tos" or "activity" which refers to either time on site tracking or activity tracking</td>
+        </tr>
+    </table>
+    <strong>* Note</strong>
+    <a href="../v1/backend.html#activity-tracking-PHP">Please check this example for data types to be used in various databases like MongoDB, Oracle etc.</a>
+</p>
+
+<!--
+
+<h3>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+
+<p>You can @mention a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor’s GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+
+<h3>
+<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
+
+<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p> -->
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/saleemkce">saleemkce</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="../javascripts/scale.fix.js"></script>
+    <script src="../javascripts/run_prettify.js"></script>
+    
+  </body>
+</html>
+<!-- 
+html code conversion @
+http://www.web2generators.com/html-based-tools/online-html-entities-encoder-and-decoder 
+
+bundle exec jekyll serve --port=8877
+bundle exec jekyll serve --port=80
+-->
