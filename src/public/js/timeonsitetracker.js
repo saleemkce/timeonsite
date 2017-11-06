@@ -237,6 +237,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         }, (1 * 1000));
     }
     
+    this.stampImprint();
 };
 
 /**
@@ -406,6 +407,15 @@ TimeOnSiteTracker.prototype.endSession = function() {
 TimeOnSiteTracker.prototype.showProgress = function() {
     var d = this.getTimeOnPage();
     console.log('TimeOnPage(TOP): ' + d.timeOnPage + ' ' + d.timeOnPageTrackedBy);
+};
+
+/**
+ * [stampImprint Imprints "TimeOnSite Tracker" in browser console]
+ */
+TimeOnSiteTracker.prototype.stampImprint = function() {
+    var colorArr = ['#008000', '#a900ff', '#0400f5', '#d60000', '#000000', '#ffffff'],
+        colorIndex = Math.floor((Math.random() * 6) + 0);
+    console.log('%cTimeOnSite Tracker', 'font-size: 40px; font-family: Georgia; color: ' + colorArr[colorIndex] + ';font-style:italic;text-shadow: 0 1px 0 #999999, 0 2px 0 #888888,0 3px 0 #777777, 0 4px 0 #666666,0 5px 0 #555555, 0 6px 0 #444444,0 7px 0 #333333, 0 8px 7px rgba(0, 0, 0, 0.4),0 9px 10px rgba(0, 0, 0, 0.2)');
 };
 
 /**

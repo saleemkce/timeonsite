@@ -713,4 +713,11 @@ describe('TimeOnSiteTracker with localstorage', function () {
         expect(Tos.isTimeOnSiteAllowed).to.equal(true); 
     });
 
+    it('Check if stampImprint method works', function () {
+        Tos.stampImprint();
+
+        //asserting method availability, sample expect assertion for function call check
+        expect('function').to.be.a('string');
+    });
+
 });
