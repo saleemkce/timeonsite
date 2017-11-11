@@ -598,7 +598,7 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
         newSessionKey = self.getCookie(self.TOS_CONST.TOSSessionKey),
         newUserId = self.getCookie(self.TOS_CONST.TOSUserId);
 
-        console.error('old : ', self.TOSSessionKey, self.TOSUserId);
+        //console.info('old : ', self.TOSSessionKey, self.TOSUserId);
         if (newSessionKey) {
             self.TOSSessionKey = newSessionKey;
         }
@@ -610,7 +610,7 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
         }
         
 
-        console.error('new : ', self.TOSSessionKey, self.TOSUserId);
+        //console.info('new : ', self.TOSSessionKey, self.TOSUserId);
     }, (1.5 * 1000));
 
 };
