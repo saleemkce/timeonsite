@@ -622,7 +622,7 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
  * @return {[boolean]}              [returns false if current page is found in blacklistUrl array]
  */
 TimeOnSiteTracker.prototype.checkBlacklistUrl = function(blacklistUrl) {
-    var currentPage = document.URL;
+    var currentPage = decodeURI(document.URL);
     for (var i = 0; i < blacklistUrl.length; i++) {
         if (blacklistUrl[i] === currentPage) {
             return false;
@@ -641,7 +641,7 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     page.TOSId = this.createTOSId();
     page.TOSSessionKey = this.TOSSessionKey;
     page.TOSUserId = this.TOSUserId;
-    page.URL = document.URL;
+    page.URL = decodeURI(document.URL);
     page.title = document.title;
     return page;
 
