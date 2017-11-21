@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Test Node application - TimeOnSiteTracker</title>
+<script type="text/javascript">
+//http://localhost:3000/static/minified/index.html
+var Tos;
+(function(d, s, id, file) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s);
+    js.id = id;
+    js.onload = function() {
+        var config = {
+            trackBy: 'seconds',
+            blacklistUrl: ['http://localhost:3000/static/__index.html'],
+            request: { // presence of request object denotes that data is to be saved in local storage
+                url: 'http://localhost:4500/tos',
+                headers: [
+                    {'App-userID': 234982348923},
+                    {'App-session': 'x2872034ULT'}
+                ]
+            },
+            developerMode: true,
+            TOSCookie: {
+                path: '/',
+                //domain: ((window.location.hostname) ? 'localhost' : ('.' + window.location.hostname))
+            }
+        };
+        if(TimeOnSiteTracker) {
+            Tos = new TimeOnSiteTracker(config);
+        }
+    };
+    js.src = file;fjs.parentNode.insertBefore(js, fjs);
+} (document, 'script', 'TimeOnSiteTracker', '../js/timeonsitetracker.min.js'));
+</script>
+</head>
+
+<body>
+    <h1>TimeOnSiteTracker loaded! - Minified JS</h1>
+</body>
+
+</html>

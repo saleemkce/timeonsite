@@ -3,40 +3,39 @@
 <head>
 <meta charset='UTF-8'>
 <title>Test Node application - TimeOnSiteTracker</title>
-<script src="../js/timeonsitetracker.js"></script>
+<script type="text/javascript">
+//http://localhost:3000/static/path2/index.html
+var Tos;
+(function(d, s, id, file) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s);
+    js.id = id;
+    js.onload = function() {
+        var config = {
+            trackBy: 'seconds',
+            request: { // presence of request object denotes that data is to be saved in local storage
+                url: 'http://localhost:4500/tos',
+                headers: [
+                ]
+            },
+            developerMode: true,
+            TOSCookie: {
+                path: '/static/path2',
+                domain: 'localhost'
+            }
+        };
+        if(TimeOnSiteTracker) {
+            Tos = new TimeOnSiteTracker(config);
+        }
+    };
+    js.src = file;fjs.parentNode.insertBefore(js, fjs);
+} (document, 'script', 'TimeOnSiteTracker', '../js/timeonsitetracker.js'));
+</script>
 </head>
 
 <body>
-TimeOnSiteTracker loaded!
-<br/>
-<a target ='_blank' href='http://www.example.com'>EXAMPLE external site with _blank option</a>
-<br/>
-
-<!-- <a href='file:///C:/Users/skhan/Desktop/tests/time.html#abcIndio'>anchor tag with # change</a> -->
-
-<a target="_blank" href='index.html'>Same page with _blank option</a><br/>
-
-<a href='index.html#abcIndio'>Same page with hash URL</a>
-
-
-<script type="text/javascript">
-//localhost:3000/static/path2/index.html
-var config = {
-	trackBy: 'seconds',
-    request: { // presence of request object denotes that data is to be saved in local storage
-        url: 'http://localhost:4500/tos',
-        headers: [
-        ]
-    },
-    developerMode: true,
-    TOSCookie: {
-        path: '/static/path2',
-        domain: 'localhost'
-    }
-};
-var Tos = new TimeOnSiteTracker(config);
-</script>
-
+    <h1>TimeOnSiteTracker loaded! - path 2 option</h1>
 </body>
 
 </html>

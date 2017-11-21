@@ -5,43 +5,42 @@
 <head>
 <meta charset='UTF-8'>
 <title>About</title>
-<script src="js/timeonsitetracker.js"></script>
+<script type="text/javascript">
+var Tos;
+(function(d, s, id, file) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s);
+    js.id = id;
+    js.onload = function() {
+        var config = {
+            trackBy: 'seconds',
+            blacklistUrl: ['http://localhost:3000/static/__index.html'],
+            request: { // presence of request object denotes that data is to be saved in local storage
+                url: 'http://localhost:4500/tos',
+                headers: [
+                    {'App-userID': 234982348923},
+                    {'App-session': 'x2872034ULT'}
+                ]
+            },
+            developerMode: true,
+            TOSCookie: { //TOS cookie sub domain and path setting
+                path: '/',
+                //domain: ((window.location.hostname) ? 'localhost' : ('.' + window.location.hostname))
+                domain: 'livedata-tos.chennai'
+            }
+        };
+        if(TimeOnSiteTracker) {
+            Tos = new TimeOnSiteTracker(config);
+        }
+    };
+    js.src = file;fjs.parentNode.insertBefore(js, fjs);
+} (document, 'script', 'TimeOnSiteTracker', 'js/timeonsitetracker.js'));
+</script>
 </head>
 
 <body>
-<br/>
-<a href='index.html'>home</a>
-<a href='contact.html'>contact</a>
-<br/>
-<div id="result"></div>
-<p>Click the button to see the counter increase.</p>
-<p>Close the browser tab (or window), and try again, and the counter is reset.</p>
-
-
-
-<script type="text/javascript">
-var config = {
-    trackBy: 'seconds',
-    blacklistUrl: ['http://localhost:3000/static/__index.html'],
-    request: { // presence of request object denotes that data is to be saved in local storage
-        url: 'http://localhost:4500/tos',
-        headers: [
-            {'App-userID': 234982348923},
-            {'App-session': 'x2872034ULT'}
-        ]
-    },
-    developerMode: true,
-    TOSCookie: { //TOS cookie sub domain and path setting
-        path: '/',
-        //domain: ((window.location.hostname) ? 'localhost' : ('.' + window.location.hostname))
-        domain: 'livedata-tos.chennai'
-    }
-};
-var Tos = new TimeOnSiteTracker(config);
-</script>
-
+    <h1>TimeOnSiteTracker loaded!</h1><br/>
+    <a href='index.html'>home</a>
 </body>
-
 </html>
-
-
