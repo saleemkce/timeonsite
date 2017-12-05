@@ -984,6 +984,87 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
 };
 
 /**
+ * [updateStorageData removes processed or invalid data from storage and updates it]
+ * @param  {[type]} dateKey
+ * @param  {[type]} itemData
+ */
+TimeOnSiteTracker.prototype.updateStorageData = function(dateKey, itemData) {
+    var self = this;
+
+    itemData.shift();
+
+    console.log('itemData.length is : '+ itemData.length);
+    if (itemData.length) {
+
+        //save remaining data in dateKey back to localstorage
+        localStorage.setItem(dateKey, JSON.stringify(itemData));
+        
+        console.log('calling next item to process');
+        setTimeout(function() {
+            self.sendData(dateKey, itemData);
+        }, 500);
+    } else {
+       this.removeDateKey(dateKey);
+
+        /**
+         * When data is processed from local storage, xhr variable should be 
+         * reset (self.xhr = null) to prevent "cancelXMLHTTPRequest" method call 
+         * that occurs at page close.
+         */
+        this.xhr = null; 
+    }
+};
+
+
+/**
+ * [verifyData Function to verify data correctness of parameters in TOS data]
+ * @param  {[string]} returns 'valid' if data is correct and consistent
+ */
+TimeOnSiteTracker.prototype.verifyData = function(dateKey, itemData) {
+    var data = itemData[0],
+        isInvalidData = false;
+
+    if(!data.TOSSessionKey || !data.TOSSessionKey.length) {
+        isInvalidData = true;
+        if (this.developerMode) {
+            console.error('TOSSessionKey invalid : ' + data.TOSSessionKey);
+        }
+    }
+
+    if((typeof data.timeOnPage != 'number') || (typeof data.timeOnSite != 'number')) {
+        isInvalidData = true;
+        if (this.developerMode) {
+            console.error('timeOnPage/timeOnSite invalid. timeOnPage : ' + data.timeOnPage + ' & timeOnSite : ' + data.timeOnSite);
+        }
+    }
+
+    if(!data.entryTime || !data.entryTime.length || isNaN(new Date(data.entryTime).getTime())) {
+        isInvalidData = true;
+        if (this.developerMode) {
+            console.error('Entry time invalid: ' + data.entryTime);
+        }
+    }
+
+    if(!data.exitTime || !data.exitTime.length || isNaN(new Date(data.exitTime).getTime())) {
+        isInvalidData = true;
+        if (this.developerMode) {
+            console.error('Exit time invalid: ' + data.exitTime);
+        }
+    }
+
+    if(isInvalidData) {
+        if (this.developerMode) {
+            console.error(data);
+        }
+        this.updateStorageData(dateKey, itemData);
+        return 'invalid';
+    } else {
+        return 'valid';
+    }
+    
+};
+
+/**
  * [sendData This method reads data from local storage and make API calls with POST 
  * method synchronously for posting data to server one at a time. When page close event 
  * occurs, the API call is cancelled.]
@@ -995,6 +1076,16 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     var url = this.request.url,
         params = JSON.stringify(itemData[0]),
         self = this;
+
+    /* check data consistency only for 'tos' type data */
+    if(itemData[0].trackingType == 'tos') {
+        if(this.verifyData(dateKey, itemData) != 'valid') {
+            if (this.developerMode) {
+                alert('alert occurs....');
+            }
+            return false;
+        }
+    }
 
     this.xhr = null;
     if (window.XMLHttpRequest) {
@@ -1021,28 +1112,7 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     this.xhr.onreadystatechange = function() {//Call a function when the state changes.
         if (self.xhr.readyState == 4 && self.xhr.status == 200) {
             if (self.xhr.responseText == 'success') {
-                itemData.shift();
-
-                console.log('itemData.length is : '+ itemData.length);
-                if (itemData.length) {
-
-                    //save remaining data in dateKey back to localstorage
-                    localStorage.setItem(dateKey, JSON.stringify(itemData));
-                    
-                    console.log('calling next item to process');
-                    setTimeout(function() {
-                        self.sendData(dateKey, itemData);
-                    }, 500);
-                } else {
-                    self.removeDateKey(dateKey);
-
-                    /**
-                     * When data is processed from local storage, xhr variable should be 
-                     * reset (self.xhr = null) to prevent "cancelXMLHTTPRequest" method call 
-                     * that occurs at page close.
-                     */
-                    self.xhr = null;
-                }
+                self.updateStorageData(dateKey, itemData);
             } 
         }
     }
