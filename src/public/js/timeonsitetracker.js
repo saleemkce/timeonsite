@@ -106,6 +106,9 @@ var TimeOnSiteTracker = function(config) {
         TOSAnonSessionRefresh: 'TOSAnonSessionRefresh',
         TOSIsCookieSupported: 'TOSIsCookieSupported'
     }
+
+    //TimeOnSiteTracker.js version
+    this.version = '1.0.0';
     
     console.log('Time at page entry: ' + this.varyingStartTime);
 
@@ -323,6 +326,14 @@ TimeOnSiteTracker.prototype.secondToDuration = function (sec) {
  */
 TimeOnSiteTracker.prototype.getDateTime = function () {
     return (new Date()).toISOString().substr(0, 23).replace('T', ' ');
+};
+
+/**
+ * [getVersion It returns the version of the TimeOnSiteTracker.js]
+ * @return {[string]} [the version]
+ */
+TimeOnSiteTracker.prototype.getVersion = function() {
+    return this.version;
 };
 
 /**

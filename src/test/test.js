@@ -240,6 +240,33 @@ describe('TimeOnSiteTracker Tests', function () {
         expect(Tos.customData).to.be.null;
     });
 
+    it('Check if fileValidation method works', function () {
+        Tos.fileValidation();
+        expect(Tos.sessionStateChangeTimerId).to.not.be.null;
+        expect(Tos.sessionStateChangeTimerId).to.be.a('number');
+
+        // since given timonsitetracker.js and its class definition remain unaltered, TOS tracking should be allowed for given page/app
+        expect(Tos.isTimeOnSiteAllowed).to.equal(true); 
+    });
+
+    it('Check if stampImprint method works', function () {
+        Tos.stampImprint();
+
+        //asserting method availability, sample expect assertion for function call check
+        expect('function').to.be.a('string');
+    });
+
+    it('Check if getVersion method works', function () {
+        var version = Tos.getVersion();
+
+        expect(version).to.not.be.null;
+        expect(version).to.be.a('string');
+
+        //check public member version is present
+        expect(Tos.version).to.be.a('string');
+    });
+    
+
 });
 
 describe('Activity tracking Tests', function () {
@@ -702,22 +729,6 @@ describe('TimeOnSiteTracker with localstorage', function () {
         }
         dateKeys = Tos.getDateKeys();
         expect(dateKeys.length).to.equal(0);
-    });
-    
-    it('Check if fileValidation method works', function () {
-        Tos.fileValidation();
-        expect(Tos.sessionStateChangeTimerId).to.not.be.null;
-        expect(Tos.sessionStateChangeTimerId).to.be.a('number');
-
-        // since given timonsitetracker.js and its class definition remain unaltered, TOS tracking should be allowed for given page/app
-        expect(Tos.isTimeOnSiteAllowed).to.equal(true); 
-    });
-
-    it('Check if stampImprint method works', function () {
-        Tos.stampImprint();
-
-        //asserting method availability, sample expect assertion for function call check
-        expect('function').to.be.a('string');
     });
 
 });
