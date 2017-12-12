@@ -215,7 +215,7 @@ var config = {
 
     //save to local storage. If you give callback along with this option, callback will take precedence
     request: {
-        url: 'http://localhost:4500/data/tos', //your endpoint URL to which data would be sent via POST method in API call
+        url: 'http://localhost:4500/tos', //your endpoint URL to which data would be sent via POST method in API call
         headers: [
             {'App-userID': 234982348923}, //optional headers if any like authentication, token etc.
             {'App-session': 'x2872034ULT'} //optional headers if any
@@ -272,7 +272,7 @@ var config = {
     trackBy: 'seconds',
     developerMode: true,
     request: { // presence of request object denotes that data is to be saved in local storage
-        url: 'http://localhost:4500/data/tos',
+        url: 'http://localhost:4500/tos',
         headers: [
             // optional headers if any
         ]
@@ -444,7 +444,7 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
 var config = {
     trackBy: 'seconds',
     request: {  // presence of request object denotes that data is to be saved in local storage
-        url: 'http://localhost:4500/data/tos', //your endpoint URL to which data would be sent via POST method in API call
+        url: 'http://localhost:4500/tos', //your endpoint URL to which data would be sent via POST method in API call
         headers: [
             {'App-userID': 234982348923}, //optional headers if any like authentication, token etc.
             {'App-session': 'x2872034ULT'} //optional headers if any
@@ -463,7 +463,7 @@ var config = {
 
         // give your endpoint URL/ server-side URL that is going to handle your TOS data which is of POST method. Eg. PHP, nodejs or python URL which saves this data to your DB
 
-        var endPointUrl = 'http://localhost:4500/data/tos'; // replace with your endpoint URL
+        var endPointUrl = 'http://localhost:4500/tos'; // replace with your endpoint URL
 
         if(data && data.trackingType) {
             

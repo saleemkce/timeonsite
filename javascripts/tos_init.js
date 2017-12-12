@@ -1,6 +1,6 @@
 // give your endpoint URL/ server-side URL that is going to handle your TOS data
 // which is of POST method. Eg. PHP, nodejs or python URL which saves this data to your DB
-var endPointUrl = 'http://localhost:4500/data/tos';
+var endPointUrl = 'http://localhost:4500/tos';
 
 var config = {
     trackBy: 'seconds',
