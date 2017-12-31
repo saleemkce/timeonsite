@@ -152,7 +152,7 @@ module.exports.SaveTos = function(req, res, next) {
 
                 <h3 id="PHP">PHP example</h3>
 <pre class="prettyprint lang-sql">
-// Create database named "test". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
+// Create database named "tosdata". Then, create table in any RDBMS (this example was tested in mysql/maria DB) as follows:
 
 CREATE TABLE `tos` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -185,7 +185,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $host = "localhost";
     $user = "root";
     $password = "";
-    $database = "test";
+    $database = "tosdata";
 
     $con = mysqli_connect($host, $user, $password, $database);
     // Check connection
@@ -212,7 +212,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 </pre>
 
                 <p>
-                * We form the required SQL query for saving our data in MySql or any other RDBMS of your preference. Create a database named "test". Then execute the given query to create new table named "tos".<br/><br/>
+                * We form the required SQL query for saving our data in MySql or any other RDBMS of your preference. Create a database named "tosdata". Then execute the given query to create new table named "tos".<br/><br/>
                 * Create a new file named "tos.php" which checks if there is any incoming request with POST data. In case of valid data, it saves the data to "tos" table in database we just created. Do not forget to start your server (Apache, nginx etc.) that runs PHP while working out this example. Since saving data in RDBMS is schema-based and type checking is strict, you need to be careful in defining the fields while creating the table given above. In case of adding custom data or additional data in future, you need to modify schema and verify thoroughly to avoid query failure or data loss.
                 </p>
 
@@ -299,7 +299,7 @@ module.exports.SaveActivity = function(req, res, next) {
 
 <h3 id="activity-tracking-PHP">Activity Tracking - PHP</h3>
 <pre class="prettyprint lang-sql">
-// Create database named "test". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
+// Create database named "tosdata". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
 
 CREATE TABLE `activity` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -331,7 +331,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $host = "localhost";
     $user = "root";
     $password = "";
-    $database = "test";
+    $database = "tosdata";
 
     $con = mysqli_connect($host, $user, $password, $database);
     // Check connection
