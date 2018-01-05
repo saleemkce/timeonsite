@@ -1,6 +1,7 @@
 
 // Run with mocha-phantomjs test.html
-var Tos = new TimeOnSiteTracker();
+var Tos = new TimeOnSiteTracker(),
+    endPointUrl = 'http://localhost:4500/tos';
 
 describe('TimeOnSiteTracker Tests', function () {
     
@@ -368,12 +369,12 @@ describe('Activity tracking Tests', function () {
 
                 // give your endpoint URL/ server-side URL that is going to handle your TOS data
                 // which is of POST method. Eg. PHP, nodejs or python URL which saves this data to your DB
-                var endPointUrl = 'http://localhost:4500/data/tos';
+                var endPointUrl = 'http://localhost:4500/tos';
 
                 if(data && data.trackingType) {
                     
                     // make use of sendBeacon if this API is supported by your browser
-                    if(navigator && typeof navigator.sendBeacon === 'function'){
+                    if(navigator && typeof navigator.sendBeacon === 'function') {
                         //var debug = data;
                         data.trasferredWith = 'sendBeacon';
                         var blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
@@ -558,7 +559,7 @@ describe('TimeOnSiteTracker with configuration Tests', function () {
         var config = {
             trackBy: 'seconds',
             request: {
-                url: 'http://localhost:4500/data/tos'
+                url: endPointUrl
             },
             TOSCookie: {
                 path: '/blog/abc',

@@ -193,18 +193,18 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         }
     }
     
-    if ((config && config.request && config.request.url) && (this.callback === null)) {
-        this.storeInLocalStorage = true;
-    }
-
     // check Storage supported by browser
     if (typeof(Storage) !== 'undefined') {
         this.storageSupported = true;
+    } else {
+        console.info('Session/Local storage not supported by this browser.');
+    }
+
+    if ((config && config.request && config.request.url) && this.storageSupported && (this.callback === null)) {
+        this.storeInLocalStorage = true;
 
         //process any saved data in local storage
         this.processDataInLocalStorage();
-    } else {
-        console.info('Session/Local storage not supported by this browser.');
     }
 
     if ((this.storeInLocalStorage === false) && (this.callback === null)) {
@@ -212,8 +212,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     }
 
     if ((config && config.request && config.request.url) && this.callback) {
-        this.storeInLocalStorage = true;
-        console.warn('Both callback and local storage options given. Local Storage takes precedence. Give either one!');
+        console.warn('Both callback and local storage options given. Callback function takes precedence. Give either one!');
     }
 
     //Enable "developer mode" to view TOS real-time internal data and logs
@@ -1018,11 +1017,11 @@ TimeOnSiteTracker.prototype.updateStorageData = function(dateKey, itemData) {
        this.removeDateKey(dateKey);
 
         /**
-         * When data is processed from local storage, xhr variable should be 
+         * When data is processed from local storage incase of synchronous API, xhr variable should be 
          * reset (self.xhr = null) to prevent "cancelXMLHTTPRequest" method call 
          * that occurs at page close.
          */
-        this.xhr = null; 
+        //this.xhr = null; 
     }
 };
 
@@ -1105,7 +1104,7 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
         this.xhr = new ActiveXObject('Microsoft.XMLHTTP');
     }
 
-    this.xhr.open('POST', url, false); //synchronous call
+    this.xhr.open('POST', url, true); //asynchronous call
 
     //Send the proper header information along with the request
     this.xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
@@ -1137,18 +1136,18 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
  * page is closed, xhr request is cancelled since it's blocking XMLHttpRequest. The 
  * remaining data will be processed in the next page]
  */
-TimeOnSiteTracker.prototype.cancelXMLHTTPRequest = function() {
+// TimeOnSiteTracker.prototype.cancelXMLHTTPRequest = function() {
 
-    // check if "abort" exists since earlier version of firefox don't have this method
-    if (this.xhr && (typeof this.xhr.abort === 'function')) {
-        if (this.developerMode) {
-            console.log(this.xhr);
-            console.info('XHR request cancelled!');
-        }
+//     // check if "abort" exists since earlier version of firefox don't have this method
+//     if (this.xhr && (typeof this.xhr.abort === 'function')) {
+//         if (this.developerMode) {
+//             console.log(this.xhr);
+//             console.info('XHR request cancelled!');
+//         }
 
-        this.xhr.abort();
-    }
-};
+//         this.xhr.abort();
+//     }
+// };
 
 /**
  * [bindWindowFocus It keeps track of the user's focus of browser tabs. If user 
@@ -1403,7 +1402,7 @@ TimeOnSiteTracker.prototype.bindWindowUnload = function() {
             self.processTOSData();
 
             // cancelling running XHR requests if any...
-            self.cancelXMLHTTPRequest();
+            //self.cancelXMLHTTPRequest();
 
         }
         //return message;
