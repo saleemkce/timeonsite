@@ -266,6 +266,72 @@ describe('TimeOnSiteTracker Tests', function () {
         //check public member version is present
         expect(Tos.version).to.be.a('string');
     });
+
+    it('Check if verifyData method works', function () {
+        var testData = {
+            TOSId: 4712691077258300,
+            TOSSessionKey: '8285000533213612612582',
+            TOSUserId: 'anonymous',
+            URL: 'http://localhost:3000/static/index.html',
+            title: 'Test Node application - TimeOnSiteTracker',
+            entryTime: '2018-01-07', // mocha-phantom doesn't correctly handle TOS datetime full format, hence date only.
+            timeOnPage: 1,
+            timeOnPageTrackedBy: 'second',
+            timeOnSite: 1,
+            timeOnPageByDuration: '0d 00h 00m 0s',
+            timeOnSiteByDuration: '0d 00h 00m 0s',
+            trackingType: 'tos',
+            exitTime: '2018-01-07'
+        },
+        dataStructureValidity;
+
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('valid');
+
+        testData.TOSSessionKey = '';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.timeOnPage = null;
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.timeOnPage = '';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.timeOnPage = 'testing';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.timeOnSite = null;
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.timeOnSite = '';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.timeOnSite = 'testing';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.entryTime = '';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.entryTime = 'NAN date';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.exitTime = '';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+
+        testData.exitTime = 'NAN date';
+        dataStructureValidity = Tos.verifyData(testData);
+        expect(dataStructureValidity).to.equal('invalid');
+    });
     
 
 });

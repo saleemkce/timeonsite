@@ -1030,9 +1030,8 @@ TimeOnSiteTracker.prototype.updateStorageData = function(dateKey, itemData) {
  * [verifyData Function to verify data correctness of parameters in TOS data]
  * @param  {[string]} returns 'valid' if data is correct and consistent
  */
-TimeOnSiteTracker.prototype.verifyData = function(dateKey, itemData) {
-    var data = itemData[0],
-        isInvalidData = false;
+TimeOnSiteTracker.prototype.verifyData = function(data) {
+    var isInvalidData = false;
 
     if(!data.TOSSessionKey || !data.TOSSessionKey.length) {
         isInvalidData = true;
@@ -1066,7 +1065,6 @@ TimeOnSiteTracker.prototype.verifyData = function(dateKey, itemData) {
         if (this.developerMode) {
             console.error(data);
         }
-        this.updateStorageData(dateKey, itemData);
         return 'invalid';
     } else {
         return 'valid';
@@ -1089,7 +1087,9 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
 
     /* check data consistency only for 'tos' type data */
     if(itemData[0].trackingType == 'tos') {
-        if(this.verifyData(dateKey, itemData) != 'valid') {
+        if(this.verifyData(itemData[0]) != 'valid') {
+            this.updateStorageData(dateKey, itemData);
+
             if (this.developerMode) {
                 alert('alert occurs....');
             }
