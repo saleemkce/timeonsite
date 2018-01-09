@@ -81,24 +81,34 @@
 <p>Include the <strong>timeonsitetracker.min.js</strong> in your site, like</p>
 <pre class="prettyprint lang-js">
 &lt;head&gt; 
-    &lt;script src=&quot;timeonsitetracker.min.js&quot;&gt;&lt;/script&gt; 
+    &lt;script type="text/javascript"&gt;
+        var Tos;
+        (function(d, s, id, file) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s);
+            js.id = id;
+            js.onload = function() {
+                var config = {};
+                if(TimeOnSiteTracker) {
+                    Tos = new TimeOnSiteTracker(config);
+                }
+            };
+            js.src = file;fjs.parentNode.insertBefore(js, fjs);
+        } (document, 'script', 'TimeOnSiteTracker', 'timeonsitetracker.min.js'));
+    &lt;/script&gt; 
 &lt;/head&gt;
 </pre>
 
-<p>Then, in HTML body inlcude this script as,</p>
+<p>Then, open browser console/developer console; you will see TimeOnSiteTracker imprint. Just type following line to see current "Time on page" and related data.</p>
 <pre class="prettyprint lang-js">
-var config = {
-  callback: function(data) {  // if you give callback, it becomes real-time tracking
-    window.open('http://www.example.com?'+JSON.stringify(data), 'hi', 'height=200,width=200');
-  }};
-var Tos = new TimeOnSiteTracker(config);
+console.log(Tos.getTimeOnPage());
 </pre>
 
-<p>Just stay in the page for a few seconds. Then, close the browser tab. If you could see a window popping up and look in the address bar of popped window. If you could see query string containing TOS data, hooray! Your TOS tracking is successful, I mean, the TimeOnSiteTracker is correctly integrated in your site!</p>
+<p>If you could see TOS data, hooray! your TOS tracking is successful, that means, the TimeOnSiteTracker is correctly integrated in your site!</p>
 
 <p>
-<strong>Note 1:</strong>Allow pop-ups in browser settings, otherwise you won't see pop up window containing TOS data in browser. Try open this page where you included TimeOnSiteTracker 2 or 3 times and see if it asks you to allow pop-up. In that case, just allow it to view TOS data in popped up widow address bar.<br/>
-<strong>Note 2</strong>: Time on page and Time on site are captured in milliseconds (Javascript's Date function) by default.
+<strong>Note 1</strong>: Time on page and Time on site are captured in milliseconds (Javascript's Date function) by default.
 </p>
 
 <a href="#getting-current-TOS-data"><h3 id="getting-current-TOS-data">Getting Current TOS data</h3></a>
@@ -122,7 +132,6 @@ Tos.getTimeOnPage();
         trackingType: "tos",
     }
 </pre>
-
 <p>
     <table id="TOSTable">
         <tr>
@@ -228,7 +237,6 @@ var config = {
 }};
 
 // this is just for illustration, give only the options that you need.
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 </p>
 
@@ -243,7 +251,6 @@ var config = {
     console.log(data);
     // give your end-point URL to save data to DB
 }};
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 
 
@@ -260,7 +267,6 @@ var config = {
         console.log(data);
 
 }};
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 </p>
 
@@ -278,7 +284,6 @@ var config = {
         ]
     }
 };
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 </p>
 
@@ -291,7 +296,6 @@ var config = {
         console.log(data);
 
 }};
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 </p> -->
 
@@ -307,7 +311,6 @@ var config = {
         domain: 'example.com'
     }
 };
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 
     <p>In the above line, TOS Tracker is going to track all domain and sub-domain as one thing. For example, consider TOS Tracking is implemented in example.com. If the above cookie is set for path => '/' and domain => 'example.com' in example.com, then TOS tracking is same for both blog.example.com and about.example.com. But, blog.example.com is actually different from about.example.com, each serves its own purpose and their usage should be treated differently. Since we gave domain as "example.com", TOS timing parameter gets mingled if a user tries to access blog.example.com and about.example.com one by one`at the same time. To avoid data mixing and keep each thing different, domain parameter helps us do that</p>
@@ -324,7 +327,7 @@ var config = {
         domain: 'blog.example.com'
     }
 };
-var Tos = new TimeOnSiteTracker(config);
+
 
 //Example 2: setting for about.exmaple.com
 var config = {
@@ -334,7 +337,6 @@ var config = {
         domain: 'about.example.com'
     }
 };
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 
     <p>When the setting is changed as above, user simultaneously accessing 'blog' and 'about' sub-domains is protected from data mixing of TOS data. It works just like domain cookies in sites but for tracking TOS.</p>
@@ -353,7 +355,6 @@ var config = {
         console.log(data);
 
 }};
-var Tos = new TimeOnSiteTracker(config);
 </pre>
 
     Remember that failing to configure this <strong>trackHistoryChange</strong> setting may not identify different pages correctly in tracked TOS data.<br/><br/>
@@ -450,7 +451,7 @@ var config = {
             {'App-session': 'x2872034ULT'} //optional headers if any
         ]   
 }};
-var Tos = new TimeOnSiteTracker(config);
+
 </pre>
 
 <h3 id="real-time-tracking-example">Real-time Tracking Example</h3>
@@ -514,7 +515,7 @@ var config = {
         }
         
     }};
-var Tos = new TimeOnSiteTracker(config);
+
 </pre>
 
 <p>
@@ -581,7 +582,6 @@ and
 var config = {
     trackBy: 'seconds'
 }};
-var Tos = new TimeOnSiteTracker(config);
 
 // After initializing the TimeOnSiteTracker on page load, call startActivity() as
 Tos.startActivity(); // this will start tracking the activity
