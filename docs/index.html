@@ -466,6 +466,12 @@ var config = {
         var endPointUrl = 'http://localhost:4500/tos'; // replace with your endpoint URL
 
         if(data && data.trackingType) {
+            if(data.trackingType == 'tos') {
+                if(Tos.verifyData(data) != 'valid') {
+                    console.log('Data abolished!');
+                    return; 
+                }
+            }
             
             // make use of sendBeacon if this API is supported by your browser
             if(navigator && typeof navigator.sendBeacon === 'function'){
