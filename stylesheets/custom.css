@@ -41,3 +41,8 @@ table#TOSTable th {
 body {
     color: #585757 !important;
 }
+
+.tos_development_info_bottom {
+    text-align: center;
+    padding-top:50px;
+}

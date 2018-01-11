@@ -57,6 +57,7 @@
 body {
   background-color: #fff;
   padding:50px;
+  padding-top: 5px;
   font: 14px/1.5 "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color:#727272;
   font-weight:400;
@@ -229,7 +230,7 @@ section {
   /*width:500px;*/
   width:70%;
   float:right;
-  padding-bottom:50px;
+  padding-bottom:20px;
 }
 
 small {
