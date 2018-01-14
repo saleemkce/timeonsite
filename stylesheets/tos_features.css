@@ -53,7 +53,7 @@
 	color: #4b35ff;
 }
 
-.overlay {
+.overlay, .overlay1 {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -83,4 +83,10 @@
 	margin-left: 265px;
 	padding: 8px;
 	background: #dad7d7;
+}
+
+.download-app-info {
+	font-size: 14px;
+	color: #069;
+	font-style: italic;
 }
