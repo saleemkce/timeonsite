@@ -60,6 +60,7 @@
 
 
                 <br/><h3 id="examples">Saving TOS to database - Examples || Server-side data handling</h3>
+                <h4><span style="color: #7c6cfd;">Important!</span>&nbsp;This page is only for demonstrating schema and sample data - save operation. Entire backend code is already available for immediate access and use in PHP/NodeJs <a href="https://github.com/saleemkce/visual">Visual, reporting and analytics dashboard</a></h4>
                 <h3 id="time-on-site-tracking">Time On Site Tracking</h3>
                 <h3 id="NodeJs">Node.js example</h3>
 <pre class="prettyprint lang-js">
@@ -90,7 +91,6 @@ module.exports = TosSchema;
 
 //file 3: tos.controller.js
 var TosSchema = require('tos.model.js');
-var c = 0;
 module.exports.SaveTos = function(req, res, next) {
     var data = req.body;
     console.log(data);
@@ -122,17 +122,14 @@ module.exports.SaveTos = function(req, res, next) {
 
         var Tos = new TosSchema(freshData);
         // Data saved to mongoDB's tos collection
-        Tos.save(freshData, function(err){
+        Tos.save(function(err, record) {
             console.log(err);
+            res.send('success');
         });
 
-        console.log('TOS type : ' + freshData.trackingType);
-        console.log('Record No : ' + ++c);
     } else {
         console.log('TOS data not received. Please check your endpoint URL and POST data from client-side!');
     }
-
-    res.send('success');
     
 };
 </pre>
@@ -246,7 +243,6 @@ module.exports = ActivitySchema;
 
 //file 3: activity.controller.js
 var ActivitySchema = require('activity.model.js');
-var c = 0;
 module.exports.SaveActivity = function(req, res, next) {
     var data = req.body;
     console.log(data);
@@ -274,17 +270,14 @@ module.exports.SaveActivity = function(req, res, next) {
 
         var Activity = new ActivitySchema(freshData);
         // Data saved to mongoDB's tos collection
-        Activity.save(freshData, function(err){
+        Activity.save(function(err, record){
             console.log(err);
+            res.send('success');
         });
 
-        console.log('TOS type : ' + freshData.trackingType);
-        console.log('Record No : ' + ++c);
     } else {
         console.log('TOS activity data not received. Please check your endpoint URL and POST data from client-side!');
-    }
-
-    res.send('success');
+    } 
     
 };
 </pre>
@@ -381,6 +374,8 @@ Body:
 }
 </pre>
                 <p>In HTTP client like Postman, you could test if your route works before applying the code in your application.</p>
+
+                <h4><span style="color: #7c6cfd;">Important!</span>&nbsp;This page is only for demonstrating schema and sample data - save operation. Entire backend code is already available for immediate access and in use PHP/NodeJs <a href="https://github.com/saleemkce/visual">Visual, reporting and analytics dashboard</a></h4>
 
                 <p class="tos_development_info_bottom">Developed with love for web & analytics at <a href="https://en.wikipedia.org/wiki/Chennai">Chennai</a>, remember <a href="https://en.wikipedia.org/wiki/Marina_Beach">Marina</a>? All praise be to Almighty God.<br/>TimeonsiteTracker.js, the commercial software.
                 </p>
