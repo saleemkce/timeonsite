@@ -97,7 +97,7 @@ module.exports.SaveTos = function(req, res, next) {
 
     var freshData = {};
 
-    if(data && data.trackingType && data.trackingType == 'tos') {
+    if (data && data.trackingType && data.trackingType == 'tos') {
 
         // converting to ISO date format
         data.entryTime = (new Date(data.entryTime)).toISOString();
@@ -169,7 +169,7 @@ CREATE TABLE `tos` (
 <xmp>
 //In PHP, create file: tos.php
 <?php
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $data = json_decode(file_get_contents("php://input"));
     //print_r($data);
@@ -193,7 +193,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $res = mysqli_query($con, $qry);
 
     mysqli_close($con);
-    if($res) {
+    if ($res) {
         echo 'success';
     } else {
         echo 'error';
@@ -249,7 +249,7 @@ module.exports.SaveActivity = function(req, res, next) {
 
     var freshData = {};
 
-    if(data && data.trackingType && data.trackingType == 'activity') {
+    if (data && data.trackingType && data.trackingType == 'activity') {
 
         data.activityStart = (new Date(data.activityStart)).toISOString();
         data.activityEnd = (new Date(data.activityEnd)).toISOString();
@@ -282,7 +282,7 @@ module.exports.SaveActivity = function(req, res, next) {
 };
 </pre>
                 <p>
-                    This code is self-explanatory. Create route, model and controller files for tracking activity. In controller, check if received data is of type "activity" if(data.trackingType == 'activity').  Save it to activities collection. You are done!
+                    This code is self-explanatory. Create route, model and controller files for tracking activity. In controller, check if received data is of type "activity" if (data.trackingType == 'activity').  Save it to activities collection. You are done!
                 </p>
 
 
@@ -311,7 +311,7 @@ CREATE TABLE `activity` (
 <xmp>
 //In PHP, create file: activity.php
 <?php
-if($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $data = json_decode(file_get_contents("php://input"));
     //print_r($data);
@@ -335,7 +335,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $res = mysqli_query($con, $qry);
 
     mysqli_close($con);
-    if($res) {
+    if ($res) {
         echo 'success';
     } else {
         echo 'error';

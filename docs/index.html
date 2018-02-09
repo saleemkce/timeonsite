@@ -85,7 +85,7 @@
             js.id = id;
             js.onload = function() {
                 var config = {};
-                if(TimeOnSiteTracker) {
+                if (TimeOnSiteTracker) {
                     Tos = new TimeOnSiteTracker(config);
                 }
             };
@@ -145,6 +145,11 @@ Tos.getTimeOnPage();
             <td>It tracks particular user session. If user clicks 5 different pages in the same site, then all TOSSessionKey will refer to same session</td>
         </tr>
         <tr>
+            <td>TOSUserId</td>
+            <td>String</td>
+            <td>It is usually "anonymous" unless you modify it by calling Tos.startSession('username'); immediately after user authentication</td>
+        </tr>
+        <tr>
             <td>title</td>
             <td>String</td>
             <td>Title of the web page</td>
@@ -192,12 +197,12 @@ Tos.getTimeOnPage();
         </tr>
     </table>
     <strong>* Note</strong>
-    <a href="../backend/index.html#PHP">Please check this example for data types to be used in various databases like MySql, Mongo, Oracle etc.</a>
+    <a href="../backend/index.html#PHP">Check this example for data types to be used in various databases like MySql, Mongo, Oracle etc.</a>
 </p>
 
 <h3 id="TOS-configuration-option">TOS configuration option</h3>
 <p>When initializing timeonsitetracker.js in your site, the first parameter requires a
-"config" parameter which is optional and which controls the way TOS data is tracked.
+"config" parameter which is optional and it controls the way TOS data is tracked.
 For example, look at the following option.
 <pre class="prettyprint lang-js">
 var config = {
@@ -267,12 +272,12 @@ var config = {
 
 <h3 id="developer-mode-setting-for-debugging">* Developer mode setting for debugging</h3>
 <p>This option is very useful in debugging TOS Tracker data. It also helps to point out any
-    incorrect input you might give while initializing timeonsitetracker.js. These all visible in browser console window (<strong>Open browser console and look at real-time TOS Tracker data</strong>, you may see a lot of data in browser console when this option is enabled). Also this setting may be useful only for development or test environments and not recommended for production. This is enabled by "developerMode" as given below.<br/>
+    incorrect input you might give while initializing timeonsitetracker.js. These are all visible in browser console window (<strong>Open browser console and look at real-time TOS Tracker data</strong>, you may see a lot of data in browser console when this option is enabled). Also this setting may be useful only for development or test environments and not recommended for production. This is enabled by "developerMode" as given below.<br/>
 <pre class="prettyprint lang-js">
 var config = {
     trackBy: 'seconds',
     developerMode: true,
-    request: { // presence of request object denotes that data is to be saved in local storage
+    request: { // presence of request object denotes that data is to be saved in local storage and processed on subsequent page access
         url: 'http://localhost:4500/tos',
         headers: [
             // optional headers if any
@@ -296,7 +301,7 @@ var config = {
 
 <h3 id="tos-cookie-and-domain-setting">TOS Cookie and Domain Setting</h3>
 <p>
-    This is a very important setting when working with domains and sub-domains for TOS Tracking.  This cookie is used to determine if current TOS tracking applies to whole domain or a sub domain in the given site.  If you are going to track entire site without differentiating domain and sub domain, you may leave this options. For this, you need to provide "TOSCookie" in config object as given below so that tracking works as per your needs,<br/>
+    This is a very important setting when working with domains and sub-domains for TOS Tracking.  This cookie is used to determine if current TOS tracking applies to whole domain or a sub domain in the given site.  If you are going to track entire site without differentiating domain and sub domain, you may leave this option. For this, you need to provide "TOSCookie" in config object as given below so that tracking works as per your needs,<br/>
 <pre class="prettyprint lang-js">
 //Setting custom data for TOS tracking
 var config = {
@@ -308,7 +313,7 @@ var config = {
 };
 </pre>
 
-    <p>In the above line, TOS Tracker is going to track all domain and sub-domain as one thing. For example, consider TOS Tracking is implemented in example.com. If the above cookie is set for path => '/' and domain => 'example.com' in example.com, then TOS tracking is same for both blog.example.com and about.example.com. But, blog.example.com is actually different from about.example.com, each serves its own purpose and their usage should be treated differently. Since we gave domain as "example.com", TOS timing parameter gets mingled if a user tries to access blog.example.com and about.example.com one by one`at the same time. To avoid data mixing and keep each thing different, domain parameter helps us do that</p>
+    <p>In the above line, TOS Tracker is going to track all domain and sub-domain as one thing. For example, consider TOS Tracking is implemented in example.com. If the above cookie is set for path => '/' and domain => 'example.com' in example.com, then TOS tracking session ID/key is same for both blog.example.com and about.example.com. But, blog.example.com is actually different from about.example.com, each serves its own purpose and their usage should be treated differently. Since we gave domain as "example.com", TOS timing parameter gets mingled if a user tries to access blog.example.com and about.example.com one by one at the same time. To avoid data mixing and keep each thing different, domain parameter helps us do that</p>
 
 
 <pre class="prettyprint lang-js">
@@ -334,7 +339,7 @@ var config = {
 };
 </pre>
 
-    <p>When the setting is changed as above, user simultaneously accessing 'blog' and 'about' sub-domains is protected from data mixing of TOS data. It works just like domain cookies in sites but for tracking TOS.</p>
+    <p>When the setting is changed as above, user simultaneously accessing 'blog' and 'about' sub-domains is protected from mixing TOS session data of both sub domains. To describe, you will find two session IDs created for accessing each sub-domain and each session ID uniquely identifies time on site of sub-domains separately. It works just like domain cookies in sites but for tracking TOS.</p>
 </p>
 
 <h3>Tracking single-page apps</h3>
@@ -374,10 +379,8 @@ Tos.setCustomData(custom); //before the page is closed, this data is appended to
 </pre>
 </p>
 
-<h3 id="unsetting-custom-data">Unsetting custom data</h3>
-<p>To remove the custom data already set, simply call <code><span class="apiHighlight">Tos.unsetCustomData()</span></code> API and you are done. It will only remove any custom data set by you.</p>
-
-Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code>, you could see this custom data along with usual TOS data
+<p>
+Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></code> from browser console, you could see this custom data along with usual TOS data
 
 <pre class="prettyprint lang-js">
 //Response ->
@@ -402,6 +405,9 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
 }
 </pre>
 </p>
+
+<h3 id="unsetting-custom-data">Unsetting custom data</h3>
+<p>To remove the custom data already set, simply call <code><span class="apiHighlight">Tos.unsetCustomData()</span></code> API and you are done. It will only remove any custom data set by you.</p>
 
 <h3 id="user-sessions">User sessions</h3>
 <p>You have learnt a lot about TimeOnSiteTracker and its configuration options. Now, it's time to set user ID to track and understand the behaviour of authenticated users in your application. For this, you may use <code><span class="apiHighlight">Tos.startSession()</span></code> API as given in example below. Moreover, this is <strong>optional</strong> setting but highly recommended in case your application makes use of authentication/login routine. If not set, all TOS tracking will be tracked as "anonymous" users in your application.</p>
@@ -433,13 +439,13 @@ Now if you call <code><span class="apiHighlight">Tos.getTimeOnPage()</span></cod
 
 
 <h3 id="saving-data-to-local-storage-for-performance">Saving data to local storage for performance</h3>
-<p>When you give callback, TimeOnSiteTracker tries to send data immediately on page/tab close.  Since it makes a HTTP request at this point and it is synchronous, it slows down the tab close action otherwise the navigation would be a bit slower. But, this is real-time tracking.  On the other hand, if you give local storage option, data is saved to local storage and processed later. This won't be real-time but it doesn't affect user's site navigation.</p>
+<p>When you give callback TOS option, TimeOnSiteTracker tries to send data immediately on page/tab close.  Since it makes a HTTP request at this point and it is synchronous, it slows down the tab close action otherwise the navigation would be a bit slower. But, this is real-time tracking.  On the other hand, if you give local storage option, data is saved to local storage and processed later. This won't be real-time but it doesn't affect user's site navigation.</p>
 
 <pre class="prettyprint lang-js">
 // save to local storage; don't give callback when saving to local storage
 var config = {
     trackBy: 'seconds',
-    request: {  // presence of request object denotes that data is to be saved in local storage
+    request: {  // presence of request object denotes that data is to be saved in local storage and processed on subsequent page access
         url: 'http://localhost:4500/tos', //your endpoint URL to which data would be sent via POST method in API call
         headers: [
             {'App-userID': 234982348923}, //optional headers if any like authentication, token etc.
@@ -461,20 +467,22 @@ var config = {
 
         var endPointUrl = 'http://localhost:4500/tos'; // replace with your endpoint URL
 
-        if(data && data.trackingType) {
-            if(data.trackingType == 'tos') {
-                if(Tos.verifyData(data) != 'valid') {
+        if (data && data.trackingType) {
+            if (data.trackingType == 'tos') {
+                if (Tos.verifyData(data) != 'valid') {
                     console.log('Data abolished!');
                     return; 
                 }
             }
             
-            // make use of sendBeacon if this API is supported by your browser
-            if(navigator && typeof navigator.sendBeacon === 'function'){
+            // make use of sendBeacon if this API is supported by your browser. sendBeacon is expenmental technology; it may not work well
+            /*if (navigator && typeof navigator.sendBeacon === 'function') {
                 data.trasferredWith = 'sendBeacon';
                 var blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
                 navigator.sendBeacon(endPointUrl, blob);
-            } else {
+            }*/
+
+            /*else {*/
 
                 // XMLHttpRequest begins..
                 var url = endPointUrl,
@@ -488,24 +496,25 @@ var config = {
                 }
 
                 xhr.open('POST', url, false); //synchronous call; changing this to true will make it
-                //asynchronous request and data won't be saved in your DB.
+                //asynchronous request and data may not be saved in your DB.
 
                 //Send the proper header information along with the request
                 xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
                 xhr.onreadystatechange = function() {//Call a function when the state changes.
-                    if(xhr.readyState == 4 && xhr.status == 200) {
-                        if(xhr.responseText == 'success') {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        if (xhr.responseText == 'success') {
                             console.log('Data saved successfully!');
-                            //Warning: But you should not do more operations here since it will block
-                            //user from closing the application or slow down site navigation
+                            /*
+                            Warning: But you should not do more operations here since it will block user from closing the application or slow down site navigation
+                            */
                         } 
                     }
                 }
                 xhr.send(params);
                 // XMLHttpRequest ends..
                 
-            }
+            /*}*/
             
         }
         
@@ -518,39 +527,39 @@ var config = {
     Since this is real-time tracking, we don't specify local storage option. We denote this  as real-time by giving "callback" option. Since code is simple and self-explanatory, we only explain the high-level details here.
 
     <pre class="prettyprint lang-js">
-    if(data && data.trackingType){
+    if (data && data.trackingType) {
     </pre>
     we check if there is data from TimeOnSiteTracker.js during page close.
 
     <pre class="prettyprint lang-js">
-    if(navigator && typeof navigator.sendBeacon === 'function'){
+    if (navigator && typeof navigator.sendBeacon === 'function') {
     </pre>
     we check if browser supports sendBeacon() API which could send data asynchronously and safely to server without blocking user interface. If this API is supported by browser, we make use of it.
 
     <pre class="prettyprint lang-js">
-    xhr.open('POST', url, false); //synchronous call; changing this to true will make it asynchronous request and data won't be saved in your DB.
+    xhr.open('POST', url, false); //synchronous call; changing this to true will make it asynchronous request and data may not be saved in your DB.
     </pre>
-    In sendBeacon's else loop, you could see this. If sendBeacon() API is not supported by browser, we use normal XMLHTTPRequest to send data
-    synchronously to server. Note the 3rd parameter "false" which is responsible for sending data to server before page gets closed.
+    <p>
+        In sendBeacon's else loop, you could see this. If sendBeacon() API is not supported by browser, we use normal XMLHTTPRequest to send data
+        synchronously to server. Note the 3rd parameter "false" which is responsible for sending data to server before page gets closed.
+    </p>
 
     <h3 id="TOS-real-time-key-considerations">TOS real-time tracking - Key considerations</h3>
-    <p>
-        <ul>
-            <li>
-                "setting custom data" explained above isn't recommended to be done during page close.
-            </li>
-            <li>Your endpoint URL API shouldn't have any downtime unless you really know 
-                that your application is down and no user is accessing at this time. This means that this API is accessible online and readily available for saving data to database.
-            </li>
-            <li>
-                The data received at server should be saved immediately without any data manipulation. 
-            </li>
-            <li>
-                Only basic checks like data is not null, required field is present etc. can be done. Further data manipulation or data association with other tables should be done via cron job or scheduling later.
-            </li>
-            <li>If any of these conditions is violated, it will block user from closing the page or slow down UI drastically. On the contrary, these rules are not applicable when using local storage because that is not real-time</li>
-        </ul>
-    </p>
+    <ul>
+        <li>
+            "setting custom data" explained above isn't recommended to be done during page close.
+        </li>
+        <li>Your endpoint URL API shouldn't have any downtime unless you really know 
+            that your application is down and no user is accessing at this time. This means that this API is accessible online and readily available for saving data to database.
+        </li>
+        <li>
+            The data received at server should be saved immediately without any data manipulation. 
+        </li>
+        <li>
+            Only basic checks like if data is not null, required field is present etc. can be done. Further data manipulation or data association with other tables should be done via cron job or scheduling later.
+        </li>
+        <li>If any of these conditions is violated, it will block user from closing the page or slow down UI drastically. On the contrary, these rules are not applicable when using local storage because that is not real-time. In that case, for n number of page accesses, you will have (n-1) number of data collected.</li>
+    </ul>
 
     <p>
         <!-- <a href="https://www.paypal.me/saleemkce/10" class="user-mention">Send $10</a>
@@ -571,9 +580,10 @@ var config = {
 <p>
 TimeOnSiteTracker also helps you track a particular interaction or activity in the site. The goal of this feature is to capture time taken by the user to complete the activity. You have to manually trigger <code><span class="apiHighlight">Tos.startActivity()</span></code> 
 and 
-<code><span class="apiHighlight">Tos.endActivity()</span></code> APIs to capture start and end time of activity.
+<code><span class="apiHighlight">Tos.endActivity()</span></code> APIs to capture start and end time of activity. <span class="apiHighlight">starActivity()</span> and <span class="apiHighlight">endActivity()</span> API methods accept optional first parameter as Javascript object through which you can set custom data.
 
 <pre class="prettyprint lang-js">
+// Usual tracker initialization at header. Only once!
 var config = {
     trackBy: 'seconds'
 }};
@@ -603,9 +613,13 @@ Gives response as,
     timeTakenTrackedBy: "second",
     trackingType: "activity",
 }
+
+
+// Another scenario with optional first parameter
+Tos.startActivity({name: 'foo', city: 'bar'}); // this will start activity tracking with custom data set
 </pre>
 
-It has different parameters in response like "activityStart", "activityEnd", "timeTaken" etc. It's independent of normal TOS tracking which starts at page load and ends at page close.
+It has different parameters in response like "activityStart", "activityEnd", "timeTaken" etc. It's independent of normal TOS tracking which starts at page load and ends at page close.<br/>
 
 <strong>Note: </strong> If callback had been given, it will send data to server immediately. On the other hand, if local storage option had been given, it saves the data to storage for later processing. If neither callback nor local storage option is given, it just returns the activity data back to variable. For instance,
 
@@ -643,6 +657,11 @@ var activityData = Tos.endActivity({}, manualProcess);
             <td>It tracks particular user session. If user clicks 5 different pages in the same site, then all TOSSessionKey will refer to same session</td>
         </tr>
         <tr>
+            <td>TOSUserId</td>
+            <td>String</td>
+            <td>It is usually "anonymous" unless you modify it by calling Tos.startSession('username'); immediately after user authentication</td>
+        </tr>
+        <tr>
             <td>title</td>
             <td>String</td>
             <td>Title of the web page</td>
@@ -656,6 +675,11 @@ var activityData = Tos.endActivity({}, manualProcess);
             <td>timeTaken</td>
             <td>Integer</td>
             <td>The time duration it takes for user to complete the activity/interaction</td>
+        </tr>
+        <tr>
+            <td>timeTakenByDuration</td>
+            <td>String</td>
+            <td>Activity duration in more readable format</td>
         </tr>
         <tr>
             <td>timeTakenTrackedBy</td>
@@ -679,7 +703,7 @@ var activityData = Tos.endActivity({}, manualProcess);
         </tr>
     </table>
     <strong>* Note</strong>
-    <a href="../backend/index.html#activity-tracking-PHP">Please check this example for data types to be used in various databases like MySql, MongoDB, Oracle etc.</a>
+    <a href="../backend/index.html#activity-tracking-PHP">Check this example for data types to be used in various databases like MySql, MongoDB, Oracle etc.</a>
 </p>
 
 
