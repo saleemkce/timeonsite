@@ -540,7 +540,18 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
     this.TOSSessionKey = sessionKey;
     this.setCookie(this.TOS_CONST.TOSSessionDuration, count, this.sessionValidity.oneDayInSecs);
 
-    this.timeOnSite = count;
+    if(!this.returnInSeconds && count < 1000) {
+        /*
+            When tracking in default mode(millisecond), immediately after initialization, 
+            initial count variable value may be less than (1000 millisecond/1 second), 
+            this trivial milliseconds value should not be assigned to timeOnSite variable to 
+            prevent incorrect "timeOnSite" and "timeOnSiteByDuration" parameter data.
+            code => //this.timeOnSite=count; or this.timeOnSite = 0; will fix the issue.
+         */
+        //this.timeOnSite = count;
+    } else {
+        this.timeOnSite = count;
+    }
 
 };
 
@@ -1213,7 +1224,9 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
 
                 // compute time duratation for activity if it was started.
                 if (self.activity.activityStarted) {
-                    console.log(self.activity.totalTimeSpentArr);
+                    if (self.developerMode) {
+                        console.log(self.activity.totalTimeSpentArr);
+                    }
                     if (self.returnInSeconds) {
                         (self.activity.totalTimeSpentArr).push(((self.getTimeDiff(self.activity.varyingStartTime, nowTime))/1000));
                     } else {
