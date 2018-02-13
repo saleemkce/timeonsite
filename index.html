@@ -65,6 +65,15 @@
                 }};
             var Tos = new TimeOnSiteTracker(config);
 
+            function roundNumerics(value, decimals) {
+                return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+            }
+
+            /* get float value between 0 and 0.9 */
+            function getVaryingSecond() {
+                return roundNumerics(((Math.random() * 0.9) + 0), 2);; 
+            }
+
             $(document).ready(function() {
 
                 //Timer module data binding
@@ -74,6 +83,13 @@
                     $('#timeOnSiteRaw').html((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage);
                     $('#timeOnSiteDuration').html(Tos.secondToDuration((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage));
                 }, 1000);
+
+                function getTimerByMillisecond() {
+                    setInterval(function() {
+                        //Millisecond parameter
+                        $('#timeOnPageMillisecond').html(Math.round(((Tos.getTimeOnPage()).timeOnPage + getVaryingSecond()) * 1000));
+                    }, 1000);
+                }
 
                 //tooltip for timer set
                  $(".timer_container").tooltip({
@@ -86,6 +102,12 @@
                                 $(this).fadeTo("slow", 0.5);
                             });
                         }
+                });
+
+                $('#timerByMillisecondsHandler').on('click', function() {
+                    getTimerByMillisecond();
+                    $('#timerByMillisecondsHandler').css('display', 'none');
+                    $('#timeOnPageMillisecondParent').css('display', 'block');
                 });
 
                 //Reports dashboard overlay
@@ -159,7 +181,7 @@
             <section>
                 <h2 class="tos_intro_heading">Time On Site Metrics. Real-time!</h2>
 
-                <div class="timer_module" title="tests....">
+                <div class="timer_module" title="">
                     <div>
                         <div class="timer_container timer_container_odd" title="tooltip-info">
                             <span class="timer_container_heading">
@@ -200,13 +222,29 @@
 
                             <div class="info-arrow"></div>
                             <div class="timer-info-box">
-                                Your spent so far...
+                                You spent so far...
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="timer_container_set3">
+                        <div id="timerByMillisecondsHandler" style="cursor:pointer;color: #069;
+                        font-size: 20px;">Want detailed precision (in milliseconds)?</div>
+                        <div id="timeOnPageMillisecondParent" class="timer_container_milli timer_container_odd" style="display:none;">
+                            <span class="timer_container_heading">
+                                Time On Page (in milliseconds)
+                            </span>
+                            <div class="timer_container_info_header" >
+                                <div id="timeOnPageMillisecond" class="timer_container_info pattern_out"></div>
+                            </div>
+                        </div>
+
+                        <div class="timer_container" style="display:none;">
                         </div>
                     </div>
                 </div>
 
-                <div style="font-size: 12px;color: #1d0eff;">
+                <div style="font-size: 12px;color: #1d0eff;margin-top: 15px;">
                     <span style="padding-left:20px;">Time on page</span> is the time spent so far in this page whearas Time on site is the time spent in the session overall. If you reload the page 3 times, then Time on site = (Time on page of first page visit + Time on page of second page visit + Time on page of third page visit)
                 </div>
 
