@@ -205,8 +205,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         this.processDataInLocalStorage();
     }
 
-    if ((this.storeInLocalStorage === false) && (this.callback === null)) {
-        console.warn('TOS data won\'t be available because neither callback nor local stroage option given!');
+    if (!(config && config.request && config.request.url) && (this.callback === null)) {
+        console.warn('TOS data won\'t be available because neither callback nor local storage option given!');
     }
 
     if ((config && config.request && config.request.url) && this.callback) {
@@ -359,10 +359,10 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
     if (userId && (userId.toString()).length) {
 
         // check storage - user session needs window Storage availability
-        if (!this.storageSupported) {
-            console.warn('TOS cound not initiate user session due to non-availability of Storage.');
-            return;
-        }
+        // if (!this.storageSupported) {
+        //     console.warn('TOS cound not initiate user session due to non-availability of Storage.');
+        //     return;
+        // }
 
         //process data accumulated so far before starting new session
         this.monitorSession();
@@ -774,7 +774,7 @@ TimeOnSiteTracker.prototype.startActivity = function(activityDetails) {
  * [endActivity It ends already started activity tracking]
  * @param  {[object]} activityDetails [custom data that is set by user while tracking activity. Optional field]
  * @param  {[boolean]} manualProcess   [If it is set to true, then data is neither sent to 
- *     callback nor to local stroage. Application can use the returned activity data 
+ *     callback nor to local storage. Application can use the returned activity data 
  *     directly for further processing]
  * @return {[object]}                 [activity tracking object]
  */
@@ -1008,8 +1008,8 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
 
 /**
  * [updateStorageData removes processed or invalid data from storage and updates it]
- * @param  {[type]} dateKey
- * @param  {[type]} itemData
+ * @param  {[string]} dateKey
+ * @param  {[array]} itemData
  */
 TimeOnSiteTracker.prototype.updateStorageData = function(dateKey, itemData) {
     var self = this;
@@ -1106,9 +1106,6 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
         if (this.verifyData(itemData[0]) != 'valid') {
             this.updateStorageData(dateKey, itemData);
 
-            if (this.developerMode) {
-                alert('alert occurs....');
-            }
             return false;
         }
     }
@@ -1306,29 +1303,9 @@ TimeOnSiteTracker.prototype.removeCookie = function(cookieName) {
 
 //     if ('onhashchange' in window) {
 //        window.onhashchange = function() {
-//             alert('URL changes  via onhashchange!!!');
+//             console.info('URL changes  via onhashchange!!!');
 //             self.executeURLChangeCustoms();
 //         }
-
-//     } else {
-//         var hashHandlerOldBrowsers = function() {
-//             this.oldHash = window.location.hash;
-
-//             var hashHandler = this;
-//             var detectChange = function() {
-//                 if (hashHandler.oldHash != window.location.hash) {
-//                     hashHandler.oldHash = window.location.hash;
-//                         alert('URL changes  via HANDLER!!!');
-//                         self.executeURLChangeCustoms();
-//                     }
-//             };
-
-//             setInterval(function() {
-//                 detectChange(); 
-//             }, 100);
-//         }
-//         var hashDetection = new hashHandlerOldBrowsers();
-
 //     }
 // };
 
@@ -1384,7 +1361,7 @@ TimeOnSiteTracker.prototype.bindWindowHistory = function() {
                 detectChange(); 
             }, 100);
         }
-        var hashDetection = new hashHandlerOldBrowsers();
+        var hashDetectionHandlerInit = new hashHandlerOldBrowsers();
 
     }
 };
