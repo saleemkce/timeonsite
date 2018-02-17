@@ -190,9 +190,9 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
             this.request.headers = config.request.headers;
         }
     }
-    
+
     // check Storage supported by browser
-    if (typeof(Storage) !== 'undefined') {
+    if (this.isLocalStorageEnabled()) {
         this.storageSupported = true;
     } else {
         console.info('Session/Local storage not supported by this browser.');
@@ -540,10 +540,11 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
     this.TOSSessionKey = sessionKey;
     this.setCookie(this.TOS_CONST.TOSSessionDuration, count, this.sessionValidity.oneDayInSecs);
 
+    // Here, timeOnPageTrackedBy is "milliseconds" and is less than 1000 milliseconds/1 second
     if (!this.returnInSeconds && count < 1000) {
         /*
             When tracking in default mode(millisecond), immediately after initialization, 
-            initial count variable value may be less than (1000 millisecond/1 second), 
+            initial count variable value may be less than (1000 milliseconds/1 second), 
             this trivial milliseconds value should not be assigned to timeOnSite variable to 
             prevent incorrect "timeOnSite" and "timeOnSiteByDuration" parameter data.
             code => //this.timeOnSite=count; or this.timeOnSite = 0; will fix the issue.
@@ -885,6 +886,21 @@ TimeOnSiteTracker.prototype.fileValidation = function() {
  */
 TimeOnSiteTracker.prototype.trackPageNavigation = function() {
     this.executeURLChangeCustoms();
+};
+
+/**
+ * [isLocalStorageEnabled checks if browser supports localStorage and turned on for storing data]
+ * @return {boolean}
+ */
+TimeOnSiteTracker.prototype.isLocalStorageEnabled = function() {
+    try {
+        var _sample = '___localstorage_test___';
+        localStorage.setItem(_sample, _sample);
+        localStorage.removeItem(_sample);
+        return true;
+    } catch(e) {
+        return false;
+    }
 };
 
 /**
