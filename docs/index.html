@@ -44,19 +44,23 @@
           <a href="#user-sessions">User sessions **</a><br/>
           <a href="#extending-user-sessions">Extending User Sessions</a><br/>
           <a href="#saving-data-to-local-storage-for-performance">Saving data to local storage</a><br/>
-          <a href="#real-time-tracking-example">Real-time <br/>&nbsp;&nbsp;Tracking Example</a><br/>
+          <a href="#real-time-example">Real-time example</a><br/>
           <a href="#additional-features">Additional Features</a><br/>
           <a href="../backend/index.html#examples">Backend - Examples</a><br/>
-              
+           
+          <br/><br/>
+          <a href="../backend/index.html">Reporting Dashboard in PHP/NodeJs</a><br/>
+          <a href="../index.html#licensedAndFreeVersions">Buy Licence/Use it free</a><br/>
+          <a href="releases.html">Release Notes</a><br/>
 
           <!-- <li><a href="https://github.com/saleemkce/timeonsite">View On <strong>GitHub</strong></a></li> -->
         </p>
 
-        <ul>
+        <!-- <ul>
           <li><a href="https://github.com/saleemkce/timeonsite/zipball/master">Download <strong>ZIP File</strong></a></li>
           <li><a href="https://github.com/saleemkce/timeonsite/tarball/master">Download <strong>TAR Ball</strong></a></li>
           <li><a href="https://github.com/saleemkce/timeonsite">View On <strong>GitHub</strong></a></li>
-        </ul>
+        </ul> -->
       </header>
 
         <section>
@@ -362,7 +366,7 @@ var config = {
 
     Remember that failing to configure this <strong>trackHistoryChange</strong> setting may not identify different pages correctly in tracked TOS data.<br/><br/>
 
-    Additionally, if certain web applications/browsers are not working correctly even with "trackHistoryChange" setting. You may consider using <strong>trackNavigation()</strong> API manually. This is like manually tracking page navigation when everything else fails. To use this, when a page navigation occurs, call the API manually like <strong>Tos.trackNavigation()</strong>.   
+    Additionally, if certain web applications/browsers are not working correctly even with "trackHistoryChange" setting. You may consider using <strong>trackPageNavigation()</strong> API manually. This is like manually tracking page navigation when everything else fails. To use this, when a page navigation occurs, call the API manually like <strong>Tos.trackPageNavigation()</strong>.   
 </p>
 
 
@@ -458,7 +462,7 @@ var config = {
 
 </pre>
 
-<h3 id="real-time-tracking-example">Real-time Tracking Example</h3>
+<h3 id="real-time-example">Real-time Tracking Example</h3>
 <pre class="prettyprint lang-js">
 // save with XMLHttpRequest or sendBeacon
 var config = {
@@ -723,10 +727,10 @@ var activityData = Tos.endActivity({}, manualProcess);
 
 <p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p> -->
       </section>
-      <footer>
+      <!-- <footer>
         <p>This project is maintained by <a href="https://github.com/saleemkce">saleemkce</a></p>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
+      </footer> -->
     </div>
     <script src="../javascripts/scale.fix.js"></script>
     <script src="../javascripts/run_prettify.js"></script>
