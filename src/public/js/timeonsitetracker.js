@@ -3,7 +3,7 @@
  *
  * TimeOnSiteTracker.js - Measure your user's Time on site accurately.
  * 
- * Copyright (C) 2016  Saleem Khan
+ * Copyright (C) 2016 - 2018 Saleem Khan
  *
  * License key: {your-license-key-here}
  *
@@ -119,6 +119,17 @@ var TimeOnSiteTracker = function(config) {
  * @param  {[object]} config [application's configuration object for TOS tracking]
  */
 TimeOnSiteTracker.prototype.initialize = function(config) {
+    //blacklisting of pages works only in non single-page apps
+    if (config && (typeof config.trackHistoryChange == 'undefined')) {
+        this.initBlacklistUrlConfig(config);
+
+        if (!this.isTimeOnSiteAllowed) {
+            return;
+        }
+    } else if (config && config.trackHistoryChange && (config.trackHistoryChange === true) && config.blacklistUrl) {
+        console.warn('Blacklisting pages not available in single-page application.');
+    }
+
     // bind to window close event
     this.bindWindowUnload();
 
@@ -132,8 +143,6 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     if (config && config.callback) {
         this.callback = config.callback;
     }
-
-    this.initBlacklistUrlConfig(config);
 
     if (config && config.trackHistoryChange && (config.trackHistoryChange === true)) {
 
@@ -1391,7 +1400,8 @@ TimeOnSiteTracker.prototype.executeURLChangeCustoms = function() {
 
     this.processTOSData();
 
-    this.initBlacklistUrlConfig(this.config);
+    /* blacklisting URL for single-page app tracking case (unsupported) */
+    //this.initBlacklistUrlConfig(this.config);
 };
 
 /**
