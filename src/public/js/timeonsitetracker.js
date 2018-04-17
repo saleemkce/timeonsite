@@ -204,7 +204,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     if (this.isLocalStorageEnabled()) {
         this.storageSupported = true;
     } else {
-        console.info('Session/Local storage not supported by this browser.');
+        console.warn('Session/Local storage not supported by this browser.');
     }
 
     if ((config && config.request && config.request.url) && this.storageSupported && (this.callback === null)) {
@@ -366,13 +366,6 @@ TimeOnSiteTracker.prototype.createTOSSessionKey = function() {
  */
 TimeOnSiteTracker.prototype.startSession = function(userId) {
     if (userId && (userId.toString()).length) {
-
-        // check storage - user session needs window Storage availability
-        // if (!this.storageSupported) {
-        //     console.warn('TOS cound not initiate user session due to non-availability of Storage.');
-        //     return;
-        // }
-
         //process data accumulated so far before starting new session
         this.monitorSession();
         this.processTOSData();
@@ -512,10 +505,14 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
     if (authenticatedUser && authenticatedUser.length) {
         this.TOSSessionKey = sessionKey;
         this.TOSUserId = authenticatedUser;
-        console.info('Authenticated user. TOSSessionKey: ' + this.TOSSessionKey + ' & TOSUserId: ' + this.TOSUserId);
+        if (this.developerMode) {
+            console.info('Authenticated user. TOSSessionKey: ' + this.TOSSessionKey + ' & TOSUserId: ' + this.TOSUserId);
+        }
 
     } else if (sessionKey && (!authenticatedUser)) {
-        console.info('Anonymous user. TOSSessionKey: ' + sessionKey);
+        if (this.developerMode) {
+            console.info('Anonymous user. TOSSessionKey: ' + sessionKey);
+        }
         this.TOSSessionKey = sessionKey;
         this.renewSession();
 
@@ -1216,7 +1213,7 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
     }
 
     if (typeof document.addEventListener === 'undefined' || typeof hidden === 'undefined') {
-        console.info('Page visisbility API not supported in this browser which may result in less accuracy in TOS tracking!');
+        console.warn('Page visisbility API not supported in this browser which may result in less accuracy in TOS tracking!');
     } else {
         document.addEventListener(visibilityChange, function() {
             if (document[visibilityState] == 'visible') {
