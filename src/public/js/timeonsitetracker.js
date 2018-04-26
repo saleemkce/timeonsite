@@ -226,6 +226,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     if (config && config.developerMode) {
         this.developerMode = true;
         console.info('TOS cookie created with path/domain : ' + this.TOSCookie.customCookieString);
+        console.info('Timeonsitetracker.js loaded version : ' + this.getVersion());
     }
 
     this.checkCookieSupport();
