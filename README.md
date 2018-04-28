@@ -31,6 +31,29 @@
     trackingType: "tos",
 }
 ```
+## 1-minute integration with jsDelivr
+```
+<script type="text/javascript">
+var Tos;
+(function(d, s, id, file) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s);
+    js.id = id;
+    js.onload = function() {
+        var config = {
+            trackBy: 'seconds',
+            developerMode: true
+        };
+        if(TimeOnSiteTracker) {
+            Tos = new TimeOnSiteTracker(config);
+        }
+    };
+    js.src = file;fjs.parentNode.insertBefore(js, fjs);
+ } (document, 'script', 'TimeOnSiteTracker', '//cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js'));
+</script>
+```
+* Place it just after starting &lt;head&gt; tag in your web app [https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js](https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js)
 
 ## Quick Integration Steps
 [Documentation & Integration Steps](https://saleemkce.github.io/timeonsite/docs/index.html)
