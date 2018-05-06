@@ -23,6 +23,7 @@ pre.prettyprint {
 	margin: 1em auto;
 	padding: 1em;
 	white-space: pre-wrap;
+  font-size: 12px;
 }
 
 

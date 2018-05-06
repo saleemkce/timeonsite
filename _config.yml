@@ -1,0 +1,11 @@
+title: Timeonsite tracker Documenation
+logo: /assets/img/tos_coverimg.png
+description: "TimeOnSiteTracker.js - Measure your user's Time on site accurately"
+show_downloads: false
+google_analytics:
+theme: jekyll-theme-minimal
+repository: 'saleemkce/timeonsite'
+url: "http://saleemkce.github.io" # the base hostname & protocol for your site
+plugins:
+  - jekyll-sitemap
+exclude: ["node_modules", "src"]

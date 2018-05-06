@@ -1,0 +1,33 @@
+.apiHighlight {
+	color: #1300a2 !important;
+    font-size: 14px !important;
+}
+
+table#TOSTable {
+	font-size: 15px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table#TOSTable th, td {
+	border: 1px solid #ddd;
+    text-align: left;
+    padding: 8px;
+}
+
+table#TOSTable tr:nth-child(even){background-color: #f2f2f2}
+
+table#TOSTable th {
+    background-color: #013c84;
+    color: white;
+}
+
+body {
+    color: #585757 !important;
+}
+
+.tos_development_info_bottom {
+    text-align: center;
+    padding-top:50px;
+}
