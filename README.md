@@ -61,6 +61,10 @@ var Tos;
 ## Reports & Analytics Dashboard
 [https://github.com/saleemkce/visual](https://github.com/saleemkce/visual)
 
+## Timeonsite Analytics
+[Advanced querying of timeonsite & page visit duration metrics with SQL](https://github.com/saleemkce/timeonsite_analytics)
+![timeonsite analytics](https://cdn-images-1.medium.com/max/800/1*OAOuhlJIMIwWozepACzSaA.png)
+
 ## Web & Mobile Browser Support
 * Modern web and mobile browsers supported well; old browsers supported with less accuracy.
 
