@@ -3,7 +3,7 @@
  *
  * TimeOnSiteTracker.js - Measure your user's Time on site accurately.
  * 
- * Copyright (C) 2016 - 2018 Saleem Khan
+ * Copyright (C) 2016 - 2026 Saleem Khan
  *
  * License key: {your-license-key-here}
  *
@@ -11,7 +11,7 @@
  * before using it. Replace {your-license-key-here} with the licence key 
  * that you buy before starting to use this software. 
  * 
- * visit https://github.com/saleemkce/timeonsite/master/LICENSE.md to learn more about 
+ * visit https://github.com/saleemkce/timeonsite/blob/master/LICENSE.md to learn more about 
  * license terms. 
  */
 
@@ -47,6 +47,9 @@ var TimeOnSiteTracker = function(config) {
     this.config = config;
     this.xhr = null;
     this.timeOnSite = 0;
+    this.lastSessionIOSTimeOnSite = 0;
+    this.currentSessionIOSRecentData = {};
+    this.isDataProcessedOnEntryIOS = false;
     this.TOSSessionKey = null;
     this.customData = null;
     this.TOSUserId = 'anonymous';
@@ -108,7 +111,7 @@ var TimeOnSiteTracker = function(config) {
     }
 
     //TimeOnSiteTracker.js version
-    this.version = '1.0.0';
+    this.version = '1.0.1';
 
     this.initialize(this.config);
 
@@ -131,7 +134,11 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     }
 
     // bind to window close event
-    this.bindWindowUnload();
+    if (this.isIOS()) {
+        console.warn('No unload window for IOS devices but still handled by tracker!')
+    } else {
+        this.bindWindowUnload();
+    }
 
     // bind to focus/blur window state
     this.bindWindowFocus();
@@ -207,12 +214,26 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         console.warn('Session/Local storage not supported by this browser.');
     }
 
+    // collects previous page timeOnSite parameter from storage safely; should be called before
+    // function processDataInLocalStorage()
+    if (this.isIOS()) {
+        console.log('IOS: session durtion at entry IOS !!!!!!!!')
+        this.getLastSessionDurationIOS();
+    }
+
     if ((config && config.request && config.request.url) && this.storageSupported && (this.callback === null)) {
         this.storeInLocalStorage = true;
 
         //process any saved data in local storage
         this.processDataInLocalStorage();
     }
+
+    /* should have been called nearby this.bindWindowUnload(); to avoid 
+    processDataInLocalStorage() logic, it's written here. It can be removed when 
+    unload function is back in IOS devices; should be called only after 
+    function processDataInLocalStorage() to avoid overwriting 0th index for IOS devices
+    */
+    this.handleIOSDevicesWindowUnload();
 
     if (!(config && config.request && config.request.url) && (this.callback === null)) {
         console.warn('TOS data won\'t be available because neither callback nor local storage option given!');
@@ -226,6 +247,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     if (config && config.developerMode) {
         this.developerMode = true;
         console.info('TOS cookie created with path/domain : ' + this.TOSCookie.customCookieString);
+        console.info('Timeonsitetracker.js loaded version : ' + this.getVersion());
     }
 
     this.checkCookieSupport();
@@ -269,6 +291,83 @@ TimeOnSiteTracker.prototype.validateCookieInput = function(cookieVal) {
         cookieVal = cookieVal.substring(0, cookieVal.length - 1);
     }
     return cookieVal;
+};
+
+/**
+ * [isIOS It returns whether the device is IOS or not]
+ * @return {[boolean]} [device detection check]
+ */
+TimeOnSiteTracker.prototype.isIOS = function() {
+    return (
+        /iPad|iPhone|iPod/i.test(navigator.platform)
+        // safari browser on desktop only 
+        // (/Safari/i.test(navigator.userAgent) && /Apple Computer/i.test(navigator.vendor) && !/Mobi|Android/i.test(navigator.userAgent)) ||
+        // safari browser on any Apple device 
+        // (/Safari/i.test(navigator.userAgent) && /Apple Computer/i.test(navigator.vendor) ||
+        // /Apple Computer/i.test(navigator.vendor) ||
+        // (/MacIntel/i.test(navigator.platform) && navigator.maxTouchPoints > 1)
+    ) && !window.MSStream
+    
+    
+    /* TEMP to removed*/ 
+    // return true;
+    /* TEMP to removed*/   
+};
+
+TimeOnSiteTracker.prototype.getLastSessionDurationIOS = function() {
+    var dateObj = (new Date()),
+        currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear();
+
+    var lastSessionItem = localStorage.getItem(currentDayKey);
+    if (lastSessionItem) {
+        console.error('IOS: lastItemData')
+        console.error(lastSessionItem)
+        var lastItemData = JSON.parse(lastSessionItem);
+        if(lastItemData && lastItemData.length) {
+            this.lastSessionIOSTOSSessionKey = lastItemData[0].TOSSessionKey;
+            this.lastSessionIOSTimeOnSite = lastItemData[0].timeOnSite;
+            console.error('IOS: lastSessionIOSTimeOnSite quick picker at ' + new Date())
+            console.error('IOS: timeonsite : ' + this.lastSessionIOSTimeOnSite);
+        }
+    }
+};
+
+TimeOnSiteTracker.prototype.handleIOSDevicesWindowUnload = function() {
+    var self = this;
+    if (this.isIOS())  {
+        console.log('IOS: device is : TRUE');
+        if (this.developerMode) {
+            console.info('IOS device loaded!');
+        }
+
+        setInterval(function() {
+            self.monitorSession();
+            var data = self.getTimeOnPage();
+            if (data.TOSSessionKey == self.lastSessionIOSTOSSessionKey) {
+                data.timeOnSite = data.timeOnPage + self.lastSessionIOSTimeOnSite;
+                data.timeOnSiteByDuration = ((self.returnInSeconds === true) ? self.secondToDuration(data.timeOnSite) : self.secondToDuration(self.millisecondToSecond(data.timeOnSite)))
+                console.error('IOS: JOINED SESSION DATA : ' + data.timeOnSite)
+            } else {
+                data.timeOnSite = data.timeOnPage;
+                console.error('IOS: NEW SESSION DATA : ' + data.timeOnSite)
+            }
+           
+            data.exitTime = self.getDateTime();
+        
+            /**
+             * execute callback if given in config
+             */
+            if (self.isTimeOnSiteAllowed) {
+                if (typeof self.callback === 'function') {
+                    console.warn('IOS: Real-time callback not supported due to poor unload event support!')
+                
+                } else if (self.storeInLocalStorage) {
+                    console.log('IOS: UPSERT to LS called at ' + new Date())
+                    self.upsertToLocalStorage(data); 
+                }
+            }
+        }, (1 * 1500)); // update TOSSessionDuration cookie every 1.5 seconds
+    }
 };
 
 // TimeOnSiteTracker.prototype.addTimeSpent = function(a, b) {
@@ -542,7 +641,17 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
     pageData = this.getTimeOnPage();
     sessionDuration = parseInt(sessionDuration);
     //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessionDuration: ' + sessionDuration);
-    count = pageData.timeOnPage + sessionDuration;
+    
+
+    // for IOS, we set current sessionDuration from cookie. Temporaily, 
+    // timeOnPage being assigned to timeOnSite. It gets periodic updates in LS through 0th index
+    if (this.isIOS()) {
+        count = pageData.timeOnPage;
+        console.log('IOS: periodic updated duration value : ' + count);
+    } else {
+        count = pageData.timeOnPage + sessionDuration;
+    }
+    
     this.TOSSessionKey = sessionKey;
     this.setCookie(this.TOS_CONST.TOSSessionDuration, count, this.sessionValidity.oneDayInSecs);
 
@@ -592,7 +701,15 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
  */
 TimeOnSiteTracker.prototype.renewSession = function() {
     var self = this,
-        refreshState;
+        refreshState,
+        // default renew session rate for anonymous user is 1 second excluding IOS devices(conditional)
+        renewSessionRateInMilliseconds = 1000;
+        
+    // if (this.isIOS()) {
+    //     console.error('IOS: renewSessionRateInMilliseconds updated here to test IOS cookie behaviour');
+    //     renewSessionRateInMilliseconds = 2000;
+    // }
+
     this.anonymousTimerId = setInterval(function() {
 
         refreshState = self.getCookie(self.TOS_CONST.TOSAnonSessionRefresh);
@@ -607,7 +724,7 @@ TimeOnSiteTracker.prototype.renewSession = function() {
                 console.log('Session renewed at : ' + (new Date()));
             }
         }
-    }, (1 * 1000)); //anonymous user cookie is refreshed every second
+    }, (1 * renewSessionRateInMilliseconds)); //anonymous user cookie is refreshed every time period
 };
 
 /**
@@ -960,6 +1077,81 @@ TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
 };
 
 /**
+ *[upsertToLocalStorage It saves the TOP (0th index) or activity data to local storage ]
+ * The behaviour for IOS/unload window event supportless/similar mobile/desktop devices. 
+ * Instead of pushing tos data to LS, we update its value in 0th index of the array 
+ * holding this information.
+ * On next page load, we use the timeOnSite paramter information same 0th index. Immediately 
+ * then, we process from LS so that new page data can be similarly treated in 0th index.
+ *
+ * @param  {[object]} data [TOP or activity data]
+ */
+TimeOnSiteTracker.prototype.upsertToLocalStorage = function(data) {
+    if (this.storageSupported) {
+        var dateObj = (new Date()),
+            currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
+            keyFound = false,
+            keyName = this.TOSDateKeysHolder,
+            keyArr;
+        keyArr = localStorage.getItem(keyName);
+        if (keyArr) {
+            var dateKeys = JSON.parse(keyArr);
+            
+            for (var j = 0; j < dateKeys.length; j++) {
+                if (dateKeys[j] == currentDayKey) {
+                    keyFound = true;
+                    break; 
+                }
+            }
+            if (!keyFound) {
+                dateKeys.push(currentDayKey);
+                localStorage.setItem(keyName, JSON.stringify(dateKeys));
+            }
+        } else {
+            keyArr = [];
+            keyArr.push(currentDayKey); 
+            localStorage.setItem(keyName, JSON.stringify(keyArr));
+        }
+        var item = localStorage.getItem(currentDayKey);
+        if (item) {
+
+            if(this.isDataProcessedOnEntryIOS) {
+
+                console.error('DATA ALLOWED')
+                console.log('IOS: getting data from current date key')
+                var oldItem = JSON.parse(item);
+                console.log('IOS: existing data')
+                console.log(JSON.stringify(oldItem))
+                /* Instead of pushing new data, we update only single TOS entry in our array for today's date */
+                this.currentSessionIOSRecentData = data;
+                console.error('currentSessionIOSRecentDatacurrentSessionIOSRecentDatacurrentSessionIOSRecentData');
+                console.error(this.currentSessionIOSRecentData);
+                oldItem[0] = data;
+                console.log('IOS: updated data')
+                console.log(JSON.stringify(oldItem))
+                localStorage.setItem(currentDayKey, JSON.stringify(oldItem));
+
+
+            } else {
+
+                console.error('DATA POSTPONED DUE TO PROCCESSING')
+
+            }
+
+
+        } else {
+            var newItem = [];
+            newItem.push(data);
+            console.log('IOS: first time data push in current date, data is')
+            console.log(JSON.stringify(newItem))
+            localStorage.setItem(currentDayKey, JSON.stringify(newItem));
+        }
+    } else {
+        console.warn('Local storage not supported for TimeOnSite tracking!');
+    }
+};
+
+/**
  * [processDataInLocalStorage It reads the data in local storage and processes the data]
  */
 TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
@@ -980,6 +1172,11 @@ TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
             if ((itemData instanceof Array) && itemData.length) {
                 this.sendData(dateKey, itemData);
             }
+        }
+    } else {
+        /* No date keys present on page load, new entry allowed */
+        if (this.isIOS()) {
+            this.isDataProcessedOnEntryIOS = true;
         }
     }
 };
@@ -1020,6 +1217,14 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
 
                     if (dateKeys.length) {
                         this.processDataInLocalStorage();
+                    } else {
+                        /**
+                         * This section is called after all data is processed in all date keys
+                         */
+                        if (this.isIOS()) {
+                            console.error('ALL DATA PROCESSED????')
+                            this.isDataProcessedOnEntryIOS = true;
+                        }
                     }
                 }
             }
@@ -1085,14 +1290,15 @@ TimeOnSiteTracker.prototype.verifyData = function(data) {
         }
     }
 
-    if (!data.entryTime || !data.entryTime.length || isNaN(new Date(data.entryTime).getTime())) {
+    // (experimental)   isNaN(new Date(data.entryTime).getTime()
+    if (!data.entryTime || !data.entryTime.length) {
         isInvalidData = true;
         if (this.developerMode) {
             console.error('Entry time invalid: ' + data.entryTime);
         }
     }
 
-    if (!data.exitTime || !data.exitTime.length || isNaN(new Date(data.exitTime).getTime())) {
+    if (!data.exitTime || !data.exitTime.length) {
         isInvalidData = true;
         if (this.developerMode) {
             console.error('Exit time invalid: ' + data.exitTime);
@@ -1144,6 +1350,9 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     //Send the proper header information along with the request
     this.xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
+    // IOS/Safari ajax POST issue fixer without no-cache header
+    this.xhr.setRequestHeader('cache-control', 'no-cache');
+ 
     // check and set request headers if given
     if (this.isRequestHeadersAvailable && (this.request.headers).length) {
         for (var k = 0; k < (this.request.headers).length; k++) {
@@ -1161,6 +1370,7 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
             } 
         }
     }
+    console.log('IOS: IOS/GENERAL LS data processing XHR request time (compare with quick picker) : '+ new Date());
     this.xhr.send(params);
     
 };
@@ -1447,9 +1657,16 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     if (this.isTimeOnSiteAllowed) {
         if (typeof this.callback === 'function') {
             this.callback(data);
-            
         } else if (this.storeInLocalStorage) {
-            this.saveToLocalStorage(data);
+            if (this.isIOS()) {
+                // IOS devices, get updated data (0th index) and push it to localStorage
+                data = this.currentSessionIOSRecentData;
+                console.error('CHECK THIS data save during session SWAP !!!!!!!!!!!!!')
+                console.error(data)
+                this.saveToLocalStorage(data);
+            } else {
+                this.saveToLocalStorage(data);
+            }
             
         }
     }
