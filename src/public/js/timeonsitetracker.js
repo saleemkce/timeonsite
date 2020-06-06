@@ -51,6 +51,7 @@ var TimeOnSiteTracker = function(config) {
     this.currentSessionIOSRecentData = {};
     this.isDataProcessedOnEntryIOS = false;
     this.TOSSessionKey = null;
+    this.TOSId = this.createTOSId();
     this.customData = null;
     this.TOSUserId = 'anonymous';
     this.anonymousTimerId = null;
@@ -107,7 +108,8 @@ var TimeOnSiteTracker = function(config) {
         TOSSessionDuration: 'TOSSessionDuration',
         TOSUserId: 'TOSUserId',
         TOSAnonSessionRefresh: 'TOSAnonSessionRefresh',
-        TOSIsCookieSupported: 'TOSIsCookieSupported'
+        TOSIsCookieSupported: 'TOSIsCookieSupported',
+        TOSExtendSessionDuration: 'TOSExtendSessionDuration'
     }
 
     //TimeOnSiteTracker.js version
@@ -122,6 +124,12 @@ var TimeOnSiteTracker = function(config) {
  * @param  {[object]} config [application's configuration object for TOS tracking]
  */
 TimeOnSiteTracker.prototype.initialize = function(config) {
+    //Enable "developer mode" to view TOS real-time internal data and logs
+    if (config && config.developerMode) {
+        this.developerMode = true;
+        console.info('Timeonsitetracker.js loaded version : ' + this.getVersion());
+    }
+
     //blacklisting of pages works only in non single-page apps
     if (config && (typeof config.trackHistoryChange == 'undefined')) {
         this.initBlacklistUrlConfig(config);
@@ -194,6 +202,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         this.TOS_CONST.TOSUserId = this.TOS_CONST.TOSUserId + '_' + TOSCookieSuffix;
         this.TOS_CONST.TOSAnonSessionRefresh = this.TOS_CONST.TOSAnonSessionRefresh + '_' + TOSCookieSuffix;
         this.TOS_CONST.TOSIsCookieSupported = this.TOS_CONST.TOSIsCookieSupported + '_' + TOSCookieSuffix;
+        this.TOS_CONST.TOSExtendSessionDuration = this.TOS_CONST.TOSExtendSessionDuration + '_' + TOSCookieSuffix;
     }
 
     if (config && config.request && config.request.url) {
@@ -243,13 +252,6 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         console.warn('Both callback and local storage options given. Callback function takes precedence. Give either one!');
     }
 
-    //Enable "developer mode" to view TOS real-time internal data and logs
-    if (config && config.developerMode) {
-        this.developerMode = true;
-        console.info('TOS cookie created with path/domain : ' + this.TOSCookie.customCookieString);
-        console.info('Timeonsitetracker.js loaded version : ' + this.getVersion());
-    }
-
     this.checkCookieSupport();
 
     // create and monitor TOS session
@@ -258,6 +260,10 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     this.monitorSession();
 
     this.monitorSessionStateChange();
+
+    if (this.developerMode) {
+        console.info('TOS cookie created with path/domain : ' + this.TOSCookie.customCookieString);
+    }
 
     this.fileValidation();
 
@@ -400,7 +406,7 @@ TimeOnSiteTracker.prototype.isURLValid = function(url) {
 };
 
 /**
- * [createTOSId Creates a new TOSId for each TOS initialziation and Tos.getTimeOnPage() call]
+ * [createTOSId Creates a new TOSId that is unique for each tos/activity record]
  * @return {[integer]} [TOS ID; It may have length (digit size) 16 to 18]
  */
 TimeOnSiteTracker.prototype.createTOSId = function() {
@@ -494,6 +500,7 @@ TimeOnSiteTracker.prototype.startSession = function(userId) {
  * when "logout" action occurs in the application]
  */
 TimeOnSiteTracker.prototype.endSession = function() {
+    var self = this;
     //process data accumulated so far before ending session
     this.monitorSession();
     this.processTOSData();
@@ -502,6 +509,10 @@ TimeOnSiteTracker.prototype.endSession = function() {
     this.removeCookie(this.TOS_CONST.TOSUserId);
     this.removeCookie(this.TOS_CONST.TOSSessionKey);
     this.removeCookie(this.TOS_CONST.TOSSessionDuration);
+    setTimeout(function() {
+        self.removeCookie(self.TOS_CONST.TOSExtendSessionDuration);
+    }, 500); // little delay to safely remove TOSExtendSessionDuration cookie
+    
 
     //create new TOS session
     this.TOSUserId = 'anonymous';
@@ -564,6 +575,8 @@ TimeOnSiteTracker.prototype.extendSession = function(seconds) {
         this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, expiryTime);
         this.setCookie(this.TOS_CONST.TOSSessionDuration, duration, expiryTime);
         this.setCookie(this.TOS_CONST.TOSAnonSessionRefresh, 0, expiryTime);
+        // Storing the inital extend session duration for later use; value given by user
+        this.setCookie(this.TOS_CONST.TOSExtendSessionDuration, expiryTime, expiryTime);
 
         var t = new Date();
         t.setTime(t.getTime() + (expiryTime * 1000));
@@ -628,6 +641,7 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
 TimeOnSiteTracker.prototype.monitorSession = function() {
     var sessionDuration = this.getCookie(this.TOS_CONST.TOSSessionDuration),
         sessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey),
+        authenticatedUser = this.getCookie(this.TOS_CONST.TOSUserId),
         pageData,
         count = 0;
 
@@ -653,7 +667,21 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
     }
     
     this.TOSSessionKey = sessionKey;
-    this.setCookie(this.TOS_CONST.TOSSessionDuration, count, this.sessionValidity.oneDayInSecs);
+
+    /* TOSSessionDuration's extended expiry time (value gained through extendSession() call) in 
+    cookie is overwritten on pageload. To overcome this, we save the persistent 
+    extendSessionDuration value in cookie and unitlize on monitorSession()*/
+    if (authenticatedUser && authenticatedUser.length) {
+        var extendSessionDuration = this.getCookie(this.TOS_CONST.TOSExtendSessionDuration);
+        if(extendSessionDuration) {
+            extendSessionDuration = parseInt(extendSessionDuration);
+        } else {
+            extendSessionDuration = this.sessionValidity.oneDayInSecs;
+        }
+        this.setCookie(this.TOS_CONST.TOSSessionDuration, count, extendSessionDuration);
+    } else {
+        this.setCookie(this.TOS_CONST.TOSSessionDuration, count, this.sessionValidity.oneDayInSecs);
+    }
 
     // Here, timeOnPageTrackedBy is "milliseconds" and is less than 1000 milliseconds/1 second
     if (!this.returnInSeconds && count < 1000) {
@@ -677,6 +705,7 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
  */
 TimeOnSiteTracker.prototype.createNewSession = function(userType) {
     this.setCookie(this.TOS_CONST.TOSSessionDuration, 0, this.sessionValidity.oneDayInSecs);
+    this.TOSId = this.createTOSId();
     this.TOSSessionKey = this.createTOSSessionKey();
     
     if (userType === 'anonymous') {
@@ -782,7 +811,7 @@ TimeOnSiteTracker.prototype.checkBlacklistUrl = function(blacklistUrl) {
  */
 TimeOnSiteTracker.prototype.getPageData = function() {
     var page = {};
-    page.TOSId = this.createTOSId();
+    page.TOSId = this.TOSId;
     page.TOSSessionKey = this.TOSSessionKey;
     page.TOSUserId = this.TOSUserId;
     page.URL = decodeURI(document.URL);
@@ -929,6 +958,8 @@ TimeOnSiteTracker.prototype.endActivity = function(activityDetails, manualProces
         }
         
         page = this.getPageData();
+        /* Get new TOSId for this activity without affecting global TOSId (time-on-site specific) */
+        page.TOSId = this.createTOSId();
         page.activityStart = this.activityStartTime;
         page.activityEnd = this.getDateTime();
         page.timeTaken = Math.round(activityDuration);
@@ -1290,7 +1321,7 @@ TimeOnSiteTracker.prototype.verifyData = function(data) {
         }
     }
 
-    // (experimental)   isNaN(new Date(data.entryTime).getTime()
+    // (experimental, IOS issue)   isNaN(new Date(data.entryTime).getTime()
     if (!data.entryTime || !data.entryTime.length) {
         isInvalidData = true;
         if (this.developerMode) {
@@ -1676,6 +1707,10 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     this.pageEntryTime = this.getDateTime(),
     this.totalTimeSpent = 0,
     this.timeSpentArr = [];
+
+    if(this.config.trackHistoryChange === true) {
+        this.TOSId = this.createTOSId();
+    }
 
     //Reset activity variables
     if (this.activity.activityStarted) {
