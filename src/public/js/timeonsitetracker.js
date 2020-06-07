@@ -226,7 +226,7 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     // collects previous page timeOnSite parameter from storage safely; should be called before
     // function processDataInLocalStorage()
     if (this.isIOS()) {
-        console.log('IOS: session durtion at entry IOS !!!!!!!!')
+        console.log('IOS: session durtion at entry IOS !!!');
         this.getLastSessionDurationIOS();
     }
 
@@ -326,13 +326,13 @@ TimeOnSiteTracker.prototype.getLastSessionDurationIOS = function() {
 
     var lastSessionItem = localStorage.getItem(currentDayKey);
     if (lastSessionItem) {
-        console.error('IOS: lastItemData')
-        console.error(lastSessionItem)
+        console.error('IOS: lastItemData');
+        console.error(lastSessionItem);
         var lastItemData = JSON.parse(lastSessionItem);
         if(lastItemData && lastItemData.length) {
             this.lastSessionIOSTOSSessionKey = lastItemData[0].TOSSessionKey;
             this.lastSessionIOSTimeOnSite = lastItemData[0].timeOnSite;
-            console.error('IOS: lastSessionIOSTimeOnSite quick picker at ' + new Date())
+            console.error('IOS: lastSessionIOSTimeOnSite quick picker at ' + new Date());
             console.error('IOS: timeonsite : ' + this.lastSessionIOSTimeOnSite);
         }
     }
@@ -343,7 +343,7 @@ TimeOnSiteTracker.prototype.handleIOSDevicesWindowUnload = function() {
     if (this.isIOS())  {
         console.log('IOS: device is : TRUE');
         if (this.developerMode) {
-            console.info('IOS device loaded!');
+            console.info('IOS: IOS device loaded!');
         }
 
         setInterval(function() {
@@ -352,10 +352,10 @@ TimeOnSiteTracker.prototype.handleIOSDevicesWindowUnload = function() {
             if (data.TOSSessionKey == self.lastSessionIOSTOSSessionKey) {
                 data.timeOnSite = data.timeOnPage + self.lastSessionIOSTimeOnSite;
                 data.timeOnSiteByDuration = ((self.returnInSeconds === true) ? self.secondToDuration(data.timeOnSite) : self.secondToDuration(self.millisecondToSecond(data.timeOnSite)))
-                console.error('IOS: JOINED SESSION DATA : ' + data.timeOnSite)
+                console.error('IOS: JOINED SESSION DATA : ' + data.timeOnSite);
             } else {
                 data.timeOnSite = data.timeOnPage;
-                console.error('IOS: NEW SESSION DATA : ' + data.timeOnSite)
+                console.error('IOS: NEW SESSION DATA : ' + data.timeOnSite);
             }
            
             data.exitTime = self.getDateTime();
@@ -365,10 +365,10 @@ TimeOnSiteTracker.prototype.handleIOSDevicesWindowUnload = function() {
              */
             if (self.isTimeOnSiteAllowed) {
                 if (typeof self.callback === 'function') {
-                    console.warn('IOS: Real-time callback not supported due to poor unload event support!')
+                    console.warn('IOS: Real-time callback not supported due to poor unload event support!');
                 
                 } else if (self.storeInLocalStorage) {
-                    console.log('IOS: UPSERT to LS called at ' + new Date())
+                    console.log('IOS: UPSERT to LS called at ' + new Date());
                     self.upsertToLocalStorage(data); 
                 }
             }
@@ -1145,40 +1145,32 @@ TimeOnSiteTracker.prototype.upsertToLocalStorage = function(data) {
         }
         var item = localStorage.getItem(currentDayKey);
         if (item) {
-
             if(this.isDataProcessedOnEntryIOS) {
-
-                console.error('DATA ALLOWED')
-                console.log('IOS: getting data from current date key')
+                console.error('IOS: DATA ALLOWED for upsert action!');
+                console.log('IOS: getting data from current date key');
                 var oldItem = JSON.parse(item);
-                console.log('IOS: existing data')
-                console.log(JSON.stringify(oldItem))
+                console.log('IOS: existing data');
+                console.log(JSON.stringify(oldItem));
                 /* Instead of pushing new data, we update only single TOS entry in our array for today's date */
                 this.currentSessionIOSRecentData = data;
-                console.error('currentSessionIOSRecentDatacurrentSessionIOSRecentDatacurrentSessionIOSRecentData');
+                console.error('IOS: ** currentSessionIOSRecentData ** currentSessionIOSRecentData ** currentSessionIOSRecentData **');
                 console.error(this.currentSessionIOSRecentData);
                 oldItem[0] = data;
-                console.log('IOS: updated data')
-                console.log(JSON.stringify(oldItem))
+                console.log('IOS: updated data');
+                console.log(JSON.stringify(oldItem));
                 localStorage.setItem(currentDayKey, JSON.stringify(oldItem));
-
-
             } else {
-
-                console.error('DATA POSTPONED DUE TO PROCCESSING')
-
+                console.error('IOS: DATA UPSERT POSTPONED DUE TO XHR PROCCESSING.');
             }
-
-
         } else {
             var newItem = [];
             newItem.push(data);
-            console.log('IOS: first time data push in current date, data is')
-            console.log(JSON.stringify(newItem))
+            console.log('IOS: first time data push in current date, data is :');
+            console.log(JSON.stringify(newItem));
             localStorage.setItem(currentDayKey, JSON.stringify(newItem));
         }
     } else {
-        console.warn('Local storage not supported for TimeOnSite tracking!');
+        console.warn('IOS: Local storage not supported for TimeOnSite tracking!');
     }
 };
 
@@ -1253,7 +1245,7 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
                          * This section is called after all data is processed in all date keys
                          */
                         if (this.isIOS()) {
-                            console.error('ALL DATA PROCESSED????')
+                            console.error('IOS: ALL DATA PROCESSED ????');
                             this.isDataProcessedOnEntryIOS = true;
                         }
                     }
@@ -1401,7 +1393,6 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
             } 
         }
     }
-    console.log('IOS: IOS/GENERAL LS data processing XHR request time (compare with quick picker) : '+ new Date());
     this.xhr.send(params);
     
 };
@@ -1692,8 +1683,8 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
             if (this.isIOS()) {
                 // IOS devices, get updated data (0th index) and push it to localStorage
                 data = this.currentSessionIOSRecentData;
-                console.error('CHECK THIS data save during session SWAP !!!!!!!!!!!!!')
-                console.error(data)
+                console.error('IOS: CHECK THIS data save during session SWAP !!!');
+                console.error(data);
                 this.saveToLocalStorage(data);
             } else {
                 this.saveToLocalStorage(data);
