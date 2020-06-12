@@ -50,6 +50,7 @@ var TimeOnSiteTracker = function(config) {
     this.lastSessionIOSTimeOnSite = 0;
     this.currentSessionIOSRecentData = {};
     this.isDataProcessedOnEntryIOS = false;
+    this.isFlushSampleDataIOS = false;
     this.TOSSessionKey = null;
     this.TOSId = this.createTOSId();
     this.customData = null;
@@ -250,6 +251,10 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     if ((config && config.request && config.request.url) && this.callback) {
         console.warn('Both callback and local storage options given. Callback function takes precedence. Give either one!');
+    }
+
+    if (config && config.isIOSDemo) {
+        this.isFlushSampleDataIOS = true;
     }
 
     this.checkCookieSupport();
@@ -1160,6 +1165,31 @@ TimeOnSiteTracker.prototype.upsertToLocalStorage = function(data) {
                 console.log(JSON.stringify(oldItem));
                 localStorage.setItem(currentDayKey, JSON.stringify(oldItem));
             } else {
+                // DEMO code block; Allow sample data to be overwritten and LS old date keys & data to be removed; only for IOS demo
+                        if(this.isFlushSampleDataIOS && this.isDataProcessedOnEntryIOS === false) {
+                            var keyName = this.TOSDateKeysHolder,
+                                dateKeys = this.getDateKeys(),
+                                currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear();
+
+                            for (var i = 0; i < dateKeys.length; i++) {
+                                if (dateKeys[i] != currentDayKey) {
+                                    console.warn('Deleted Date item!');
+                                    console.warn(localStorage.getItem(dateKeys[i]));
+                                    localStorage.removeItem(dateKeys[i]);
+                                    console.warn('Deleted Date Key!');
+                                    console.warn(dateKeys[i]);
+                                    dateKeys.splice(i, 1);
+                                }
+                            }
+
+                            localStorage.setItem(keyName, JSON.stringify(dateKeys));
+                            console.warn('Updated Date Key Array!');
+                            console.warn(localStorage.getItem(keyName));
+
+                            this.isDataProcessedOnEntryIOS = true;
+                        }
+
+                // Normal code block
                 console.error('IOS: DATA UPSERT POSTPONED DUE TO XHR PROCCESSING.');
             }
         } else {
