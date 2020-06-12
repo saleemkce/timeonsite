@@ -69,11 +69,38 @@
          -->
 
         <script>
-            var config = {
-                trackBy: 'seconds',
-                callback: function(data) {
-                    console.log(data);
-                }};
+            function isIOS() {
+                return (
+                    /iPad|iPhone|iPod/i.test(navigator.platform)
+                ) && !window.MSStream
+
+                /* for admin testing only! */
+                // return true;
+            }
+
+            var isIOSDeviceInst = isIOS();
+            var config;
+            if(isIOSDeviceInst) {
+                config = {
+                    trackBy: 'seconds',
+                    developerMode: true,
+
+                    /*Caution! this setting only for demo purpose and for TimeOnSite tracker Admin */
+                    isIOSDemo: true,
+                    
+                    request: { // presence of request object denotes that data is to be saved in local storage
+                      url: 'https://example-non-exit-s.com/notexists.php'
+                    }
+                };
+                console.info('IOS device config inialized!');
+            } else {
+                config = {
+                    trackBy: 'seconds',
+                    callback: function(data) {
+                        console.log(data);
+                    }
+                };
+            }
             var Tos = new TimeOnSiteTracker(config);
 
             function roundNumerics(value, decimals) {
@@ -89,10 +116,31 @@
 
                 //Timer module data binding
                 setInterval(function() {
+                    /*for IOS demo only */
+                    var IOSPeriodicData;
+                    var dateObj = (new Date());
+                    var currentDayKey = 'TOS_' + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear();
+                    var dataItem = localStorage.getItem(currentDayKey);
+                    if (dataItem) {
+                        IOSPeriodicData = JSON.parse(dataItem);
+                    }
+                    /*for IOS demo only */
+
+
                     $('#timeOnPageRaw').html((Tos.getTimeOnPage()).timeOnPage);
                     $('#timeOnPageDuration').html((Tos.getTimeOnPage()).timeOnPageByDuration);
-                    $('#timeOnSiteRaw').html((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage);
-                    $('#timeOnSiteDuration').html(Tos.secondToDuration((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage));
+                    
+                    if (isIOSDeviceInst && IOSPeriodicData) {
+                        $('#timeOnSiteRaw').html(IOSPeriodicData[0].timeOnSite);
+                    } else {
+                        $('#timeOnSiteRaw').html((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage);
+                    }
+
+                    if (isIOSDeviceInst && IOSPeriodicData) {
+                        $('#timeOnSiteDuration').html(Tos.secondToDuration(IOSPeriodicData[0].timeOnSite));
+                    } else {
+                        $('#timeOnSiteDuration').html(Tos.secondToDuration((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage));
+                    }
                 }, 1000);
 
                 function getTimerByMillisecond() {
