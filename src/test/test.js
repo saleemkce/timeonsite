@@ -677,6 +677,20 @@ describe('Check if validateCookieInput method works', function () {
         });
 });
 
+describe('Check if reviveBrokenSession method works', function () {
+    var config = {
+            trackBy: 'seconds',
+            callback: function(data) {
+        }}
+        Tos = new TimeOnSiteTracker(config);
+
+    it('Get reviveBrokenSession function response', function () {
+        var reviveSessionRes = Tos.reviveBrokenSession();
+        expect(reviveSessionRes).to.be.a('string');
+
+    });
+});
+
 describe('Check if cookie get/set/remove method works', function () {
     var config = {
             trackBy: 'seconds',

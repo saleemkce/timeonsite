@@ -652,6 +652,8 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
 
     if (!sessionKey) {
         console.error('Caution! sessionKey empty at : '+new Date());
+        sessionKey = this.reviveBrokenSession();
+
         if (this.developerMode) {
             alert('Caution! sessionKey empty at : '+new Date());
         }
@@ -735,15 +737,7 @@ TimeOnSiteTracker.prototype.createNewSession = function(userType) {
  */
 TimeOnSiteTracker.prototype.renewSession = function() {
     var self = this,
-        refreshState,
-        // default renew session rate for anonymous user is 1 second excluding IOS devices(conditional)
-        renewSessionRateInMilliseconds = 1000;
-        
-    // if (this.isIOS()) {
-    //     console.error('IOS: renewSessionRateInMilliseconds updated here to test IOS cookie behaviour');
-    //     renewSessionRateInMilliseconds = 2000;
-    // }
-
+        refreshState;
     this.anonymousTimerId = setInterval(function() {
 
         refreshState = self.getCookie(self.TOS_CONST.TOSAnonSessionRefresh);
@@ -758,7 +752,7 @@ TimeOnSiteTracker.prototype.renewSession = function() {
                 console.log('Session renewed at : ' + (new Date()));
             }
         }
-    }, (1 * renewSessionRateInMilliseconds)); //anonymous user cookie is refreshed every time period
+    }, (1 * 1000)); //anonymous user cookie is refreshed every second
 };
 
 /**
@@ -790,6 +784,18 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
 
         //console.info('New session & user : ', self.TOSSessionKey, self.TOSUserId);
     }, (1.5 * 1000));
+
+};
+
+/**
+ * [reviveBrokenSession when session key is broken due to device behaviour, it tries 
+ * to restore it - for now; anonymous only & experimental]
+ */
+TimeOnSiteTracker.prototype.reviveBrokenSession = function() {
+    if (!this.getCookie(this.TOS_CONST.TOSUserId)) { /* anonymous check */
+        this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, this.sessionValidity.anonymous);
+    }
+    return this.TOSSessionKey;
 
 };
 
