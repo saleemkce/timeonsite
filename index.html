@@ -72,6 +72,14 @@
             function isIOS() {
                 return (
                     /iPad|iPhone|iPod/i.test(navigator.platform)
+                    /* possibly IPAD */
+                    || (navigator.userAgent.match(/Macintosh|Mac/i) && navigator.maxTouchPoints)
+                    // safari browser on desktop only 
+                    // (/Safari/i.test(navigator.userAgent) && /Apple Computer/i.test(navigator.vendor) && !/Mobi|Android/i.test(navigator.userAgent)) ||
+                    // safari browser on any Apple device 
+                    // (/Safari/i.test(navigator.userAgent) && /Apple Computer/i.test(navigator.vendor) ||
+                    // /Apple Computer/i.test(navigator.vendor) ||
+                    // (/MacIntel/i.test(navigator.platform) && navigator.maxTouchPoints > 1)
                 ) && !window.MSStream
 
                 /* for admin testing only! */
@@ -395,6 +403,9 @@
             </footer>
         </div>
         <script src="assets/js/scale.fix.js"></script>
+        <script>
+        alert('PLATFORM : ' + navigator.platform + ', USER_AGENT : ' + navigator.userAgent + ', TOUCHPOINTS : ' + navigator.maxTouchPoints);
+        </script>
     </body>
 </html>
 
