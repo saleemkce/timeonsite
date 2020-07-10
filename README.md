@@ -50,10 +50,10 @@ var Tos;
         }
     };
     js.src = file;fjs.parentNode.insertBefore(js, fjs);
- } (document, 'script', 'TimeOnSiteTracker', '//cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js'));
+ } (document, 'script', 'TimeOnSiteTracker', '//cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.1.0/timeonsitetracker.min.js'));
 </script>
 ```
-* Place it just after starting &lt;head&gt; tag in your web app [https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js](https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js)
+* Place it just after starting &lt;head&gt; tag in your web app [https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.1.0/timeonsitetracker.min.js](https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.1.0/timeonsitetracker.min.js)
 
 ## Quick Integration Steps
 [Documentation & Integration Steps](https://saleemkce.github.io/timeonsite/docs/index.html)
