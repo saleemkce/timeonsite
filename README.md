@@ -74,3 +74,8 @@ var Tos;
 
 ## Release Notes
 [https://saleemkce.github.io/timeonsite/docs/releases.html](https://saleemkce.github.io/timeonsite/docs/releases.html)
+
+## Versions
+[https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.1.0/timeonsitetracker.min.js](https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.1.0/timeonsitetracker.min.js) **Version 1.1.0** (**latest**)
+
+[https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js](https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.0.0/timeonsitetracker.min.js) Version 1.0.0
