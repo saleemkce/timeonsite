@@ -114,7 +114,7 @@ var TimeOnSiteTracker = function(config) {
     }
 
     //TimeOnSiteTracker.js version
-    this.version = '1.0.1';
+    this.version = '1.1.0';
 
     this.initialize(this.config);
 
@@ -311,8 +311,6 @@ TimeOnSiteTracker.prototype.validateCookieInput = function(cookieVal) {
 TimeOnSiteTracker.prototype.isIOS = function() {
     return (
         /iPad|iPhone|iPod/i.test(navigator.platform)
-        /* possibly IPAD */
-        || (navigator.userAgent.match(/Macintosh|Mac/i) && navigator.maxTouchPoints)
         // safari browser on desktop only 
         // (/Safari/i.test(navigator.userAgent) && /Apple Computer/i.test(navigator.vendor) && !/Mobi|Android/i.test(navigator.userAgent)) ||
         // safari browser on any Apple device 
