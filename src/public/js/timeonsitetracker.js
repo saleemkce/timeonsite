@@ -80,8 +80,7 @@ var TimeOnSiteTracker = function(config) {
     //Settings for TOS cookie path and domain so as to restrict access to sub-domains
     this.TOSCookie = {
         path: null,
-        domain: null,
-        enforceSecure: false
+        domain: null
     };
 
     //local storage config
@@ -168,11 +167,13 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     }
 
     this.TOSCookie.customCookieString = '';
+    this.TOSCookie['PATH_DOMAIN_ENABLED'] = false;
     if (config && config.TOSCookie) {
 
         //seting cookie path if given
-        if (config.TOSCookie.path) {
+        if (config.TOSCookie.path && config.TOSCookie.path != '/') {
             this.TOSCookie.customCookieString += 'path=' + this.validateCookieInput(config.TOSCookie.path) + ';';
+            this.TOSCookie['PATH_DOMAIN_ENABLED'] = true;
         } else {
             // case: TOS Cookie object given but path not given
             this.TOSCookie.customCookieString += 'path=/;';
@@ -181,14 +182,18 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         //seting cookie domain if given
         if (config.TOSCookie.domain) {
             this.TOSCookie.customCookieString += 'domain=' + this.validateCookieInput(config.TOSCookie.domain) + ';';
-        }
-
-        //seting secure cookie if given & site accessed as https
-        if (config.TOSCookie.enforceSecure && (location.protocol === 'https:')) {
-            this.TOSCookie.customCookieString += 'secure;';
+            this.TOSCookie['PATH_DOMAIN_ENABLED'] = true;
         }
     } else {
         this.TOSCookie.customCookieString += 'path=/;';
+    }
+
+    // SameSite attribute enforcement as directed by major browser vendors
+    this.TOSCookie.customCookieString += 'SameSite=Lax;';
+
+    //setting secure cookie if given & site accessed as https
+    if (location.protocol == 'https:') {
+        this.TOSCookie.customCookieString += 'secure;';
     }
 
     /**
@@ -196,7 +201,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
      * names are suffixed unique string to avoid cookie name clashes that may 
      * raise when another page sets base path "/" in TOS cookie.
      */
-    if (this.TOSCookie.customCookieString && this.TOSCookie.customCookieString != 'path=/;') {
+    if (this.TOSCookie['PATH_DOMAIN_ENABLED'] === true)
+    {
         var TOSCookieSuffix = this.getMD5Hash(this.TOSCookie.customCookieString);
         this.TOS_CONST.TOSSessionKey = this.TOS_CONST.TOSSessionKey + '_' + TOSCookieSuffix;
         this.TOS_CONST.TOSSessionDuration = this.TOS_CONST.TOSSessionDuration + '_' + TOSCookieSuffix;
@@ -377,7 +383,7 @@ TimeOnSiteTracker.prototype.handleIOSDevicesWindowUnload = function() {
                     self.upsertToLocalStorage(data); 
                 }
             }
-        }, (1 * 1500)); // update TOSSessionDuration cookie every 1.5 seconds
+        }, (1 * 1000)); // update TOSSessionDuration cookie every (1) seconds
     }
 };
 
@@ -568,7 +574,7 @@ TimeOnSiteTracker.prototype.checkCookieSupport = function() {
 TimeOnSiteTracker.prototype.extendSession = function(seconds) {
     if ((typeof seconds === 'number') && this.getCookie(this.TOS_CONST.TOSUserId)) {
         var expiryTime = parseInt(seconds),
-            duration = this.getCookie(this.TOS_CONST.TOSSessionDuration);
+            duration = this.getSessionDuration();
 
         if (duration) {
             duration = parseInt(duration);
@@ -644,7 +650,7 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
  * is loaded for first time, closed or reloaded]
  */
 TimeOnSiteTracker.prototype.monitorSession = function() {
-    var sessionDuration = this.getCookie(this.TOS_CONST.TOSSessionDuration),
+        var sessionDuration = this.getSessionDuration(),
         sessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey),
         authenticatedUser = this.getCookie(this.TOS_CONST.TOSUserId),
         pageData,
@@ -784,6 +790,29 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
 
         //console.info('New session & user : ', self.TOSSessionKey, self.TOSUserId);
     }, (1.5 * 1000));
+
+};
+
+/**
+ * [getSessionDuration gets session duration from cookie & validating against NaN
+ * and other unintended data return types like null, undefined etc. when browser
+ * tabs are in passive mode]
+ * @return {[integer]} [sessionDuration]
+ */
+TimeOnSiteTracker.prototype.getSessionDuration = function() {
+    var sessionDuration = this.getCookie(this.TOS_CONST.TOSSessionDuration);
+    if (isNaN(sessionDuration) || sessionDuration == undefined ||
+        sessionDuration == 'undefined' || sessionDuration == null ||
+        sessionDuration == '') {
+        if (this.developerMode) {
+            console.error('TOSSessionDuration cookie broken due to unknown reasons! Sending back safe value(numeric)');
+        }
+        var pageData = this.getTimeOnPage();
+        //session duration as timeOnPage for the sake of showing 
+        //real-time matching top/tos values in case of NaN/cookie failure issues 
+        return pageData.timeOnPage;
+    }
+    return parseInt(sessionDuration);
 
 };
 
