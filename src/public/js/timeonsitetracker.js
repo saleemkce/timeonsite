@@ -47,9 +47,6 @@ var TimeOnSiteTracker = function(config) {
     this.config = config;
     this.xhr = null;
     this.timeOnSite = 0;
-    this.lastSessionIOSTimeOnSite = 0;
-    this.currentSessionIOSRecentData = {};
-    this.isDataProcessedOnEntryIOS = false;
     this.isFlushSampleDataIOS = false;
     this.TOSSessionKey = null;
     this.TOSId = this.createTOSId();
@@ -110,10 +107,10 @@ var TimeOnSiteTracker = function(config) {
         TOSAnonSessionRefresh: 'TOSAnonSessionRefresh',
         TOSIsCookieSupported: 'TOSIsCookieSupported',
         TOSExtendSessionDuration: 'TOSExtendSessionDuration'
-    }
+    };
 
     //TimeOnSiteTracker.js version
-    this.version = '1.1.0';
+    this.version = '1.2.0';
 
     this.initialize(this.config);
 
@@ -124,6 +121,7 @@ var TimeOnSiteTracker = function(config) {
  * @param  {[object]} config [application's configuration object for TOS tracking]
  */
 TimeOnSiteTracker.prototype.initialize = function(config) {
+    var self = this;
     //Enable "developer mode" to view TOS real-time internal data and logs
     if (config && config.developerMode) {
         this.developerMode = true;
@@ -143,7 +141,8 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
 
     // bind to window close event
     if (this.isIOS()) {
-        console.warn('No unload window for IOS devices but still handled by tracker!')
+        console.warn('No unload window for IOS devices but still handled by tracker!');
+        this.handleIOSDevicesWindowUnload();
     } else {
         this.bindWindowUnload();
     }
@@ -230,26 +229,12 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
         console.warn('Session/Local storage not supported by this browser.');
     }
 
-    // collects previous page timeOnSite parameter from storage safely; should be called before
-    // function processDataInLocalStorage()
-    if (this.isIOS()) {
-        console.log('IOS: session durtion at entry IOS !!!');
-        this.getLastSessionDurationIOS();
-    }
-
     if ((config && config.request && config.request.url) && this.storageSupported && (this.callback === null)) {
         this.storeInLocalStorage = true;
 
         //process any saved data in local storage
         this.processDataInLocalStorage();
     }
-
-    /* should have been called nearby this.bindWindowUnload(); to avoid 
-    processDataInLocalStorage() logic, it's written here. It can be removed when 
-    unload function is back in IOS devices; should be called only after 
-    function processDataInLocalStorage() to avoid overwriting 0th index for IOS devices
-    */
-    this.handleIOSDevicesWindowUnload();
 
     if (!(config && config.request && config.request.url) && (this.callback === null)) {
         console.warn('TOS data won\'t be available because neither callback nor local storage option given!');
@@ -279,13 +264,15 @@ TimeOnSiteTracker.prototype.initialize = function(config) {
     this.fileValidation();
 
     if (this.developerMode) {
-        var self = this;
         setInterval(function() {
             self.showProgress();
         }, (1 * 1000));
     }
+
+    this.flushDemoDataIOS();
     
     this.stampImprint();
+
 };
 
 /**
@@ -331,44 +318,17 @@ TimeOnSiteTracker.prototype.isIOS = function() {
     /* TEMP to removed*/   
 };
 
-TimeOnSiteTracker.prototype.getLastSessionDurationIOS = function() {
-    var dateObj = (new Date()),
-        currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear();
-
-    var lastSessionItem = localStorage.getItem(currentDayKey);
-    if (lastSessionItem) {
-        console.error('IOS: lastItemData');
-        console.error(lastSessionItem);
-        var lastItemData = JSON.parse(lastSessionItem);
-        if(lastItemData && lastItemData.length) {
-            this.lastSessionIOSTOSSessionKey = lastItemData[0].TOSSessionKey;
-            this.lastSessionIOSTimeOnSite = lastItemData[0].timeOnSite;
-            console.error('IOS: lastSessionIOSTimeOnSite quick picker at ' + new Date());
-            console.error('IOS: timeonsite : ' + this.lastSessionIOSTimeOnSite);
-        }
-    }
-};
-
 TimeOnSiteTracker.prototype.handleIOSDevicesWindowUnload = function() {
     var self = this;
     if (this.isIOS())  {
-        console.log('IOS: device is : TRUE');
-        if (this.developerMode) {
-            console.info('IOS: IOS device loaded!');
-        }
+        console.log('IOS: IOS device loaded!');
+
+        this.handleDateKeysInit();
 
         setInterval(function() {
             self.monitorSession();
             var data = self.getTimeOnPage();
-            if (data.TOSSessionKey == self.lastSessionIOSTOSSessionKey) {
-                data.timeOnSite = data.timeOnPage + self.lastSessionIOSTimeOnSite;
-                data.timeOnSiteByDuration = ((self.returnInSeconds === true) ? self.secondToDuration(data.timeOnSite) : self.secondToDuration(self.millisecondToSecond(data.timeOnSite)))
-                console.error('IOS: JOINED SESSION DATA : ' + data.timeOnSite);
-            } else {
-                data.timeOnSite = data.timeOnPage;
-                console.error('IOS: NEW SESSION DATA : ' + data.timeOnSite);
-            }
-           
+            
             data.exitTime = self.getDateTime();
         
             /**
@@ -380,10 +340,10 @@ TimeOnSiteTracker.prototype.handleIOSDevicesWindowUnload = function() {
                 
                 } else if (self.storeInLocalStorage) {
                     console.log('IOS: UPSERT to LS called at ' + new Date());
-                    self.upsertToLocalStorage(data); 
+                    self.upsertToLocalStorageIOS(data); 
                 }
             }
-        }, (1 * 1000)); // update TOSSessionDuration cookie every (1) seconds
+        }, (1 * 1000)); // update TOSSessionDuration cookie every (1) second(s)
     }
 };
 
@@ -626,7 +586,8 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
         sessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey);
 
     if (authenticatedUser && authenticatedUser.length) {
-        this.TOSSessionKey = sessionKey;
+        //Set session key only if is valid and has length property to avoid empty sessionkey issue
+        this.TOSSessionKey = ((sessionKey && sessionKey.length) ? sessionKey : this.TOSSessionKey);
         this.TOSUserId = authenticatedUser;
         if (this.developerMode) {
             console.info('Authenticated user. TOSSessionKey: ' + this.TOSSessionKey + ' & TOSUserId: ' + this.TOSUserId);
@@ -636,7 +597,8 @@ TimeOnSiteTracker.prototype.monitorUser = function() {
         if (this.developerMode) {
             console.info('Anonymous user. TOSSessionKey: ' + sessionKey);
         }
-        this.TOSSessionKey = sessionKey;
+        //Set session key only if is valid and has length property to avoid empty sessionkey issue
+        this.TOSSessionKey = ((sessionKey && sessionKey.length) ? sessionKey : this.TOSSessionKey);
         this.renewSession();
 
     } else {
@@ -669,24 +631,25 @@ TimeOnSiteTracker.prototype.monitorSession = function() {
     sessionDuration = parseInt(sessionDuration);
     //console.error('count : ' + ' top : ' + pageData.timeOnPage + 'sessionDuration: ' + sessionDuration);
     
-
-    // for IOS, we set current sessionDuration from cookie. Temporaily, 
-    // timeOnPage being assigned to timeOnSite. It gets periodic updates in LS through 0th index
+    /* for IOS, we set current sessionDuration from cookie directly since it's real-time
+    but it can be little incorrect/slow by milliseconds in 
+    (Tos.getTimeOnPage()).timeOnSite API but accurate in data received through backend data.
+    */
     if (this.isIOS()) {
-        count = pageData.timeOnPage;
+        count = this.getTimeOnSiteCurrentSessionIOS();
         console.log('IOS: periodic updated duration value : ' + count);
     } else {
         count = pageData.timeOnPage + sessionDuration;
     }
     
-    this.TOSSessionKey = sessionKey;
+    this.TOSSessionKey = ((sessionKey && sessionKey.length) ? sessionKey : this.TOSSessionKey);
 
     /* TOSSessionDuration's extended expiry time (value gained through extendSession() call) in 
     cookie is overwritten on pageload. To overcome this, we save the persistent 
     extendSessionDuration value in cookie and unitlize on monitorSession()*/
     if (authenticatedUser && authenticatedUser.length) {
         var extendSessionDuration = this.getCookie(this.TOS_CONST.TOSExtendSessionDuration);
-        if(extendSessionDuration) {
+        if (extendSessionDuration) {
             extendSessionDuration = parseInt(extendSessionDuration);
         } else {
             extendSessionDuration = this.sessionValidity.oneDayInSecs;
@@ -858,7 +821,7 @@ TimeOnSiteTracker.prototype.getPageData = function() {
     page.title = document.title;
     return page;
 
-}
+};
 
 /**
  * [getTimeOnPage It returns actual TOP-Time On Page data]
@@ -1098,38 +1061,46 @@ TimeOnSiteTracker.prototype.isLocalStorageEnabled = function() {
 };
 
 /**
+ * [handleDateKeysInit handles all date keys in Localstorage. Inserts current date key if 
+ * not found in storage]
+ * @return {[string]} [currentDayKey]
+ */
+TimeOnSiteTracker.prototype.handleDateKeysInit = function() {
+    var currentDayKey = this.getCurrentDayKey(),
+        keyFound = false,
+        keyName = this.TOSDateKeysHolder,
+        keyArr;
+
+    keyArr = localStorage.getItem(keyName);
+    if (keyArr) {
+        var dateKeys = JSON.parse(keyArr);
+        
+        for (var j = 0; j < dateKeys.length; j++) {
+            if (dateKeys[j] == currentDayKey) {
+                keyFound = true;
+                break; 
+            }
+        }
+
+        if (!keyFound) {
+            dateKeys.push(currentDayKey);
+            localStorage.setItem(keyName, JSON.stringify(dateKeys));
+        }
+    } else {
+        keyArr = [];
+        keyArr.push(currentDayKey); 
+        localStorage.setItem(keyName, JSON.stringify(keyArr));
+    }
+};
+
+/**
  * [saveToLocalStorage It saves the TOP or activity data to local storage]
  * @param  {[object]} data [TOP or activity data]
  */
 TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
     if (this.storageSupported) {
-
-        var dateObj = (new Date()),
-            currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
-            keyFound = false,
-            keyName = this.TOSDateKeysHolder,
-            keyArr;
-
-        keyArr = localStorage.getItem(keyName);
-        if (keyArr) {
-            var dateKeys = JSON.parse(keyArr);
-            
-            for (var j = 0; j < dateKeys.length; j++) {
-                if (dateKeys[j] == currentDayKey) {
-                    keyFound = true;
-                    break; 
-                }
-            }
-
-            if (!keyFound) {
-                dateKeys.push(currentDayKey);
-                localStorage.setItem(keyName, JSON.stringify(dateKeys));
-            }
-        } else {
-            keyArr = [];
-            keyArr.push(currentDayKey); 
-            localStorage.setItem(keyName, JSON.stringify(keyArr));
-        }
+        this.handleDateKeysInit();
+        var currentDayKey = this.getCurrentDayKey();
 
         var item = localStorage.getItem(currentDayKey);
         if (item) {
@@ -1148,84 +1119,77 @@ TimeOnSiteTracker.prototype.saveToLocalStorage = function(data) {
 };
 
 /**
- *[upsertToLocalStorage It saves the TOP (0th index) or activity data to local storage ]
+ *[upsertToLocalStorageIOS It saves the TOP at (Nth index) or activity data to local storage ]
  * The behaviour for IOS/unload window event supportless/similar mobile/desktop devices. 
- * Instead of pushing tos data to LS, we update its value in 0th index of the array 
+ * After pushing tos data to LS, we update its value in Nth index of the array 
  * holding this information.
- * On next page load, we use the timeOnSite paramter information same 0th index. Immediately 
- * then, we process from LS so that new page data can be similarly treated in 0th index.
  *
  * @param  {[object]} data [TOP or activity data]
  */
-TimeOnSiteTracker.prototype.upsertToLocalStorage = function(data) {
+TimeOnSiteTracker.prototype.upsertToLocalStorageIOS = function(data) {
     if (this.storageSupported) {
-        var dateObj = (new Date()),
-            currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear(),
-            keyFound = false,
-            keyName = this.TOSDateKeysHolder,
-            keyArr;
-        keyArr = localStorage.getItem(keyName);
-        if (keyArr) {
-            var dateKeys = JSON.parse(keyArr);
-            
-            for (var j = 0; j < dateKeys.length; j++) {
-                if (dateKeys[j] == currentDayKey) {
-                    keyFound = true;
-                    break; 
-                }
-            }
-            if (!keyFound) {
-                dateKeys.push(currentDayKey);
-                localStorage.setItem(keyName, JSON.stringify(dateKeys));
-            }
-        } else {
-            keyArr = [];
-            keyArr.push(currentDayKey); 
-            localStorage.setItem(keyName, JSON.stringify(keyArr));
+
+        /* document.hasFocus() helps prevent updating the LocalStorage 
+        continuously by other tabs thus reducing CPU processing overhead */
+        if (document.hasFocus() === false) {
+            // console.error('IOS: Blocked updating Storages since foucs status : ' + document.hasFocus());
+            return;
         }
+
+        var currentDayKey = this.getCurrentDayKey();
+        data['lastUpdatedTimeStamp'] = new Date(); //set recently updated timestamp for each tos
+
         var item = localStorage.getItem(currentDayKey);
         if (item) {
-            if(this.isDataProcessedOnEntryIOS) {
-                console.error('IOS: DATA ALLOWED for upsert action!');
-                console.log('IOS: getting data from current date key');
-                var oldItem = JSON.parse(item);
-                console.log('IOS: existing data');
-                console.log(JSON.stringify(oldItem));
-                /* Instead of pushing new data, we update only single TOS entry in our array for today's date */
-                this.currentSessionIOSRecentData = data;
-                console.error('IOS: ** currentSessionIOSRecentData ** currentSessionIOSRecentData ** currentSessionIOSRecentData **');
-                console.error(this.currentSessionIOSRecentData);
-                oldItem[0] = data;
-                console.log('IOS: updated data');
-                console.log(JSON.stringify(oldItem));
-                localStorage.setItem(currentDayKey, JSON.stringify(oldItem));
-            } else {
-                // DEMO code block; Allow sample data to be overwritten and LS old date keys & data to be removed; only for IOS demo
-                        if(this.isFlushSampleDataIOS && this.isDataProcessedOnEntryIOS === false) {
-                            var keyName = this.TOSDateKeysHolder,
-                                dateKeys = this.getDateKeys(),
-                                currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear();
+            var dataItems = JSON.parse(item);
+            console.log('IOS: existing data');
+            console.log(JSON.stringify(dataItems));
+            /* Instead of pushing new data, we update only single TOS entry in our array for today's date */
+            console.error('IOS: *** currentSessionIOSRecentData ***');
+            console.error(data);
 
-                            for (var i = 0; i < dateKeys.length; i++) {
-                                if (dateKeys[i] != currentDayKey) {
-                                    console.warn('Deleted Date item!');
-                                    console.warn(localStorage.getItem(dateKeys[i]));
-                                    localStorage.removeItem(dateKeys[i]);
-                                    console.warn('Deleted Date Key!');
-                                    console.warn(dateKeys[i]);
-                                    dateKeys.splice(i, 1);
-                                }
-                            }
+            /*Same session, existing pages update block; preserve order; order: 1*/
+            // console.error('IOS: Total length dataItems LS : ' + dataItems.length);
+            for (var ii = 0; ii < dataItems.length; ii++) {
+                if (data.TOSId == dataItems[ii].TOSId && 
+                    data.TOSSessionKey === dataItems[ii].TOSSessionKey) {
+                    console.error('IOS: Existing....TOSId : ' + data.TOSId + ', TOSSessionKey : ' + data.TOSSessionKey +', Index position : ' + ii);
+                    dataItems[ii] = data;
+                    localStorage.setItem(currentDayKey, JSON.stringify(dataItems));
+                }
+            }
 
-                            localStorage.setItem(keyName, JSON.stringify(dateKeys));
-                            console.warn('Updated Date Key Array!');
-                            console.warn(localStorage.getItem(keyName));
 
-                            this.isDataProcessedOnEntryIOS = true;
-                        }
+            /*Same session, new page insert block; preserve order; order: 2*/
+            var newTabFound = true;
+            for (var ii = 0; ii < dataItems.length; ii++) {
+                if (data.TOSId === dataItems[ii].TOSId) {
+                    newTabFound = false;
+                    break;
+                }
+            }
+            if (newTabFound === true //new tab or page refresh found; so add it
+                && dataItems.length >= 1 //ensure atleast one tos data is there in localstorage for current session
+                && data.TOSSessionKey === this.getRecentSessionKeyIOS() //this new tab belongs to same session
+                ) {
+                console.error('IOS: Same SESSION TOSSessionKey : '+data.TOSSessionKey+ ', new PageRefresh/tab TOSId : '+data.TOSId);
+                dataItems.push(data);
+                localStorage.setItem(currentDayKey, JSON.stringify(dataItems));
+            }
 
-                // Normal code block
-                console.error('IOS: DATA UPSERT POSTPONED DUE TO XHR PROCCESSING.');
+
+            /*New session, new page insert block; preserve order; order: 3*/
+            var newSessionFound = true;
+            for (var ii = 0; ii < dataItems.length; ii++) {
+                if (data.TOSSessionKey === dataItems[ii].TOSSessionKey) {
+                    newSessionFound = false;
+                }
+            }
+
+            if (newSessionFound === true) {
+                dataItems.push(data);
+                console.error('IOS: New session found for current day given LS already has length>=1 !');
+                localStorage.setItem(currentDayKey, JSON.stringify(dataItems));
             }
         } else {
             var newItem = [];
@@ -1234,9 +1198,159 @@ TimeOnSiteTracker.prototype.upsertToLocalStorage = function(data) {
             console.log(JSON.stringify(newItem));
             localStorage.setItem(currentDayKey, JSON.stringify(newItem));
         }
+
+        this.updateCurrentSessionLocalStorageIOS();
     } else {
         console.warn('IOS: Local storage not supported for TimeOnSite tracking!');
     }
+};
+
+/**
+ * [flushDemoDataIOS Removes data from old keys in Localstorage for IOS]
+ */
+TimeOnSiteTracker.prototype.flushDemoDataIOS = function() {
+    // DEMO code block; Allow sample data to be overwritten and LS old date keys & data 
+    // to be removed; only for IOS demo
+    if (this.isFlushSampleDataIOS) {
+        var keyName = this.TOSDateKeysHolder,
+            dateKeys = this.getDateKeys(),
+            currentDayKey = this.getCurrentDayKey();
+
+        for (var i = 0; i < dateKeys.length; i++) {
+            if (dateKeys[i] != currentDayKey) {
+                console.warn('IOS: Demo Deleted Date item!');
+                console.warn(localStorage.getItem(dateKeys[i]));
+                localStorage.removeItem(dateKeys[i]);
+                console.warn('IOS: Demo Deleted Date Key!');
+                console.warn(dateKeys[i]);
+                dateKeys.splice(i, 1);
+            }
+        }
+
+        localStorage.setItem(keyName, JSON.stringify(dateKeys));
+        console.warn('IOS: Demo Updated Date Key Array after flush operation!');
+        console.warn(localStorage.getItem(keyName));
+    }
+};
+
+/**
+ * [getTimeOnSiteCurrentSessionIOS returns current time on site for IOS devices]
+ * @return {[integer]}
+ */
+TimeOnSiteTracker.prototype.getTimeOnSiteCurrentSessionIOS = function() {
+    var currentDayKey = this.getCurrentDayKey(),
+        currentItemsData, 
+        timeOnSite = 0,
+        currentSessionItems = localStorage.getItem(currentDayKey);
+    if (currentSessionItems) {
+        currentItemsData = JSON.parse(currentSessionItems);
+    }
+
+    if (currentItemsData && currentItemsData.length && this.TOSSessionKey) {
+        for (var i = 0; i < currentItemsData.length; i++) {
+            if (currentItemsData[i].trackingType === 'tos' &&
+                this.TOSSessionKey === currentItemsData[i].TOSSessionKey) {
+                timeOnSite += currentItemsData[i].timeOnPage;
+            }
+        }
+    } else {console.error('IOS: No current session data in Localstorage; or empty sessionKey : '+this.TOSSessionKey+' returning 0 as timeOnSite!');}
+
+    return timeOnSite;
+};
+
+/**
+ * [updateCurrentSessionLocalStorageIOS Updates each entry(type===tos) in Localstorage 
+ * with updated timeOnSite for current session]
+ */
+TimeOnSiteTracker.prototype.updateCurrentSessionLocalStorageIOS = function() {
+    var currentDayKey = this.getCurrentDayKey(),
+        currentSessionItems = localStorage.getItem(currentDayKey);
+    if (currentSessionItems) {
+        var currentItemsData = JSON.parse(currentSessionItems),
+            currentSessionTOSIdArr = [],
+            timeOnSite = 0;
+
+        if (currentItemsData && currentItemsData.length && this.TOSSessionKey) {
+            /* this loop "computes" timeOnSite for each tos record type in current session */
+            for (var i = 0; i < currentItemsData.length; i++) {
+                if (currentItemsData[i].trackingType === 'tos' &&
+                    this.TOSSessionKey === currentItemsData[i].TOSSessionKey) {
+                    currentSessionTOSIdArr.push(currentItemsData[i].TOSId);
+
+                    timeOnSite += currentItemsData[i].timeOnPage;
+                    currentItemsData[i].timeOnSite = timeOnSite;
+                    currentItemsData[i].timeOnSiteByDuration = ((this.returnInSeconds === true) ? this.secondToDuration(timeOnSite) : this.secondToDuration(this.millisecondToSecond(timeOnSite)));
+                }
+            }
+            console.error("IOS: Current session's active TOSId to spearhead timeonsite....");
+            console.error(currentSessionTOSIdArr);
+        }
+        
+        /* this loop "updates" the timeOnSite of current session's LS contents altogether 
+        in one go & exits the loop immediately on finding first active TOSId */
+        for (var i = 0; i < currentItemsData.length; i++) {
+            if (currentItemsData[i].trackingType === 'tos' &&
+                this.TOSSessionKey === currentItemsData[i].TOSSessionKey) {
+                var currentTimeStampVar = new Date();
+                var lastUpdatedTimeStampVar = new Date(currentItemsData[i]['lastUpdatedTimeStamp']);
+                console.error('IOS: Timestamp diffence value for TOSId: '+currentItemsData[i].TOSId+' : at index: '+i+' is '+ parseInt((currentTimeStampVar/1000) - (lastUpdatedTimeStampVar/1000)));
+                /**
+                Tab that has document focus & having valid timestamp (usually 
+                current tab) like below 5 seconds updates the entire session contents 
+                in Localstorage and exits the loop immediately.
+                */
+                if (parseInt((currentTimeStampVar/1000) - (lastUpdatedTimeStampVar/1000)) < 5) {
+                    console.error(currentItemsData[i].TOSId + ' updates the LS and breaks the loop');
+                    localStorage.setItem(currentDayKey, JSON.stringify(currentItemsData));
+                    console.log('IOS: Updated data');
+                    console.log(JSON.stringify(currentItemsData));
+                    break;
+                }
+            }
+        }
+    }
+};
+
+/**
+ * [getRecentSessionKeyIOS returns the current/most recent session key from LS in IOS]
+ * @return {[string]} [TOSSessionKey]
+ */
+TimeOnSiteTracker.prototype.getRecentSessionKeyIOS = function() {
+    var currentDayKey = this.getCurrentDayKey();
+    var currentSessionItems = localStorage.getItem(currentDayKey);
+    // variable "currentItemsData" can hold both tos & activity data for today
+    var currentItemsData = JSON.parse(currentSessionItems);
+    // variable "tosSessionsToday" can hold only tos data for today
+    var tosSessionsToday = [];
+    var recentTOSSessionKey = '';
+    if (currentItemsData && currentItemsData.length) {
+        for (var i = 0; i < currentItemsData.length; i++) {
+            if (currentItemsData[i].trackingType === 'tos') {
+                tosSessionsToday.push(currentItemsData[i]);
+            }
+        }
+
+        var tosSessionsTodayLen = tosSessionsToday.length;
+        if (tosSessionsTodayLen === 1) {
+            recentTOSSessionKey = tosSessionsToday[0].TOSSessionKey;
+        } else if (tosSessionsTodayLen > 1) {
+            /*due to array push mechanism, last or most recent session 
+            is found at the end of Localstorage*/
+            recentTOSSessionKey = tosSessionsToday[tosSessionsTodayLen -1].TOSSessionKey;
+        }
+    }
+    console.error('IOS: Most recent session key : ' + recentTOSSessionKey);
+    return recentTOSSessionKey;
+};
+
+/**
+ * [getCurrentDayKey returns current date key]
+ * @return {[string]}
+ */
+TimeOnSiteTracker.prototype.getCurrentDayKey = function() {
+    var dateObj = (new Date()),
+    currentDayKey = this.TOSDayKeyPrefix + (dateObj.getMonth() + 1) + '_' + dateObj.getDate() + '_' + dateObj.getFullYear();
+    return currentDayKey;
 };
 
 /**
@@ -1260,11 +1374,6 @@ TimeOnSiteTracker.prototype.processDataInLocalStorage = function() {
             if ((itemData instanceof Array) && itemData.length) {
                 this.sendData(dateKey, itemData);
             }
-        }
-    } else {
-        /* No date keys present on page load, new entry allowed */
-        if (this.isIOS()) {
-            this.isDataProcessedOnEntryIOS = true;
         }
     }
 };
@@ -1305,14 +1414,6 @@ TimeOnSiteTracker.prototype.removeDateKey = function(dateKey) {
 
                     if (dateKeys.length) {
                         this.processDataInLocalStorage();
-                    } else {
-                        /**
-                         * This section is called after all data is processed in all date keys
-                         */
-                        if (this.isIOS()) {
-                            console.error('IOS: ALL DATA PROCESSED ????');
-                            this.isDataProcessedOnEntryIOS = true;
-                        }
                     }
                 }
             }
@@ -1405,6 +1506,45 @@ TimeOnSiteTracker.prototype.verifyData = function(data) {
 };
 
 /**
+ * [isProcessingAllowedIOS IOS: tos data (not activity) can be processed
+ *  only based on certain parameters. false return value means
+ *   don't allow it to save data]
+ * @return {[boolean]}
+ */
+TimeOnSiteTracker.prototype.isProcessingAllowedIOS = function(dateKey, itemData) {
+    console.error('itemData[0].TOSSessionKey: ' + itemData[0].TOSSessionKey);
+    console.error('currentSessionKey: ' + this.getCookie(this.TOS_CONST.TOSSessionKey));
+
+    var self = this,
+        currentSessionKey = this.getCookie(this.TOS_CONST.TOSSessionKey);
+    if (itemData[0].trackingType === 'tos' && currentSessionKey &&
+        itemData[0].TOSSessionKey === currentSessionKey) {
+
+        /* IOS experimental */
+        // var iosStaleRecordTimeLimitInSecs = 10;
+        // var currentTimeStamp = new Date();
+        // var lastUpdatedTimeStamp = new Date(itemData[0]['lastUpdatedTimeStamp']);
+        // if (parseInt((currentTimeStamp/1000) - (lastUpdatedTimeStamp/1000)) > iosStaleRecordTimeLimitInSecs) {
+        // } else {}
+        
+        // since the current record belongs to active session, abandon XHR call
+        console.error('IOS: Block 1, not allowed to proceed now but later on because same session!');
+        return false;
+
+    } else if (!currentSessionKey) {
+        console.error('IOS: Block 2, not allowed to proceed now but later on because either session cookie not initiated!');
+        // at page entry, TOSSessionKey cookie won't be readily available; hence the delay to process records
+        setTimeout(function() {
+            self.sendData(dateKey, itemData);
+        }, 2000); // 2 seconds
+        return false;
+
+    }
+    
+    return true;
+};
+
+/**
  * [sendData This method reads data from local storage and make API calls with POST 
  * method synchronously for posting data to server one at a time. When page close event 
  * occurs, the API call is cancelled.]
@@ -1414,7 +1554,7 @@ TimeOnSiteTracker.prototype.verifyData = function(data) {
  */
 TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     var url = this.request.url,
-        params = JSON.stringify(itemData[0]),
+        params = itemData[0],
         self = this;
 
     /* check data consistency only for 'tos' type data */
@@ -1423,6 +1563,15 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
             this.updateStorageData(dateKey, itemData);
 
             return false;
+        }
+    }
+
+    if (this.isIOS()) {
+        if (this.isProcessingAllowedIOS(dateKey, itemData) === false) {
+            return false;
+        } else {
+            console.error('IOS: Block safe, Allowed to proceed further now & save in DB!');
+            delete params['lastUpdatedTimeStamp']; //remove temporary key 'lastUpdatedTimeStamp'
         }
     }
 
@@ -1458,6 +1607,8 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
             } 
         }
     }
+
+    params = JSON.stringify(params);
     this.xhr.send(params);
     
 };
@@ -1529,7 +1680,7 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
                     if (self.developerMode) {
                         console.log('Time spent on ACTIVITY so far : ' + self.activity.totalTimeSpent);
                     }
-                }    
+                }
             } else if (document[visibilityState] == 'hidden') {
                 if (self.developerMode) {
                     console.log('On invisible state, accumulated data array for TimeOnSite:');
@@ -1554,7 +1705,7 @@ TimeOnSiteTracker.prototype.bindWindowFocus = function() {
                     } else {
                         (self.activity.totalTimeSpentArr).push(self.getTimeDiff(self.activity.varyingStartTime, nowTime));
                     }
-                }    
+                }
             }
 
             if (self.developerMode) {
@@ -1708,7 +1859,7 @@ TimeOnSiteTracker.prototype.bindWindowUnload = function() {
 
     windowAttachEventListener(unloadEvent, function(event) { // For >=IE7, Chrome, Firefox
         //var message = 'Important: Please click on \'Save\' button to leave this page.';
-        if (typeof event == 'undefied') {
+        if (typeof event == 'undefined') {
             event = window.event;
         }
         if (event) {//event.returnValue = message;
@@ -1746,15 +1897,11 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
             this.callback(data);
         } else if (this.storeInLocalStorage) {
             if (this.isIOS()) {
-                // IOS devices, get updated data (0th index) and push it to localStorage
-                data = this.currentSessionIOSRecentData;
-                console.error('IOS: CHECK THIS data save during session SWAP !!!');
-                console.error(data);
-                this.saveToLocalStorage(data);
+                // Warning!!! saving data to saveToLocalStorage() will create duplicates; use upsert...
+                this.upsertToLocalStorageIOS(data);
             } else {
                 this.saveToLocalStorage(data);
             }
-            
         }
     }
 
@@ -1764,7 +1911,7 @@ TimeOnSiteTracker.prototype.processTOSData = function() {
     this.totalTimeSpent = 0,
     this.timeSpentArr = [];
 
-    if(this.config.trackHistoryChange === true) {
+    if (this.config.trackHistoryChange === true) {
         this.TOSId = this.createTOSId();
     }
 
