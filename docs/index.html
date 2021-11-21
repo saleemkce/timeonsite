@@ -119,7 +119,7 @@ console.log(Tos.getTimeOnPage());
 <p>If you could see TOS data, hooray! your TOS tracking is successful, that means, the TimeOnSiteTracker is correctly integrated in your site!</p>
 
 <p>
-<strong>Note 1</strong>: Time on page and Time on site are captured in milliseconds (Javascript's Date function) by default.
+<strong>Note</strong>: Time on page and Time on site are captured in milliseconds (Javascript's Date function) by default.
 </p>
 
 <a href="#getting-current-TOS-data"><h3 id="getting-current-TOS-data">Getting Current TOS data</h3></a>
@@ -214,7 +214,7 @@ Tos.getTimeOnPage();
         </tr>
     </table>
     <strong>* Note</strong>
-    <a href="../backend/index.html#PHP">Check this example for data types to be used in various databases like MySql, Mongo, Oracle etc.</a>
+    <a href="../backend/index.html#PHP">Check this example for data types to be used in various databases like MySql/Maria DB, MongoDB, Oracle etc.</a>
 </p>
 
 <h3 id="TOS-configuration-option">TOS configuration option</h3>
@@ -492,7 +492,7 @@ var config = {
                 }
             }
             
-            // make use of sendBeacon if this API is supported by your browser. sendBeacon is expenmental technology; it may not work well
+            // make use of sendBeacon if this API is supported by your browser. sendBeacon is experimental technology; it may not work well
             /*if (navigator && typeof navigator.sendBeacon === 'function') {
                 data.trasferredWith = 'sendBeacon';
                 var blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
@@ -517,6 +517,9 @@ var config = {
 
                 //Send the proper header information along with the request
                 xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+                // IOS/Safari ajax POST issue fixer without no-cache header
+                xhr.setRequestHeader('cache-control', 'no-cache');
 
                 xhr.onreadystatechange = function() {//Call a function when the state changes.
                     if (xhr.readyState == 4 && xhr.status == 200) {
@@ -720,7 +723,7 @@ var activityData = Tos.endActivity({}, manualProcess);
         </tr>
     </table>
     <strong>* Note</strong>
-    <a href="../backend/index.html#activity-tracking-PHP">Check this example for data types to be used in various databases like MySql, MongoDB, Oracle etc.</a>
+    <a href="../backend/index.html#activity-tracking-PHP">Check this example for data types to be used in various databases like MySql/Maria DB, MongoDB, Oracle etc.</a>
 </p>
 
 

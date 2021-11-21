@@ -146,7 +146,7 @@ module.exports.SaveTos = function(req, res, next) {
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The example uses node's express framework to handle server-side data. We have three files here for saving data with node.js. A route file, a model file and a controller file.<br/><br/>
                 * In route file, we create a route named "/tos" which is of POST method to accept data from incoming requests.
                 <br/><br/>
-                * In model file, we create new schema named "tos" which will save our TOS data. Since mongoDB is schema-free, we can save any number of fields in its collection. This is preferrable for collecting large number of custom data in TOS over RDBMS like MSSQL, MySql or Oracle.
+                * In model file, we create new schema named "tos" which will save our TOS data. Since mongoDB is schema-free, we can save any number of fields in its collection. This is preferrable for collecting large number of custom data in TOS over RDBMS like MSSQL, MySql/Maria DB or Oracle.
                 <br/><br/>
                 * In controller file, we just check if there is data in "SaveTos" method. Then we load schema file and save our TOS data. By now, you might check your mongoDB collection to see if there is any data saved successfully.
                 </p>
@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"));
     //print_r($data);
 
-    // Mysql DB credentials
+    // Mysql/Maria DB credentials
     $host = "localhost";
     $user = "root";
     $password = "";
@@ -297,7 +297,7 @@ module.exports.SaveActivity = function(req, res, next) {
 
 <h3 id="activity-tracking-PHP">Activity Tracking - PHP</h3>
 <pre class="prettyprint lang-sql">
-// Create database named "tosdata". Then, create table in any RDBMS (this example was tested in mysql DB) as follows:
+// Create database named "tosdata". Then, create table in any RDBMS (this example was tested in mysql/maria DB) as follows:
 
 CREATE TABLE `activity` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -325,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"));
     //print_r($data);
 
-    // Mysql DB credentials
+    // Mysql/Maria DB credentials
     $host = "localhost";
     $user = "root";
     $password = "";

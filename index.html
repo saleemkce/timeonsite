@@ -132,6 +132,7 @@
                     if (dataItem) {
                         IOSPeriodicData = JSON.parse(dataItem);
                     }
+                    var timeOnSiteIOS;
                     /*for IOS demo only */
 
 
@@ -139,13 +140,15 @@
                     $('#timeOnPageDuration').html((Tos.getTimeOnPage()).timeOnPageByDuration);
                     
                     if (isIOSDeviceInst && IOSPeriodicData) {
-                        $('#timeOnSiteRaw').html(IOSPeriodicData[0].timeOnSite);
+                        var timeOnSiteInitIOSDynamic = (Tos.getTimeOnPage()).timeOnSite;
+                        timeOnSiteIOS = (timeOnSiteInitIOSDynamic < Tos.getTimeOnPage().timeOnPage) ? Tos.getTimeOnPage().timeOnPage : timeOnSiteInitIOSDynamic;
+                        $('#timeOnSiteRaw').html(timeOnSiteIOS);
                     } else {
                         $('#timeOnSiteRaw').html((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage);
                     }
 
                     if (isIOSDeviceInst && IOSPeriodicData) {
-                        $('#timeOnSiteDuration').html(Tos.secondToDuration(IOSPeriodicData[0].timeOnSite));
+                        $('#timeOnSiteDuration').html(Tos.secondToDuration(timeOnSiteIOS));
                     } else {
                         $('#timeOnSiteDuration').html(Tos.secondToDuration((Tos.getTimeOnPage()).timeOnSite + (Tos.getTimeOnPage()).timeOnPage));
                     }
@@ -215,6 +218,11 @@
                     <a href="docs/index.html">Getting Started</a><br/>
                     <a href="backend/index.html">Reporting Dashboard in PHP/NodeJs</a><br/>
                     <a href="#licensedAndFreeVersions">Buy Licence/Use it free</a><br/>
+                    <a href="docs/releases.html">Release Notes (latest: "v1.2.0")</a><br/>
+
+                    <br/><br/>
+                    <a href="https://medium.com/@saleemkce">Medium(.com) blogs</a><br/>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSccM7md9rcalJOy-OhmWbrFtc0tN-AlZWKXipkU_4B4vSgM3g/viewform" target="_blank">Need support? (how-to, integration, payment issues...)</a>
                 </p>
 
                 <ul>
@@ -355,7 +363,7 @@
                         TimeOnSite Tracker can be used for free without purchasing a licence key in following cases:
                         <ul>
                             <li>Using it in non-production environments like development, test, stage etc. (ex. <strong>http://testing.example.com</strong>)</li> and for testing purposes
-                            <li>It's free to use for non-profit organizations and educational universities but it cannot be embedded in other open-source software, commerical software and libraries since it is per-domain based licence model.</li>
+                            <li>It's free to use for personal sites, non-profit organizations and educational universities but it cannot be embedded in other open-source software, commerical software and libraries since it is per-domain based licence model.</li>
                         </ul>
                     </p>
 
@@ -363,7 +371,7 @@
                     <p>
                         TimeOnSiteTracker.js is <strong>strictly commercial software</strong>. Using it in live/production servers and environments (ex. <strong>http://example.com</strong>) require that you purchase licence key. It's illegal to use without a valid licence key. The tracker snippet itself has to contain licence key to ensure that it's valid.
                         <ul>
-                            <li>The <strong>cost of licence is $38</strong> per year as of <script>document.write((new Date()).getFullYear())</script>.</li>
+                            <li>The <strong>cost of licence is $38 (USD)</strong> per year as of <script>document.write((new Date()).getFullYear())</script>.</li>
                             <li>The licence is <strong>website domain-specific</strong>. It's not specific to no. of users/products like other commercial software. Any no. of users/applications under a single domain (ex. <strong>http://example.com</strong>) can use the purchased software.</li>
                             
                             <li>Follow the instructions below for your site/app registration and buying licence. This license is valid for 1 year from the date of purchase. Once a year completes, you need to pay successive year for continued use. Licence key will be sent to your registered email id and is tagged with your domain name. This means you will have single license key mapped with your website as long as you wish to use. If you don't wish to use the software, you could stop paying for it.</li>
@@ -388,12 +396,17 @@
 
                             <div><strong>Note:</strong> Money paid is not refundable even if you use it for just 3 months and leave it in the rest of the year.<br/><br/></div>
 
-                            <div><strong>Support: </strong>If you did not receive licence key even after 10 days from the date of payment or have any payment issues, <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSccM7md9rcalJOy-OhmWbrFtc0tN-AlZWKXipkU_4B4vSgM3g/viewform">contact us and get support</a></div>
+                            <div><strong>Support: </strong>If you did not receive licence key even after 5 days or a week from the date of payment or have any payment issues, <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSccM7md9rcalJOy-OhmWbrFtc0tN-AlZWKXipkU_4B4vSgM3g/viewform">contact us and get support</a></div>
+
+                            <div><br/>
+                                <strong>Your support is always welcome!</strong>
+                                <h5>If you are a general user of timeonsite tracker and not willing to pay full licence money, you may contribute a smaller amount like $10 or $15 to show your support for us or as a token of love or to help us continue build a modern, transparent & accurate time-on-site tracker. You can use the same Paypal link above and customize it for smaller contribution.</h5>
+                            </div>
                         </p>
                     </p>
                 </p>
 
-                <p class="tos_development_info_bottom">Developed with love for web & analytics at <a href="https://en.wikipedia.org/wiki/Chennai">Chennai</a>, remember <a href="https://en.wikipedia.org/wiki/Marina_Beach">Marina</a>? All praise be to Almighty God.<br/>TimeonsiteTracker.js, the commercial software.
+                <p class="tos_development_info_bottom">Developed with love for web & analytics at <a href="https://en.wikipedia.org/wiki/Chennai">Chennai</a>, remember <a href="https://en.wikipedia.org/wiki/Marina_Beach">Marina</a>? All praise be to Almighty God.<br/>TimeonsiteTracker.js, the commercial software with free use options!.
                 </p>
             </section>
 
