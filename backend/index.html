@@ -158,7 +158,7 @@ module.exports.SaveTos = function(req, res, next) {
 
 CREATE TABLE `tos` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
- `tos_id` bigint(20) DEFAULT NULL,
+ `tos_id` decimal(30,0) DEFAULT NULL,
  `tos_session_key` varchar(50) DEFAULT NULL,
  `tos_user_id` varchar(1000) DEFAULT NULL,
  `url` varchar(10000) DEFAULT NULL,
@@ -301,7 +301,7 @@ module.exports.SaveActivity = function(req, res, next) {
 
 CREATE TABLE `activity` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
- `tos_id` bigint(20) DEFAULT NULL,
+ `tos_id` decimal(30,0) DEFAULT NULL,
  `tos_session_key` varchar(50) DEFAULT NULL,
  `tos_user_id` varchar(1000) DEFAULT NULL,
  `url` varchar(10000) DEFAULT NULL,
