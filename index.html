@@ -30,30 +30,44 @@
         <link rel="stylesheet" href="assets/css/sunburst.css">
         
 
-        <style>
-        /*.zoom {
-            display:inline-block;
-            position: relative;
-        }
-        
-        
-        .zoom:after {
-            content:'';
-            display:block; 
-            width:33px; 
-            height:33px; 
-            position:absolute; 
-            top:0;
-            right:0;
-            background:url(icon.png);
+        <style>        
+        .banner-commons {
+            font-familY: cursive;
+            font-size: 20px;
+            overflow-y: auto;
         }
 
-        .zoom img {
-            display: block;
+        .topper {
+            height: 33px;
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 2px;
+            color: #fff;
+            text-align: left;
+            padding-left: 10px;
         }
 
-        .zoom img::selection { background-color: transparent; }
-        */
+        .set-1 {
+            /*background: #ff8d8d;*/background: #bbbeb9;
+        }
+        .set-2 {
+            /*background: #ffa9e1;*/background: #9fa29e;
+        }
+        .set-3 {
+            /*background: #9885ff;*/background: #8f928f;
+        }
+        .set-4 {
+            /*background: #89aeff;*/background: #848884;
+        }
+        .set-5 {
+            /*background: #a1a2a0;*/background: #9fa29e;
+        }
+        .set-6 {
+            /*background: #d6b480;*/background: #bbbeb9;
+        }
+        .custom-thumbs-icon {
+            height: 20px;width: 20px;background: #fff;border-radius: 10px;
+        }
         </style>
 
 
@@ -63,10 +77,6 @@
 
         <!-- timeonsitetracker -->
         <script src="assets/js/timeonsitetracker.js"></script>
-
-        <!-- 
-            <script src="assets/js/jquery.zoom.js"></script>
-         -->
 
         <script>
             function isIOS() {
@@ -327,6 +337,36 @@
                     <img src='assets/img/time_on_site_highlights.png' style="width: 100%;" alt='Time on site highlights'/>
                 </p>
 
+                <div style="margin-bottom:15px;">
+                    <h2>Reasons why you should use <span style="color: #f65151;">Timeonsite</span>.<span style="color: #e45eff;">js</span> in your web site/apps today</h2>
+                    <h4>(works along with your other analytics tools! need not decommission other tracking tools!!!)</h4>
+                    <div class="banner-commons topper set-1">
+                        <img src="assets/img//thumbs_up.png" class="custom-thumbs-icon">
+                        &nbsp;Session duration for every pageview, even for bounce-rate pages!
+                    </div>
+                    <div class="banner-commons topper set-2">
+                        <img src="assets/img//thumbs_up.png" class="custom-thumbs-icon">
+                        &nbsp;Dismiss polling & unnecessary server hits for analytics!
+                    </div>
+                    <div class="banner-commons topper set-3">
+                        <img src="assets/img//thumbs_up.png" class="custom-thumbs-icon">
+                        &nbsp;Uses state-of-the-art sendBeacon API for unbeaten accuracy!
+                    </div>
+                    <div class="banner-commons topper set-4">
+                        <img src="assets/img//thumbs_up.png" class="custom-thumbs-icon">
+                        &nbsp;Measure User engagement with millions of table records!
+                    </div>
+                    <div class="banner-commons topper set-5">
+                        <img src="assets/img//thumbs_up.png" class="custom-thumbs-icon">
+                        &nbsp;Data Privacy and full control over your analytics data!
+                    </div>
+                    <div class="banner-commons topper set-6">
+                        <img src="assets/img//thumbs_up.png" class="custom-thumbs-icon">
+                        &nbsp;Understand user engagement & improve business productivity!
+                    </div>
+                </div>
+
+
                 <div>
                     <h2>Key features of TimeOnSite(TOS) Tracker</h2>
                     <ul>
@@ -337,6 +377,9 @@
                         <li>Tracks TOS data in <strong>Web</strong> and <strong>Mobile browsers</strong> efficiently</li>
                         <li>Readily available reporting & analytics application in PHP/NodeJs</li>
                     </ul>
+
+                    <h4 style="color: #ff6363;border-style: inset;padding: 3px;border-radius: 6px;">Important! Since the mid of 2021, sendBeacon() API is standard in most browsers; make use of it and achieve high accuracy; capture session-duration even for bounce-rated pages, a feature you regret missing in all other web analytic providers! <span style="font-size: 10px;color: #000;">(see "getting started" page for sendBeacon() real-time example)</span></h4>
+
                 </div>
 
                 <!--  <p style="display: inline-block;margin-top: 25px;">
@@ -392,11 +435,11 @@
 
                             <div>Registering your application and paying can be done in any order. When you press pay button and your payment is successful, your payment time (at Paypal) is recorded and you can continue to use the software for next 1 year.<br/><br/></div>
 
-                            <div>We would generate a licence key and send to your email available via step 1. It may take from 1 week to 10 days for us to generate and send your licence key. But you could start using the software from the moment you made the purchase. <a target="_blank" href="https://github.com/saleemkce/timeonsite">Download the software</a> <strong>timeonsitetracker.js</strong> or minified version and use it in your application. When we send your licence key via email, copy it and you have to manually overwrite the <strong>Licence Key: {your-license-key-here}</strong> line in software as given in image above.<br/><br/></div>
+                            <div>We would generate a licence key and send to your email available via step 1. It may take upto 3 days for us to send your licence key. But you could start using the software from the moment you made the purchase. <a target="_blank" href="https://github.com/saleemkce/timeonsite">Download the software</a> <strong>timeonsitetracker.js</strong> or minified version and use it in your application. When we send your licence key via email, copy it and you have to manually overwrite the <strong>Licence Key: {your-license-key-here}</strong> line in software as given in image above.<br/><br/></div>
 
                             <div><strong>Note:</strong> Money paid is not refundable even if you use it for just 3 months and leave it in the rest of the year.<br/><br/></div>
 
-                            <div><strong>Support: </strong>If you did not receive licence key even after 5 days or a week from the date of payment or have any payment issues, <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSccM7md9rcalJOy-OhmWbrFtc0tN-AlZWKXipkU_4B4vSgM3g/viewform">contact us and get support</a></div>
+                            <div><strong>Support: </strong>If you did not receive licence key even after 3 days from the date of payment or have any payment issues, <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSccM7md9rcalJOy-OhmWbrFtc0tN-AlZWKXipkU_4B4vSgM3g/viewform">contact us and get support</a></div>
 
                             <div><br/>
                                 <strong>Your support is always welcome!</strong>
