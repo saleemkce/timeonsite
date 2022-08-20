@@ -110,7 +110,7 @@ var TimeOnSiteTracker = function(config) {
     };
 
     //TimeOnSiteTracker.js version
-    this.version = '1.2.0';
+    this.version = '1.2.1';
 
     this.initialize(this.config);
 
