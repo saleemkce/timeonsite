@@ -110,7 +110,7 @@ var TimeOnSiteTracker = function(config) {
     };
 
     //TimeOnSiteTracker.js version
-    this.version = '1.2.0';
+    this.version = '1.2.1';
 
     this.initialize(this.config);
 
@@ -759,7 +759,7 @@ TimeOnSiteTracker.prototype.monitorSessionStateChange = function() {
 /**
  * [getSessionDuration gets session duration from cookie & validating against NaN
  * and other unintended data return types like null, undefined etc. when browser
- * tabs are in passive mode]
+ * tabs are in active & passive modes]
  * @return {[integer]} [sessionDuration]
  */
 TimeOnSiteTracker.prototype.getSessionDuration = function() {
@@ -780,12 +780,52 @@ TimeOnSiteTracker.prototype.getSessionDuration = function() {
 };
 
 /**
+ * [getDateDiffIndays gets time period difference in days between page entry time and
+ * current time. reviveBrokenSession logic for anonymous user only]
+ * @return {[integer]} [time period in days]
+ */
+// console.log(getDateDiffIndays(Tos.getTimeOnPage().entryTime, Tos.getTimeOnPage().currentTime));
+TimeOnSiteTracker.prototype.getDateDiffIndays = function(d1, d2) {
+    var diff = Date.parse(d2) - Date.parse(d1);
+    return Math.floor(diff / 86400000);
+}
+
+
+/**
  * [reviveBrokenSession when session key is broken due to device behaviour, it tries 
- * to restore it - for now; anonymous only & experimental]
+ * to restore it - for now; "anonymous" only & experimental]
  */
 TimeOnSiteTracker.prototype.reviveBrokenSession = function() {
     if (!this.getCookie(this.TOS_CONST.TOSUserId)) { /* anonymous check */
-        this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, this.sessionValidity.anonymous);
+        var entryToCurrentTimeDiffInDays = this.getDateDiffIndays(this.getTimeOnPage().entryTime, this.getTimeOnPage().currentTime);
+        console.info('reviveBrokenSession: Days diff count ' + entryToCurrentTimeDiffInDays);
+
+        if (entryToCurrentTimeDiffInDays < 1) {
+            // session key broken on same day of the session
+            this.setCookie(this.TOS_CONST.TOSSessionKey, this.TOSSessionKey, this.sessionValidity.anonymous);
+            console.error('reviveBrokenSession (same day, status:ok): TOSSessionKey ' + this.TOSSessionKey);
+        } else {
+            /* time period lapsed >= 1 day(s) since the sesssion key broken 
+            for an anonymous session */
+            
+            // stop any old timers if any this.createNewSession() API will now create a fresh one.
+            if (this.anonymousTimerId) {
+                clearInterval(this.anonymousTimerId);
+            }
+
+            /**
+             * "anonymous" only
+             * Instead of merely creating new sessionKey for the broken session, it's better to 
+             * create newSession function because the time lapsed can be more than 
+             * 1 day or many days. In this case,
+             * all params need to be refreshed i.e sessionKey, sessionDuration, anonymousTimerId
+             * etc. because all are now gone post the long inactive period.
+             */
+            this.createNewSession('anonymous');
+
+            console.error('reviveBrokenSession  (More than one day, status:ok): TOSSessionKey ' + this.TOSSessionKey);
+        }
+        
     }
     return this.TOSSessionKey;
 
@@ -1578,7 +1618,7 @@ TimeOnSiteTracker.prototype.sendData = function(dateKey, itemData) {
     this.xhr = null;
     if (window.XMLHttpRequest) {
         this.xhr = new XMLHttpRequest();
-    } else { // code for IE6, IE5
+    } else { // code for IE older versions
         this.xhr = new ActiveXObject('Microsoft.XMLHTTP');
     }
 
