@@ -50,11 +50,11 @@ var Tos;
         }
     };
     js.src = file;fjs.parentNode.insertBefore(js, fjs);
- } (document, 'script', 'TimeOnSiteTracker', '//cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.2.0/timeonsitetracker.min.js'));
+ } (document, 'script', 'TimeOnSiteTracker', '//cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.2.1/timeonsitetracker.min.js'));
 </script>
 ```
-* Place it just after starting &lt;head&gt; tag in your web app [https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.2.0/timeonsitetracker.min.js](https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.2.0/timeonsitetracker.min.js) 
-or from **CDNjs** [https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.0/timeonsitetracker.min.js](https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.0/timeonsitetracker.min.js)
+* Place it just after starting &lt;head&gt; tag in your web app [https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.2.1/timeonsitetracker.min.js](https://cdn.jsdelivr.net/gh/saleemkce/timeonsite@1.2.1/timeonsitetracker.min.js) 
+or from **CDNjs** [https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.1/timeonsitetracker.min.js](https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.1/timeonsitetracker.min.js)
 
 ## Quick Integration Steps
 [Documentation & Integration Steps](https://saleemkce.github.io/timeonsite/docs/index.html)
@@ -77,7 +77,7 @@ or from **CDNjs** [https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.0/timeo
 [https://saleemkce.github.io/timeonsite/docs/releases.html](https://saleemkce.github.io/timeonsite/docs/releases.html)
 
 ## Versions
-[https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.0/timeonsitetracker.min.js](https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.0/timeonsitetracker.min.js) **Version 1.2.0** (**latest**)
+[https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.1/timeonsitetracker.min.js](https://cdnjs.cloudflare.com/ajax/libs/timeonsite/1.2.1/timeonsitetracker.min.js) **Version 1.2.1** (**latest**)
 
 [https://github.com/saleemkce/timeonsite/tags](https://github.com/saleemkce/timeonsite/tags) (Older versions - just a legacy support, not recommended; you may upgrade today as is since we promised non-changing APIs)
 
